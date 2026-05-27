@@ -826,8 +826,16 @@ textarea.form-inp{resize:vertical;}
 #page-slotfloor .sf-hourly-bar.peak{opacity:1;box-shadow:0 0 0 1px #0891B2;}
 #page-slotfloor .sf-hourly-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--sf-text-3);font-family:var(--mono);margin-top:4px;}
 #page-slotfloor .sf-main-grid{display:grid;grid-template-columns:1fr;gap:18px;align-items:start;}
-#page-slotfloor .sf-side-panels{display:block;column-count:3;column-gap:16px;}
-#page-slotfloor .sf-side-panels .sf-section{break-inside:avoid;margin:0 0 16px;display:inline-block;width:100%;}
+#page-slotfloor .sf-side-panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;align-items:start;}
+#page-slotfloor .sf-side-panels .sf-section{margin:0;min-width:0;height:420px;display:flex;flex-direction:column;}
+#page-slotfloor .sf-side-panels .sf-section-head{padding:12px 14px;}
+#page-slotfloor .sf-side-panels .sf-section-title{font-size:13px;line-height:1.25;}
+#page-slotfloor .sf-side-panels .sf-drop-fc,
+#page-slotfloor .sf-side-panels .sf-voucher-panel{padding:12px 14px;flex:1;overflow-y:auto;min-height:0;}
+#page-slotfloor .sf-side-panels .sf-section > div:not(.sf-section-head):not(.sf-drop-fc):not(.sf-voucher-panel){flex:1;overflow-y:auto;min-height:0;}
+#page-slotfloor .sf-side-panels .sf-hp-item,
+#page-slotfloor .sf-side-panels .sf-ticket,
+#page-slotfloor .sf-side-panels .sf-event-item{padding:10px 14px;}
 #page-slotfloor .sf-section{background:var(--sf-surface);border:1px solid var(--sf-border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
 #page-slotfloor .sf-section-head{padding:14px 18px;border-bottom:1px solid var(--sf-border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
 #page-slotfloor .sf-section-title{font-size:14px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;color:var(--sf-text);}
@@ -973,11 +981,12 @@ textarea.form-inp{resize:vertical;}
   #page-slotfloor .sf-pb-grid{grid-template-columns:repeat(4,1fr);}
   #page-slotfloor .sf-loc-h-grid,#page-slotfloor .sf-nrt-panel,#page-slotfloor .sf-cashless-panel,#page-slotfloor .sf-main-grid{grid-template-columns:1fr;}
   #page-slotfloor .sf-slot-grid{grid-template-columns:repeat(2,1fr);}
-  #page-slotfloor .sf-side-panels{column-count:2;}
+  #page-slotfloor .sf-side-panels{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
 }
 @media(max-width:640px){
   #page-slotfloor .sf-pb-grid,#page-slotfloor .sf-slot-grid,#page-slotfloor .sf-nti-strip,#page-slotfloor .sf-cassettes,#page-slotfloor .sf-nti-mini{grid-template-columns:1fr;}
-  #page-slotfloor .sf-side-panels{column-count:1;}
+  #page-slotfloor .sf-side-panels{grid-template-columns:1fr;gap:12px;}
+  #page-slotfloor .sf-side-panels .sf-section{height:clamp(320px,52svh,420px);}
 }
 
 
@@ -16583,7 +16592,7 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
 <script>
 /* ======== SLOT FLOOR MODULE ======== */
 (function(){
-var sfTick=0,sfTimer=null,sfKioskOff=0,sfDone=false,sfView='performance';
+var sfTick=0,sfTimer=null,sfKioskOff=0,sfDone=false,sfView='performance',sfLastGridCols=0,sfResizeTimer=null;
 var sfGpScope='location',sfGpPeriod='today',sfGpPeriodNti={today:0,week:1,month:2,year:3};
 var sfH=[12,18,28,42,48,54,62,68,64,71,78,84,96,142,178,162,124,88];
 var sfHMax=Math.max.apply(null,sfH);
@@ -17522,6 +17531,7 @@ function sfBuildGrid(){
   }
   var gridW=el.clientWidth||window.innerWidth;
   var colCount=gridW<560?1:(gridW<840?2:3);
+  sfLastGridCols=colCount;
   var cols=[],colWeights=[];
   for(var c=0;c<colCount;c++){cols[c]=[];colWeights[c]=0;}
   sfSlots.forEach(function(s){
@@ -17808,6 +17818,17 @@ window._sfInit=function(){
     if(rb)rb.addEventListener('click',sfTickFn);
     var kr=document.getElementById('sf-kiosk-reset');
     if(kr)kr.addEventListener('click',function(){sfKioskOff+=1200;sfTickFn();sfToast('Kiosk serviced \u00b7 bill count reset','&#10003;',2200);});
+    window.addEventListener('resize',function(){
+      if(sfResizeTimer)clearTimeout(sfResizeTimer);
+      sfResizeTimer=setTimeout(function(){
+        if(!document.querySelector('#page-slotfloor.active'))return;
+        if(sfView==='aegis'||sfView==='pnl')return;
+        var grid=document.getElementById('sf-slot-grid');
+        var gridW=grid?grid.clientWidth:window.innerWidth;
+        var nextCols=gridW<560?1:(gridW<840?2:3);
+        if(nextCols!==sfLastGridCols)sfBuildGrid();
+      },120);
+    });
   }
   if(sfTimer)clearInterval(sfTimer);
   sfTimer=setInterval(sfTickFn,1000);
