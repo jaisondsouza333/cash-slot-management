@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cash and Slot Management System</title>
+<title>Lucky Charm Gaming · Cash &amp; Slot Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -702,7 +702,7 @@ textarea.form-inp{resize:vertical;}
 #page-slotfloor .sf-live-sync{color:#10B981;font-family:var(--mono);font-weight:700;}
 .sf-live-flash{animation:sfFlash .7s ease;}
 @keyframes sfFlash{0%{color:#10B981}35%{color:#059669;text-shadow:0 0 12px rgba(16,185,129,.35)}100%{color:inherit;text-shadow:none}}
-#page-slotfloor .sf-pb-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;}
+#page-slotfloor .sf-pb-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:1px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;}
 #page-slotfloor .sf-pb-kpi{background:rgba(255,255,255,.02);padding:13px 14px;}
 #page-slotfloor .sf-pb-kpi.cashless{background:rgba(6,182,212,.06);border-left:2px solid rgba(6,182,212,.5);}
 #page-slotfloor .sf-pb-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);font-weight:600;margin-bottom:8px;}
@@ -1812,23 +1812,87 @@ textarea.form-inp{resize:vertical;}
 #rp-activity-feed::-webkit-scrollbar { display:none; }
 .rp-feed-entry { animation: rpSlideIn .25s ease; }
 
-/* ============ ROUTE OPS AGENT PANEL ============ */
-#rp-agent-overlay {
-  display:none; position:fixed; inset:0; z-index:50000;
-  background:rgba(15,23,42,.45); backdrop-filter:blur(2px);
+/* ============ ROUTE OPS AGENT — RIGHT DRAWER + FAB ============ */
+
+/* Floating FAB launcher */
+#rp-agent-fab {
+  position:fixed; z-index:60000;
+  width:54px; height:54px; border-radius:50%;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  box-shadow:0 4px 20px rgba(79,70,229,.55);
+  display:flex; align-items:center; justify-content:center;
+  cursor:grab; border:none; outline:none;
+  transition:box-shadow .2s, transform .15s;
+  user-select:none;
+  bottom:80px; right:22px;
 }
+#rp-agent-fab:hover { box-shadow:0 6px 28px rgba(79,70,229,.7); transform:scale(1.07); }
+#rp-agent-fab:active { cursor:grabbing; transform:scale(.97); }
+#rp-agent-fab .fab-pulse {
+  position:absolute; inset:-5px; border-radius:50%;
+  border:2px solid rgba(79,70,229,.45);
+  animation:fabRipple 2s ease-in-out infinite;
+}
+@keyframes fabRipple { 0%,100%{opacity:0;transform:scale(1)} 50%{opacity:1;transform:scale(1.18)} }
+#rp-agent-fab .fab-badge {
+  position:absolute; top:1px; right:1px; width:14px; height:14px; border-radius:50%;
+  background:#ef4444; border:2px solid #fff;
+  font-size:7px; font-weight:800; color:#fff;
+  display:flex; align-items:center; justify-content:center;
+}
+#rp-agent-fab.fab-hidden { display:none !important; }
+
+/* Dim overlay behind the drawer */
+#rp-agent-overlay {
+  display:none; position:fixed; inset:0; z-index:59000;
+  background:rgba(15,23,42,.38); backdrop-filter:blur(2px);
+}
+#rp-agent-overlay.rp-fw-open { display:block; }
+
+/* The right-side drawer panel */
 #rp-agent-panel {
-  position:fixed; top:0; right:0; bottom:0; width:480px; max-width:95vw;
+  position:fixed; top:0; right:0; bottom:0;
+  width:480px; max-width:95vw;
   background:#ffffff; display:flex; flex-direction:column;
-  box-shadow:-12px 0 48px rgba(0,0,0,.5);
+  box-shadow:-12px 0 48px rgba(0,0,0,.22);
   animation:agentSlideIn .28s cubic-bezier(.16,1,.3,1);
   font-family:var(--font);
+  pointer-events:all;
+  z-index:59001;
+  transition:width .22s;
 }
 @keyframes agentSlideIn { from{transform:translateX(100%)} to{transform:none} }
-.rp-agent-head {
-  padding:14px 18px; border-bottom:1px solid #E5E7EB;
-  display:flex; align-items:center; gap:10px; flex-shrink:0; background:#F8FAFC;
+
+/* Minimized state handled by hiding overlay; class kept for transitions */
+#rp-agent-panel.rp-minimized { display:none; }
+
+/* Fullscreen: expand right-to-left (anchored to right:0) */
+#rp-agent-panel.rp-fullscreen {
+  width:100vw !important;
+  right:0;
+  left:auto;
 }
+
+.rp-agent-head {
+  padding:14px 14px; border-bottom:1px solid #E5E7EB;
+  display:flex; align-items:center; gap:9px; flex-shrink:0; background:#F8FAFC;
+  user-select:none;
+  cursor:default;
+}
+
+/* Window control buttons */
+.rp-win-controls { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+.rp-win-btn {
+  width:26px; height:26px; border-radius:6px;
+  border:1px solid #E5E7EB; background:transparent;
+  color:#64748B; cursor:pointer; font-size:12px;
+  display:grid; place-items:center; transition:all .12s;
+  flex-shrink:0; line-height:1;
+}
+.rp-win-btn:hover { background:#F1F3F6; color:#0F172A; border-color:#CBD5E1; }
+.rp-win-btn.rp-btn-min:hover { background:#FEF3C7; color:#D97706; border-color:#FDE68A; }
+.rp-win-btn.rp-btn-full:hover { background:#EEF2FF; color:#4f46e5; border-color:#C7D2FE; }
+.rp-win-btn.rp-btn-close:hover { background:#FEE2E2; color:#DC2626; border-color:#FECACA; }
 .rp-agent-logo {
   width:32px; height:32px; border-radius:8px;
   background:linear-gradient(135deg,#4f46e5,#7c3aed);
@@ -1841,8 +1905,7 @@ textarea.form-inp{resize:vertical;}
 .rp-agent-live { display:flex; align-items:center; gap:4px; font-size:10px; font-weight:700; color:#10b981; letter-spacing:.08em; }
 .rp-agent-live::before { content:''; width:6px; height:6px; border-radius:50%; background:#10b981; animation:agentPulse 1.4s ease-in-out infinite; }
 @keyframes agentPulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,.4)} 50%{opacity:.6;box-shadow:0 0 0 4px rgba(16,185,129,0)} }
-.rp-agent-close { width:28px; height:28px; border-radius:6px; border:1px solid #E5E7EB; background:transparent; color:#64748B; cursor:pointer; font-size:16px; display:grid; place-items:center; transition:all .12s; }
-.rp-agent-close:hover { background:#F1F3F6; color:#0F172A; }
+/* .rp-agent-close replaced by .rp-win-btn system */
 .rp-agent-usecases {
   padding:10px 14px; border-bottom:1px solid #E5E7EB; display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0;
 }
@@ -1852,39 +1915,76 @@ textarea.form-inp{resize:vertical;}
 }
 .rp-uc-chip:hover { border-color:#4f46e5; color:#4f46e5; background:#EEF2FF; }
 .rp-uc-chip.active { border-color:#4f46e5; color:#4f46e5; background:#EEF2FF; }
-.rp-agent-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; scrollbar-width:thin; scrollbar-color:#E5E7EB transparent; background:#F8FAFC; }
-.rp-msg-user { align-self:flex-end; max-width:85%; background:#4f46e5; color:#ffffff; padding:9px 13px; border-radius:12px 12px 2px 12px; font-size:12.5px; line-height:1.4; }
-.rp-msg-agent { align-self:flex-start; max-width:95%; }
-.rp-msg-agent-inner { background:#ffffff; border:1px solid #E5E7EB; border-radius:2px 12px 12px 12px; padding:10px 14px; font-size:12.5px; color:#0F172A; line-height:1.55; }
-.rp-msg-agent-inner b { color:#0F172A; }
+.rp-agent-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; scrollbar-width:thin; scrollbar-color:#E5E7EB transparent; background:#F1F5F9; }
+/* User bubble */
+.rp-msg-user { align-self:flex-end; max-width:85%; background:#4f46e5; color:#ffffff; padding:9px 13px; border-radius:12px 12px 2px 12px; font-size:12.5px; line-height:1.45; font-weight:500; }
+/* Agent bubble */
+.rp-msg-agent { align-self:flex-start; max-width:96%; width:100%; }
+.rp-msg-agent-inner {
+  background:#ffffff; border:1px solid #E2E8F0; border-radius:2px 12px 12px 12px;
+  padding:12px 16px; font-size:12.5px; color:#1E293B; line-height:1.6;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.rp-msg-agent-inner b { color:#0F172A; font-weight:700; }
 .rp-msg-agent-inner ul { margin:6px 0 0 14px; padding:0; }
-.rp-msg-agent-inner li { margin-bottom:3px; }
+.rp-msg-agent-inner li { margin-bottom:4px; color:#1E293B; }
+/* Inline bullet rows rendered by rpFormatAgentText */
+.rp-msg-agent-inner .rp-bullet { display:flex; gap:7px; margin:3px 0; color:#1E293B; }
+.rp-msg-agent-inner .rp-bullet-num { color:#7c3aed; font-weight:700; flex-shrink:0; min-width:16px; }
+.rp-msg-agent-inner .rp-bullet-dot { color:#4f46e5; flex-shrink:0; margin-top:1px; }
+/* ACTION call-out box */
+.rp-action-box {
+  margin-top:10px; padding:9px 12px;
+  background:#EEF2FF; border-left:3px solid #4f46e5; border-radius:0 8px 8px 0;
+  font-size:12px; color:#1E293B;
+}
+.rp-action-box .rp-action-label { color:#4338CA; font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:3px; }
+/* Tool call card */
 .rp-tool-block {
-  background:#F1F3F6; border:1px solid #E5E7EB; border-radius:8px;
+  background:#FAF5FF; border:1px solid #DDD6FE; border-radius:10px;
   margin-bottom:6px; overflow:hidden;
 }
 .rp-tool-header {
-  padding:6px 10px; display:flex; align-items:center; gap:8px; cursor:pointer;
-  user-select:none;
+  padding:9px 12px; display:flex; align-items:center; gap:9px; cursor:pointer;
+  user-select:none; transition:background .12s;
 }
-.rp-tool-name { font-size:11px; font-family:var(--mono); color:#7c3aed; font-weight:600; flex:1; }
-.rp-tool-status { font-size:10px; font-weight:700; }
-.rp-tool-status.running { color:#f59e0b; animation:agentBlink .7s ease-in-out infinite; }
-.rp-tool-status.done { color:#10b981; }
+.rp-tool-header:hover { background:#F3EEFF; }
+.rp-tool-name { font-size:12px; font-family:var(--font); color:#5B21B6; font-weight:600; flex:1; line-height:1.35; }
+.rp-tool-status { font-size:11px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+.rp-tool-status.running { color:#D97706; animation:agentBlink .7s ease-in-out infinite; }
+.rp-tool-status.done { color:#059669; }
 @keyframes agentBlink { 0%,100%{opacity:1} 50%{opacity:.4} }
-.rp-tool-body { padding:8px 10px; border-top:1px solid #E5E7EB; font-size:10.5px; font-family:var(--mono); color:#475569; max-height:120px; overflow-y:auto; white-space:pre-wrap; line-height:1.5; }
-.rp-typing { display:flex; gap:4px; align-items:center; padding:6px 0; }
-.rp-typing span { width:6px; height:6px; border-radius:50%; background:#6366f1; animation:agentTyping 1.2s ease-in-out infinite; }
+/* Tool body — plain English bullets */
+.rp-tool-body {
+  padding:10px 14px 12px; border-top:1px solid #DDD6FE; background:#F9F5FF;
+  font-size:12px; font-family:var(--font); color:#1E293B; max-height:220px;
+  overflow-y:auto; line-height:1.6;
+}
+.rp-tool-body-title { font-size:10.5px; font-weight:700; color:#7C3AED; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.rp-tool-bullet { display:flex; gap:7px; margin:3px 0; }
+.rp-tool-bullet.indent { padding-left:14px; }
+.rp-tool-bullet-icon { color:#7c3aed; flex-shrink:0; margin-top:2px; font-size:11px; }
+.rp-tool-bullet-text { color:#1E293B; font-size:11.5px; line-height:1.5; }
+/* Chevron toggle */
+.rp-tool-header::after { content:'▾'; color:#7c3aed; font-size:11px; margin-left:2px; transition:transform .2s; }
+.rp-tool-block.collapsed .rp-tool-header::after { transform:rotate(-90deg); }
+/* Spinning working indicator */
+@keyframes rpSpin { from{display:inline-block;transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.rp-tool-spin { display:inline-block; animation:rpSpin 1s linear infinite; }
+/* Typing dots */
+.rp-typing { display:flex; gap:4px; align-items:center; padding:10px 14px; background:#fff; border:1px solid #E2E8F0; border-radius:2px 12px 12px 12px; width:fit-content; }
+.rp-typing span { width:7px; height:7px; border-radius:50%; background:#6366f1; animation:agentTyping 1.2s ease-in-out infinite; }
 .rp-typing span:nth-child(2) { animation-delay:.2s; }
 .rp-typing span:nth-child(3) { animation-delay:.4s; }
 @keyframes agentTyping { 0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-4px);opacity:1} }
+/* Welcome card */
 .rp-insight-card {
-  background:#EEF2FF; border:1px solid #C7D2FE; border-radius:8px; padding:8px 12px;
-  margin-top:8px; display:flex; gap:10px; align-items:flex-start;
+  background:#EEF2FF; border:1px solid #C7D2FE; border-radius:10px; padding:10px 14px;
+  display:flex; gap:10px; align-items:flex-start;
 }
-.rp-insight-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
-.rp-insight-text { font-size:11.5px; color:#374151; line-height:1.4; }
-.rp-insight-text b { color:#0F172A; }
+.rp-insight-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.rp-insight-text { font-size:12px; color:#1E293B; line-height:1.5; }
+.rp-insight-text b { color:#0F172A; font-weight:700; }
 .rp-agent-bar { padding:10px 14px; border-top:1px solid #E5E7EB; display:flex; gap:8px; flex-shrink:0; background:#F8FAFC; }
 .rp-agent-input-el {
   flex:1; background:#ffffff; border:1px solid #D1D5DB; border-radius:8px;
@@ -1897,6 +1997,85 @@ textarea.form-inp{resize:vertical;}
 .rp-agent-send:hover { background:#4338ca; }
 .rp-agent-send:disabled { opacity:.5; cursor:not-allowed; }
 
+
+/* ================================================================
+   AEGIS SLOT FLOOR ENHANCEMENTS
+   ================================================================ */
+
+/* Date range picker bar */
+.sf-date-bar{display:flex;align-items:center;gap:8px;background:var(--sf-surface,#fff);border:1px solid var(--sf-border,#E5E7EB);border-radius:10px;padding:8px 14px;margin-bottom:14px;flex-wrap:wrap;}
+.sf-date-bar-label{font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;}
+.sf-date-input{padding:5px 10px;border:1px solid #E5E7EB;border-radius:7px;font-size:12px;font-family:var(--font);color:#0F172A;background:#F8FAFC;outline:none;cursor:pointer;}
+.sf-date-input:focus{border-color:#15803D;box-shadow:0 0 0 2px rgba(21,128,61,.1);}
+.sf-date-sep{color:#94A3B8;font-size:12px;font-weight:600;}
+.sf-retailer-select{padding:5px 10px;border:1px solid #E5E7EB;border-radius:7px;font-size:12px;font-family:var(--font);color:#0F172A;background:#F8FAFC;outline:none;cursor:pointer;min-width:160px;}
+.sf-date-go{padding:5px 14px;border-radius:7px;border:none;background:#0F172A;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .12s;}
+.sf-date-go:hover{background:#1E293B;}
+.sf-date-session{margin-left:auto;font-size:10.5px;color:#64748B;font-family:'DM Mono',monospace;}
+
+/* Site license badge */
+.sf-license-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:10.5px;font-weight:700;color:#1D4ED8;font-family:'DM Mono',monospace;}
+
+/* Dark machine alert */
+.sf-dark-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;background:#F1F5F9;border:1px solid #CBD5E1;border-radius:5px;font-size:9.5px;font-weight:700;color:#475569;margin-left:6px;}
+.sf-dark-badge.dark{background:#FEF2F2;border-color:#FECACA;color:#991B1B;}
+
+/* Hold % badge on machine card */
+.sf-hold-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;}
+.sf-hold-badge.good{background:#ECFDF5;color:#065F46;}
+.sf-hold-badge.warn{background:#FFFBEB;color:#92400E;}
+.sf-hold-badge.low{background:#FEF2F2;color:#991B1B;}
+
+/* AEGIS transaction report tab */
+.sf-aegis-table{width:100%;border-collapse:collapse;font-size:11px;}
+.sf-aegis-table th{padding:7px 10px;text-align:right;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748B;background:#F8FAFC;border-bottom:2px solid #E5E7EB;white-space:nowrap;}
+.sf-aegis-table th:first-child{text-align:left;}
+.sf-aegis-table td{padding:8px 10px;text-align:right;border-bottom:1px solid #F1F5F9;font-family:'DM Mono',monospace;font-size:11px;color:#0F172A;white-space:nowrap;}
+.sf-aegis-table td:first-child{text-align:left;font-family:var(--font);font-weight:600;font-size:12px;}
+.sf-aegis-table tr:hover td{background:#F8FAFC;}
+.sf-aegis-table tr.totals-row td{background:linear-gradient(90deg,#F0FDF4,#F8FAFC);border-top:2px solid #BBF7D0;font-weight:700;color:#14532D;border-bottom:none;}
+.sf-aegis-table tr.totals-row td:first-child{font-family:var(--font);font-weight:800;}
+.sf-aegis-table .nti-col{color:#15803D;font-weight:700;}
+.sf-aegis-table .neg-col{color:#DC2626;}
+.sf-aegis-table .warn-col{color:#D97706;}
+.sf-aegis-table .dark-row td{opacity:.55;background:#FAFBFC;}
+.sf-aegis-table .dark-row td:first-child{color:#DC2626;}
+.sf-aegis-session{padding:10px 16px 6px;font-size:10.5px;font-weight:700;color:#64748B;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB;}
+.sf-aegis-session .ts{font-family:'DM Mono',monospace;color:#475569;}
+
+/* Voucher vs Cash panel */
+.sf-voucher-panel{padding:14px 16px;}
+.sf-voucher-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748B;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.sf-voucher-big{font-family:'DM Mono',monospace;font-size:26px;font-weight:700;color:#0E7490;letter-spacing:-.03em;line-height:1;}
+.sf-voucher-sub{font-size:11px;color:#475569;margin-top:3px;}
+.sf-voucher-bar-wrap{margin:10px 0 6px;height:10px;border-radius:5px;overflow:hidden;display:flex;border:1px solid #BAE6FD;}
+.sf-voucher-bar-cash{background:#15803D;height:100%;transition:width .6s;}
+.sf-voucher-bar-tito{background:#0891B2;height:100%;transition:width .6s;}
+.sf-voucher-legend{display:flex;gap:12px;font-size:11px;}
+.sf-voucher-legend-item{display:flex;align-items:center;gap:5px;}
+.sf-voucher-legend-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.sf-voucher-rows{margin-top:10px;display:flex;flex-direction:column;gap:4px;}
+.sf-voucher-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px dashed #E5E7EB;font-size:11.5px;}
+.sf-voucher-row:last-child{border-bottom:none;}
+.sf-voucher-row-label{color:#0F172A;font-weight:500;}
+.sf-voucher-row-pct{color:#64748B;font-family:'DM Mono',monospace;font-size:10.5px;}
+.sf-voucher-row-amt{font-family:'DM Mono',monospace;font-weight:700;color:#0F172A;}
+
+/* Stranded credits KPI */
+.sf-pb-kpi.stranded{background:rgba(139,92,246,.06);border-left:2px solid rgba(139,92,246,.5);}
+.sf-pb-kpi.stranded .sf-pb-label{color:rgba(167,139,250,.85);}
+.sf-pb-kpi.stranded .sf-pb-value{color:#C4B5FD;}
+
+/* P&L Machine card view */
+.sf-pnl-row{display:grid;grid-template-columns:130px 1fr 1fr 1fr 1fr;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid #F1F5F9;font-size:11.5px;}
+.sf-pnl-row:last-child{border-bottom:none;}
+.sf-pnl-row.header{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94A3B8;padding-bottom:5px;border-bottom:2px solid #E5E7EB;}
+.sf-pnl-row.totals{background:#F0FDF4;border-radius:6px;padding:6px 4px;font-weight:700;border-top:2px solid #BBF7D0;margin-top:4px;border-bottom:none;}
+.sf-pnl-cell{font-family:'DM Mono',monospace;text-align:right;}
+.sf-pnl-cell.name{font-family:var(--font);text-align:left;font-weight:600;color:#0F172A;font-size:12px;}
+.sf-pnl-cell.green{color:#15803D;}
+.sf-pnl-cell.red{color:#DC2626;}
+.sf-pnl-cell.amber{color:#D97706;}
 
 /* ================================================================
    COMPLETE MOBILE & TABLET RESPONSIVE SYSTEM
@@ -2734,20 +2913,18 @@ input, select, textarea {
 <div id="mob-overlay" onclick="mobClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;"></div>
 <aside class="sidebar" id="main-sidebar">
   <div class="sidebar-logo" style="justify-content:center;padding:0 14px;">
-    <div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <div class="logo-mark" style="width:22px;height:22px;border-radius:5px;">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-            <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
-            <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white" opacity=".7"/>
-            <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white" opacity=".7"/>
-            <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity=".4"/>
-          </svg>
-        </div>
-        <div>
-          <div class="logo-text" style="font-size:12px;letter-spacing:-.01em;">Cash &amp; Slot</div>
-          <div class="logo-sub" style="font-size:9px;letter-spacing:.04em;">Management System</div>
-        </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:28px;height:28px;background:linear-gradient(135deg,#c0392b,#922b21);border-radius:7px;display:grid;place-items:center;flex-shrink:0;box-shadow:0 1px 3px rgba(146,43,33,.35),inset 0 -1.5px 0 rgba(0,0,0,.18);">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="2" width="7" height="7" rx="1.5" fill="white"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5" fill="white" opacity=".8"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5" fill="white" opacity=".8"/>
+          <rect x="11" y="11" width="7" height="7" rx="1.5" fill="white" opacity=".5"/>
+        </svg>
+      </div>
+      <div style="line-height:1.2;">
+        <div class="logo-text" style="font-size:12.5px;letter-spacing:-.01em;">Cash &amp; Slot</div>
+        <div class="logo-sub" style="font-size:8px;letter-spacing:.18em;text-transform:uppercase;">Management</div>
       </div>
     </div>
   </div>
@@ -3162,8 +3339,8 @@ input, select, textarea {
       </div>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;font-size:11px;color:var(--text3);">
-      <span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
-      <span style="font-weight:700;color:var(--text3);">account360.ai</span>
+      <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
+      
     </div>
   </div>
 
@@ -3611,8 +3788,8 @@ input, select, textarea {
   </div>
 
   <div style="display:flex;justify-content:space-between;padding:8px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(0.0.1)</strong></span>
-    <span style="font-weight:700;">account360.ai</span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(0.0.1)</strong></span>
+    
   </div>
 </div>
 
@@ -3985,8 +4162,8 @@ input, select, textarea {
   </div>
 
   <div style="display:flex;justify-content:space-between;padding:6px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(0.0.1)</strong></span>
-    <span style="font-weight:700;">account360.ai</span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(0.0.1)</strong></span>
+    
   </div>
 </div>
 
@@ -4080,7 +4257,7 @@ input, select, textarea {
     <button onclick="closeAcctTeamLoad()" style="padding:9px 24px;border-radius:100px;border:1px solid var(--border2);background:var(--surface);font-family:var(--font);font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;">Back</button>
     <button onclick="publishAndPrint()" style="padding:9px 24px;border-radius:100px;border:none;background:var(--text);color:#fff;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;">Publish And Print Slip</button>
   </div>
-  <div style="display:flex;justify-content:space-between;padding:6px 0 4px;font-size:11px;color:var(--text3);"><span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span><span style="font-weight:700;">account360.ai</span></div>
+  <div style="display:flex;justify-content:space-between;padding:6px 0 4px;font-size:11px;color:var(--text3);"><span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span></div>
 </div>
 
 
@@ -5313,8 +5490,8 @@ input, select, textarea {
 </div>
 
 <div class="footer-bar">
-  <span>© Copyright 2026 Droisys. All rights reserved. <span style="color: var(--text-secondary);">V.S(1.0.0.1)</span></span>
-  <span>account360.ai</span>
+  <span>Powered by Droisys Inc. <span style="color: var(--text-secondary);">V.S(1.0.0.1)</span></span>
+  
 </div>
 
 <!-- ============ PRINT SLIPS MODAL ============ -->
@@ -7586,8 +7763,8 @@ input, select, textarea {
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
-    <span style="font-weight:700;">account360.ai</span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
+    
   </div>
 </div>
 
@@ -8104,8 +8281,8 @@ function asDownloadCSV() {
   </div>
 
   <div style="display:flex;justify-content:space-between;padding:6px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
-    <span style="font-weight:700;">account360.ai</span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
+    
   </div>
 </div>
 
@@ -8208,8 +8385,8 @@ function asDownloadCSV() {
   </div>
 
   <div style="display:flex;justify-content:space-between;padding:6px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Droisys. All rights reserved. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
-    <span style="font-weight:700;">account360.ai</span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(1.0.0.1)</strong></span>
+    
   </div>
 </div>
 
@@ -9258,7 +9435,7 @@ function mkDownloadCSV() {
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Lucky Charm Gaming. All rights reserved. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
     <span style="color:var(--red-text);font-weight:700;">This environment is for testing purpose only.</span>
     <span style="font-weight:700;color:var(--text3);">Powered by DROISYS</span>
   </div>
@@ -9782,7 +9959,7 @@ function umDownloadCSV(){
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Lucky Charm Gaming. All rights reserved. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
     <span style="color:var(--red-text);font-weight:700;">This environment is for testing purpose only.</span>
     <span style="font-weight:700;color:var(--text3);">Powered by DROISYS</span>
   </div>
@@ -10168,7 +10345,7 @@ function rmDownloadCSV(){
     </div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Lucky Charm Gaming. All rights reserved. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
     <span style="color:var(--red-text);font-weight:700;">This environment is for testing purpose only.</span>
     <span style="font-weight:700;color:var(--text3);">Powered by DROISYS</span>
   </div>
@@ -10363,7 +10540,7 @@ function clDownloadCSV() {
 <div class="app-footer">
   <span>© 2026 Cash &amp; Slot Management System · V.Q(1.0.0)</span>
   <span class="env-warn">This environment is for testing purpose only.</span>
-  <span>Powered by Lucky Charm Gaming</span>
+  <span>Powered by Droisys Inc.</span>
 </div>
 
 <!-- DRILL-DOWN PANEL -->
@@ -14169,7 +14346,7 @@ window.addEventListener('load', bootDashboard);
   </div>
 
   <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px;font-size:11px;color:var(--text3);">
-    <span>© Copyright 2026 Lucky Charm Gaming. All rights reserved. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
+    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.Q(1.0.1)</strong></span>
     <span style="color:var(--red-text);font-weight:700;">This environment is for testing purpose only.</span>
     <span style="font-weight:700;color:var(--text3);">Powered by DROISYS</span>
   </div>
@@ -15412,6 +15589,26 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
     <span id="sf-toast-msg"></span>
   </div>
 
+  <!-- Date range + Retailer Group filter -->
+  <div class="sf-date-bar">
+    <span class="sf-date-bar-label">Report range</span>
+    <input type="date" class="sf-date-input" id="sf-date-start"/>
+    <span class="sf-date-sep">→</span>
+    <input type="date" class="sf-date-input" id="sf-date-end"/>
+    <select class="sf-retailer-select" id="sf-retailer-group" onchange="sfApplyDateRange()">
+      <option value="all">All Retailers</option>
+      <option value="eastside">Eastside Hotel</option>
+      <option value="airport">Airport Terminal</option>
+      <option value="central">Central Plaza</option>
+      <option value="grand">Grand Hotel &amp; Casino</option>
+      <option value="summerlin">Summerlin Gateway</option>
+      <option value="henderson">Henderson Station</option>
+      <option value="fremont">Fremont East</option>
+    </select>
+    <button class="sf-date-go" onclick="sfApplyDateRange()">Go</button>
+    <span class="sf-date-session" id="sf-session-ts"></span>
+  </div>
+
   <!-- Portfolio band -->
   <div class="sf-portfolio-band">
     <div class="sf-pb-head">
@@ -15432,6 +15629,7 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
       <div class="sf-pb-kpi"><div class="sf-pb-label">Drops &middot; 48h</div><div class="sf-pb-value">62</div><div class="sf-pb-foot"><span class="sf-delta down">14 overdue</span></div></div>
       <div class="sf-pb-kpi"><div class="sf-pb-label">Service tickets</div><div class="sf-pb-value">38</div><div class="sf-pb-foot"><span>9 P1 &middot; 14 P2 &middot; 15 P3</span></div></div>
       <div class="sf-pb-kpi cashless"><div class="sf-pb-label">Cashless &middot; today</div><div class="sf-pb-value">$883K</div><div class="sf-pb-foot"><span class="sf-delta up">48% mix</span><span>+5.2pp WoW</span></div></div>
+      <div class="sf-pb-kpi stranded"><div class="sf-pb-label">Stranded credits</div><div class="sf-pb-value" id="sf-pb-stranded">$4,820</div><div class="sf-pb-foot"><span>15 machines &middot; end-of-session</span></div></div>
     </div>
   </div>
 
@@ -15446,6 +15644,10 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
         <div class="sf-loc-h-meta">
           <div class="row" style="font-family:'JetBrains Mono',monospace;color:#94A3B8;font-size:11px" id="sf-loc-h-id">LOC-1009 &middot; ROUTE LV-EAST-04</div>
           <div class="row" id="sf-loc-h-addr">4220 Boulder Hwy, Las Vegas NV</div>
+          <div class="row" style="margin-top:4px;display:flex;align-items:center;gap:8px;">
+            <span class="sf-license-badge" id="sf-license-badge">&#127917; Site Lic: 128701472</span>
+            <span style="font-size:10.5px;color:#94A3B8;font-family:'DM Mono',monospace;" id="sf-loc-session">Session 5:35:14 AM</span>
+          </div>
           <div class="row" style="margin-top:6px">
             <span class="sf-pill dot">Critical &middot; drop overdue</span>
             <span class="sf-pill success dot" id="sf-online-pill">15/15 online</span>
@@ -15576,6 +15778,8 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
             <span class="sf-tab" data-view="cash" onclick="sfSwitchTab(this)">Cash</span>
             <span class="sf-tab" data-view="cashless" onclick="sfSwitchTab(this)">Cashless</span>
             <span class="sf-tab" data-view="service" onclick="sfSwitchTab(this)">Service</span>
+            <span class="sf-tab" data-view="aegis" onclick="sfSwitchTab(this)">AEGIS Report</span>
+            <span class="sf-tab" data-view="pnl" onclick="sfSwitchTab(this)">P&amp;L</span>
           </div>
         </div>
         <div class="sf-slot-grid" id="sf-slot-grid"></div>
@@ -15595,6 +15799,10 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
           <div style="margin-top:12px;padding-top:12px;border-top:1px solid #E5E7EB;font-size:12px;display:flex;justify-content:space-between"><span style="color:#475569">Combined forecast</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#0F172A" id="sf-combined-fc">$80,670</span></div>
           <button class="sf-btn sf-btn-dark" style="width:100%;justify-content:center;margin-top:12px" onclick="sfBundleLoomis()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Bundle into Loomis run &middot; Thu</button>
         </div>
+      </div>
+      <div class="sf-section">
+        <div class="sf-section-head"><div class="sf-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0891B2" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M6 14h.01M10 14h4"/></svg>Voucher vs Cash split</div></div>
+        <div class="sf-voucher-panel" id="sf-voucher-panel"><!-- built by JS --></div>
       </div>
       <div class="sf-section">
         <div class="sf-section-head"><div class="sf-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5"><polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8 12 2"/></svg>Hand pays &amp; jackpots</div></div>
@@ -16000,43 +16208,71 @@ window.sfSelectPeriod=function(el,period){
 var sfSlotTabViews={
   performance: function(s){
     var isPack=s.type==='pack';
+    var ntiNum=sfGetField(s,'ntiNum');
+    var bvAmt=s._hist&&s._hist.bvAmt!==undefined?s._hist.bvAmt:s.bv.amt;
+    var bvPct=s._hist&&s._hist.bvPct!==undefined?s._hist.bvPct:s.bv.pct;
+    var bvDrop=s._hist&&s._hist.bvDrop!==undefined?s._hist.bvDrop:s.bv.drop;
+    var bvUrgency=s._hist&&s._hist.bvUrgency!==undefined?s._hist.bvUrgency:s.bv.urgency;
+    var clPct=s._hist&&s._hist.cashlessPct!==undefined?s._hist.cashlessPct:s.cashless.pct;
+    var clAmt=s._hist&&s._hist.cashlessAmt!==undefined?s._hist.cashlessAmt:s.cashless.amt;
+    var clTito=s._hist&&s._hist.cashlessTito!==undefined?s._hist.cashlessTito:s.cashless.tito;
+    var clWallet=s._hist&&s._hist.cashlessWallet!==undefined?s._hist.cashlessWallet:s.cashless.wallet;
+    var fundsIn=sfGetField(s,'fundsIn');
+    var holdPct=sfGetField(s,'holdPct');
+    var lift=sfGetLift(s);
+    var holdCls=holdPct>=11?'good':holdPct>=8?'warn':'low';
+    var darkAlert=sfGetField(s,'dark')?'<span class="sf-dark-badge dark">⚠ Dark</span>':'';
+    var bvDrBadge='<span class="sf-drop-badge'+(bvUrgency==='urgent'?' crit':bvUrgency==='soon'?' warn':'')+'">'+bvDrop+'</span>';
     var mid;
     if(isPack){
       var oc=s.pack.totalGames-s.pack.games.length;
-      var on=s.ntiNum-s.pack.games.reduce(function(a,g){return a+g.nti;},0);
-      mid='<div class="sf-pack-games"><div class="sf-pack-games-head"><span>Games today</span><span>'+s.pack.totalGames+' titles</span></div>'+s.pack.games.map(function(g){return '<div class="sf-pack-game"><div class="sf-pack-game-name">'+g.name+'</div><div class="sf-pack-game-nti">$'+g.nti+'</div><span class="sf-pack-game-lift '+sfLC(g.lift)+'">'+g.lift+'</span></div>';}).join('')+'<div class="sf-pack-games-more"><span>+'+oc+' more</span><span>$'+on+'</span></div></div>';
+      var m2=s._hist?(sfGetField(s,'ntiNum')/Math.max(1,s.ntiNum)):1;
+      var gameSum=s.pack.games.reduce(function(a,g){return a+g.nti;},0);
+      var on=Math.max(0,Math.round(ntiNum-gameSum*m2));
+      mid='<div class="sf-pack-games"><div class="sf-pack-games-head"><span>Games today</span><span>'+s.pack.totalGames+' titles</span></div>'+s.pack.games.map(function(g){var gn=Math.round(g.nti*m2);return '<div class="sf-pack-game"><div class="sf-pack-game-name">'+g.name+'</div><div class="sf-pack-game-nti">$'+gn+'</div><span class="sf-pack-game-lift '+sfLC(g.lift)+'">'+g.lift+'</span></div>';}).join('')+'<div class="sf-pack-games-more"><span>+'+oc+' more</span><span>$'+on+'</span></div></div>';
     }else{
-      var cold=s.lift.charAt(0)==='-'||s.lift.charCodeAt(0)===8722;
-      var hr=s.bench.peak-s.ntiNum;
+      var cold=lift.charAt(0)==='-'||lift.charCodeAt(0)===8722;
+      var hr=Math.max(0,s.bench.peak-ntiNum);
       var act=cold?'<span class="sf-bm-action swap">swap candidate</span>':'<span class="sf-bm-action">+$'+hr.toLocaleString()+'/d to peak</span>';
       mid='<div class="sf-benchmark-line'+(cold?' swap':'')+'"><span style="font-size:10px;flex-shrink:0;opacity:.7">&#127919;</span><span class="sf-bm-text"><span style="font-size:9.5px;text-transform:uppercase;font-weight:700;color:#94A3B8">mkt</span><span class="v">$'+s.bench.avg+'</span><span class="sep">avg/</span><span class="v">$'+s.bench.peak+'</span><span class="sep">peak</span></span>'+act+'</div>';
     }
     return mid
-      +'<div><div class="sf-flow-line bv"><div class="sf-flow-line-icon bv">$</div><div style="min-width:0"><div class="sf-flow-line-data"><span class="sf-flow-line-amt">$'+s.bv.amt.toLocaleString()+'</span><span class="sf-flow-line-meta">BV '+s.bv.pct+'%</span></div><div class="sf-bv-bar-mini"><div class="'+sfBF(s.bv.pct)+'" style="width:'+s.bv.pct+'%"></div></div></div>'+sfDB(s.bv)+'</div>'
-      +'<div class="sf-flow-line"><div class="sf-flow-line-icon cl">&#128179;</div><div style="min-width:0"><div class="sf-flow-line-data"><span class="sf-flow-line-amt">'+s.cashless.pct+'%</span><span class="sf-flow-line-meta">cashless $'+s.cashless.amt.toLocaleString()+'</span></div><div class="sf-flow-line-meta" style="font-size:10px;margin-top:2px">'+s.cashless.tito+' TITO &middot; '+s.cashless.wallet+' wallet</div></div></div></div>';
+      +'<div><div class="sf-flow-line bv"><div class="sf-flow-line-icon bv">$</div><div style="min-width:0"><div class="sf-flow-line-data"><span class="sf-flow-line-amt">$'+bvAmt.toLocaleString()+'</span><span class="sf-flow-line-meta">BV '+bvPct+'%</span></div><div class="sf-bv-bar-mini"><div class="'+sfBF(bvPct)+'" style="width:'+bvPct+'%"></div></div></div>'+bvDrBadge+'</div>'
+      +'<div class="sf-flow-line"><div class="sf-flow-line-icon cl">&#128179;</div><div style="min-width:0"><div class="sf-flow-line-data"><span class="sf-flow-line-amt">'+clPct+'%</span><span class="sf-flow-line-meta">cashless $'+clAmt.toLocaleString()+'</span></div><div class="sf-flow-line-meta" style="font-size:10px;margin-top:2px">'+clTito+' TITO &middot; '+clWallet+' wallet</div></div></div></div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-top:6px;padding-top:6px;border-top:1px dashed #E5E7EB">'
+      +'<span class="sf-hold-badge '+holdCls+'">Hold '+holdPct+'%</span>'
+      +'<span style="font-size:10px;color:#94A3B8">Funds In '+sfM(fundsIn)+'</span>'
+      +darkAlert+'</div>';
   },
   cash: function(s){
-    var fillCls=sfBF(s.bv.pct);
+    var bvAmt=s._hist&&s._hist.bvAmt!==undefined?s._hist.bvAmt:s.bv.amt;
+    var bvPct=s._hist&&s._hist.bvPct!==undefined?s._hist.bvPct:s.bv.pct;
+    var bvDrop=s._hist&&s._hist.bvDrop!==undefined?s._hist.bvDrop:s.bv.drop;
+    var bvUrgency=s._hist&&s._hist.bvUrgency!==undefined?s._hist.bvUrgency:s.bv.urgency;
+    var fillCls=sfBF(bvPct);
     var fillColor=fillCls==='crit'?'#EF4444':fillCls==='warn'?'#F59E0B':'#10B981';
-    var barWidth=Math.min(100,s.bv.pct);
+    var barWidth=Math.min(100,bvPct);
     var gname=(s.type==='pack'?(s.pack&&s.pack.name||'Pack'):(s.game||'Slot #'+s.id));
     var safeGname=gname.replace(/'/g,'').replace(/"/g,'');
+    var bvDrBadge='<span class="sf-drop-badge'+(bvUrgency==='urgent'?' crit':bvUrgency==='soon'?' warn':'')+'">'+bvDrop+'</span>';
     return '<div style="padding:4px 0">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px"><span style="font-weight:700;color:#0F172A">$'+s.bv.amt.toLocaleString()+'</span><span style="color:#475569">'+s.bv.pct+'% full &middot; cap $'+Math.round(s.bv.cap/1000)+'K</span></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:11px"><span style="font-weight:700;color:#0F172A">$'+bvAmt.toLocaleString()+'</span><span style="color:#475569">'+bvPct+'% full &middot; cap $'+Math.round(s.bv.cap/1000)+'K</span></div>'
       +'<div style="height:10px;background:#F1F3F6;border-radius:5px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+barWidth+'%;background:'+fillColor+';border-radius:5px;transition:width .5s"></div></div>'
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
-      +'<span style="font-size:11px;color:#475569">Next drop</span>'
-      +sfDB(s.bv)
-      +'</div>'
-      +'</div>'
+      +'<span style="font-size:11px;color:#475569">Next drop</span>'+bvDrBadge
+      +'</div></div>'
       +'<button onclick="sfScheduleItem(this.closest(\''+'.sf-slot-card'+'\'),\''+safeGname+'\')" style="margin-top:2px;width:100%;padding:5px 0;border-radius:6px;border:1px solid #E5E7EB;background:#fff;font-size:11px;font-weight:600;cursor:pointer;color:#0F172A">&#128467; Schedule drop</button>';
   },
   cashless: function(s){
-    var walletPct=Math.round(s.cashless.wallet/(s.cashless.tito+s.cashless.wallet||1)*100);
+    var clPct=s._hist&&s._hist.cashlessPct!==undefined?s._hist.cashlessPct:s.cashless.pct;
+    var clAmt=s._hist&&s._hist.cashlessAmt!==undefined?s._hist.cashlessAmt:s.cashless.amt;
+    var clTito=s._hist&&s._hist.cashlessTito!==undefined?s._hist.cashlessTito:s.cashless.tito;
+    var clWallet=s._hist&&s._hist.cashlessWallet!==undefined?s._hist.cashlessWallet:s.cashless.wallet;
+    var walletPct=Math.round(clWallet/(clTito+clWallet||1)*100);
     var titoPct=100-walletPct;
     return '<div style="text-align:center;padding:6px 0 4px">'
-      +'<div style="font-size:28px;font-weight:700;font-family:monospace;color:#0E7490;letter-spacing:-.03em">'+s.cashless.pct+'%</div>'
-      +'<div style="font-size:11px;color:#475569;margin-top:1px">cashless mix &middot; $'+s.cashless.amt.toLocaleString()+' today</div>'
+      +'<div style="font-size:28px;font-weight:700;font-family:monospace;color:#0E7490;letter-spacing:-.03em">'+clPct+'%</div>'
+      +'<div style="font-size:11px;color:#475569;margin-top:1px">cashless mix &middot; $'+clAmt.toLocaleString()+' today</div>'
       +'</div>'
       +'<div style="margin-top:8px">'
       +'<div style="display:flex;height:7px;border-radius:4px;overflow:hidden;border:1px solid #BAE6FD;background:#ECFEFF">'
@@ -16044,8 +16280,8 @@ var sfSlotTabViews={
       +'<div style="width:'+titoPct+'%;background:#06B6D4;transition:width .5s"></div>'
       +'</div>'
       +'<div style="display:flex;justify-content:space-between;font-size:10px;color:#475569;margin-top:4px">'
-      +'<span>&#128179; '+s.cashless.wallet+' wallet sessions</span>'
-      +'<span>'+s.cashless.tito+' TITO</span>'
+      +'<span>&#128179; '+clWallet+' wallet sessions</span>'
+      +'<span>'+clTito+' TITO</span>'
       +'</div></div>';
   },
   service: function(s){
@@ -16073,37 +16309,446 @@ window.sfSwitchTab=function(el){
   sfBuildGrid();
 };
 
-/* ---- Slot Data ---- */
+/* ---- Slot Data (enriched with AEGIS VLCS fields) ---- */
 var sfSlots=[
-  {id:'01',asset:'A-7821',type:'single',game:'Lightning Link High Stakes',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.25',heat:'hot',lift:'+18%',nti:['$1,820','$11.4K','$48.3K','$52.1K','$156.3K'],ntiNum:1820,bench:{avg:1540,peak:2420},bv:{amt:2840,cap:3500,pct:81,drop:'~1d',urgency:'soon'},cashless:{pct:62,amt:1128,tito:86,wallet:38},jp:{name:'Lightning Link',tier:'Major',pool:'$48,210',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'2m',handpay:null},
-  {id:'02',asset:'A-7822',type:'single',game:'Dragon Cash Panda Magic',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.10',heat:'hot',lift:'+24%',nti:['$1,640','$10.2K','$44.6K','$48.9K','$97.8K'],ntiNum:1640,bench:{avg:1320,peak:2180},bv:{amt:2420,cap:3500,pct:69,drop:'~2d',urgency:'soon'},cashless:{pct:58,amt:951,tito:74,wallet:31},jp:{name:'Dragon Cash',tier:'Minor',pool:'$8,940',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'1m',handpay:{type:'jp',amt:'$640'}},
-  {id:'03',asset:'A-7823',type:'pack',mfr:'Aristocrat',cabinet:'Helix XT',denom:'multi',heat:'warm',lift:'+4%',pack:{brand:'Aristocrat',name:'Helix XT pack',desc:'multi-denom mix',totalGames:5,games:[{name:'Cash Express Luxury Line',nti:480,lift:'+12%'},{name:'Lucky Penguin',nti:290,lift:'-3%'},{name:'Tarzan Lord of the Jungle',nti:170,lift:'-18%'}]},nti:['$940','$6.8K','$31.2K','$33.4K','$66.8K'],ntiNum:940,bv:{amt:1820,cap:3500,pct:52,drop:'~4d',urgency:'ok'},cashless:{pct:41,amt:385,tito:32,wallet:14},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'6m',handpay:null},
-  {id:'04',asset:'A-7824',type:'single',game:'Wheel of Fortune 4D',mfr:'IGT',cabinet:'Crystal Curve',denom:'$1.00',heat:'hot',lift:'+12%',nti:['$1,210','$8.6K','$38.4K','$41.2K','$123.6K'],ntiNum:1210,bench:{avg:1080,peak:1820},bv:{amt:2680,cap:3500,pct:77,drop:'~2d',urgency:'soon'},cashless:{pct:51,amt:617,tito:58,wallet:22},jp:{name:'WoF Megajackpot',tier:'Grand',pool:'$1.24M',purple:true},service:{state:'ok',txt:'Operational'},lastSpin:'14s',handpay:{type:'hp',amt:'$1,820'}},
-  {id:'05',asset:'A-7825',type:'single',game:'Mighty Cash Double Up',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.25',heat:'warm',lift:'+2%',nti:['$820','$5.9K','$26.8K','$28.4K','$56.8K'],ntiNum:820,bench:{avg:800,peak:1420},bv:{amt:1480,cap:3500,pct:42,drop:'~5d',urgency:'ok'},cashless:{pct:37,amt:303,tito:26,wallet:11},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'4m',handpay:null},
-  {id:'06',asset:'A-7826',type:'single',game:'Lock It Link Diamonds',mfr:'L&W',cabinet:'Kascade',denom:'$0.25',heat:'hot',lift:'+21%',nti:['$1,490','$9.8K','$42.1K','$44.6K','$44.6K'],ntiNum:1490,bench:{avg:1230,peak:2180},bv:{amt:2920,cap:3500,pct:83,drop:'~1d',urgency:'soon'},cashless:{pct:64,amt:953,tito:92,wallet:36},jp:{name:'Powerhouse Link',tier:'Major',pool:'$24,890',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'32s',handpay:{type:'jp',amt:'$4,820'}},
-  {id:'07',asset:'A-7827',type:'single',game:'Munchkinland',mfr:'WMS',cabinet:'Bluebird 3',denom:'$0.01',heat:'cold',lift:'-28%',nti:['$310','$2.1K','$9.4K','$11.2K','$56.0K'],ntiNum:310,bench:{avg:430,peak:980},bv:{amt:3290,cap:3500,pct:94,drop:'TODAY',urgency:'urgent'},cashless:{pct:22,amt:68,tito:8,wallet:3},jp:null,service:{state:'warn',txt:'PM due 6d'},lastSpin:'38m',handpay:null},
-  {id:'08',asset:'A-7828',type:'pack',mfr:'IGT',cabinet:'Game King 30',denom:'multi',heat:'warm',lift:'+6%',pack:{brand:'IGT',name:'Game King',desc:'video poker 6-game',totalGames:6,games:[{name:'Triple Double Bonus Poker',nti:410,lift:'+8%'},{name:'Jacks or Better',nti:290,lift:'-3%'},{name:'Deuces Wild',nti:170,lift:'-8%'}]},nti:['$870','$6.4K','$28.9K','$30.6K','$122.4K'],ntiNum:870,bv:{amt:1620,cap:3500,pct:46,drop:'~4d',urgency:'ok'},cashless:{pct:44,amt:382,tito:34,wallet:15},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'2m',handpay:null},
-  {id:'09',asset:'A-7829',type:'single',game:'Game of Thrones Power Stacks',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.25',heat:'warm',lift:'+8%',nti:['$1,060','$7.4K','$33.6K','$35.4K','$106.2K'],ntiNum:1060,bench:{avg:980,peak:1720},bv:{amt:2140,cap:3500,pct:61,drop:'~3d',urgency:'ok'},cashless:{pct:49,amt:519,tito:42,wallet:18},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'1m',handpay:null},
-  {id:'10',asset:'A-7830',type:'single',game:'Dancing Drums Prosperity',mfr:'L&W',cabinet:'Kascade',denom:'$0.10',heat:'hot',lift:'+27%',nti:['$1,720','$10.9K','$45.8K','$49.2K','$73.8K'],ntiNum:1720,bench:{avg:1350,peak:2180},bv:{amt:2740,cap:3500,pct:78,drop:'~2d',urgency:'soon'},cashless:{pct:55,amt:946,tito:78,wallet:32},jp:{name:'Drums Linked',tier:'Mini',pool:'$1,820',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'8s',handpay:{type:'hp',amt:'$2,140'}},
-  {id:'11',asset:'A-7831',type:'single',game:'Reel Em In Big Bass Bucks',mfr:'WMS',cabinet:'Bluebird 3',denom:'$0.01',heat:'cold',lift:'-34%',nti:['$240','$1.6K','$7.2K','$9.4K','$56.4K'],ntiNum:240,bench:{avg:360,peak:820},bv:{amt:980,cap:3500,pct:28,drop:'~8d',urgency:'ok'},cashless:{pct:18,amt:43,tito:5,wallet:2},jp:null,service:{state:'crit',txt:'BV jam x2'},lastSpin:'38m',handpay:null},
-  {id:'12',asset:'A-7832',type:'single',game:'88 Fortunes Gold',mfr:'L&W',cabinet:'Kascade',denom:'$0.01',heat:'warm',lift:'+3%',nti:['$910','$6.4K','$28.4K','$30.1K','$90.3K'],ntiNum:910,bench:{avg:880,peak:1520},bv:{amt:1840,cap:3500,pct:53,drop:'~4d',urgency:'ok'},cashless:{pct:46,amt:419,tito:38,wallet:16},jp:{name:'88 Fortunes',tier:'Minor',pool:'$3,210',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'4m',handpay:null},
-  {id:'13',asset:'A-7833',type:'single',game:'Cash Eruption',mfr:'IGT',cabinet:'Crystal Curve',denom:'$0.25',heat:'warm',lift:'-2%',nti:['$780','$5.6K','$25.6K','$27.2K','$68.0K'],ntiNum:780,bench:{avg:800,peak:1440},bv:{amt:1340,cap:3500,pct:38,drop:'~6d',urgency:'ok'},cashless:{pct:33,amt:257,tito:22,wallet:9},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'3m',handpay:null},
-  {id:'14',asset:'A-7834',type:'single',game:'Buffalo Stampede',mfr:'Aristocrat',cabinet:'V32',denom:'$0.01',heat:'cold',lift:'-42%',nti:['$190','$1.3K','$5.8K','$8.4K','$33.6K'],ntiNum:190,bench:{avg:330,peak:720},bv:{amt:3180,cap:3500,pct:91,drop:'TODAY',urgency:'urgent'},cashless:{pct:14,amt:27,tito:3,wallet:1},jp:null,service:{state:'crit',txt:'Door open'},lastSpin:'2h 14m',handpay:null},
-  {id:'15',asset:'A-7835',type:'single',game:'Lightning Cash Tiki Fire',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.10',heat:'hot',lift:'+19%',nti:['$1,380','$9.2K','$40.6K','$43.1K','$86.2K'],ntiNum:1380,bench:{avg:1160,peak:1940},bv:{amt:2580,cap:3500,pct:74,drop:'~2d',urgency:'soon'},cashless:{pct:58,amt:800,tito:68,wallet:28},jp:{name:'Lightning Cash',tier:'Major',pool:'$18,940',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'22s',handpay:{type:'hp',amt:'$1,260'}}
+  {id:'01',asset:'A-7821',type:'single',game:'Lightning Link High Stakes',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.25',heat:'hot',lift:'+18%',nti:['$1,820','$11.4K','$48.3K','$52.1K','$156.3K'],ntiNum:1820,bench:{avg:1540,peak:2420},bv:{amt:2840,cap:3500,pct:81,drop:'~1d',urgency:'soon'},cashless:{pct:62,amt:1128,tito:86,wallet:38},jp:{name:'Lightning Link',tier:'Major',pool:'$48,210',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'2m',handpay:null,
+   cashIn:2840,voucherIn:680,fundsIn:3520,fundsOut:1700,currentCredits:142,amtPlayed:18420,amtWon:16600,netPlay:1820,holdPct:11.4,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'02',asset:'A-7822',type:'single',game:'Dragon Cash Panda Magic',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.10',heat:'hot',lift:'+24%',nti:['$1,640','$10.2K','$44.6K','$48.9K','$97.8K'],ntiNum:1640,bench:{avg:1320,peak:2180},bv:{amt:2420,cap:3500,pct:69,drop:'~2d',urgency:'soon'},cashless:{pct:58,amt:951,tito:74,wallet:31},jp:{name:'Dragon Cash',tier:'Minor',pool:'$8,940',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'1m',handpay:{type:'jp',amt:'$640'},
+   cashIn:2420,voucherIn:540,fundsIn:2960,fundsOut:1320,currentCredits:98,amtPlayed:16400,amtWon:14760,netPlay:1640,holdPct:12.2,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'03',asset:'A-7823',type:'pack',mfr:'Aristocrat',cabinet:'Helix XT',denom:'multi',heat:'warm',lift:'+4%',pack:{brand:'Aristocrat',name:'Helix XT pack',desc:'multi-denom mix',totalGames:5,games:[{name:'Cash Express Luxury Line',nti:480,lift:'+12%'},{name:'Lucky Penguin',nti:290,lift:'-3%'},{name:'Tarzan Lord of the Jungle',nti:170,lift:'-18%'}]},nti:['$940','$6.8K','$31.2K','$33.4K','$66.8K'],ntiNum:940,bv:{amt:1820,cap:3500,pct:52,drop:'~4d',urgency:'ok'},cashless:{pct:41,amt:385,tito:32,wallet:14},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'6m',handpay:null,
+   cashIn:1820,voucherIn:310,fundsIn:2130,fundsOut:1190,currentCredits:54,amtPlayed:9400,amtWon:8460,netPlay:940,holdPct:10.0,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'04',asset:'A-7824',type:'single',game:'Wheel of Fortune 4D',mfr:'IGT',cabinet:'Crystal Curve',denom:'$1.00',heat:'hot',lift:'+12%',nti:['$1,210','$8.6K','$38.4K','$41.2K','$123.6K'],ntiNum:1210,bench:{avg:1080,peak:1820},bv:{amt:2680,cap:3500,pct:77,drop:'~2d',urgency:'soon'},cashless:{pct:51,amt:617,tito:58,wallet:22},jp:{name:'WoF Megajackpot',tier:'Grand',pool:'$1.24M',purple:true},service:{state:'ok',txt:'Operational'},lastSpin:'14s',handpay:{type:'hp',amt:'$1,820'},
+   cashIn:2680,voucherIn:490,fundsIn:3170,fundsOut:1960,currentCredits:186,amtPlayed:12100,amtWon:10890,netPlay:1210,holdPct:10.7,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'05',asset:'A-7825',type:'single',game:'Mighty Cash Double Up',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.25',heat:'warm',lift:'+2%',nti:['$820','$5.9K','$26.8K','$28.4K','$56.8K'],ntiNum:820,bench:{avg:800,peak:1420},bv:{amt:1480,cap:3500,pct:42,drop:'~5d',urgency:'ok'},cashless:{pct:37,amt:303,tito:26,wallet:11},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'4m',handpay:null,
+   cashIn:1480,voucherIn:280,fundsIn:1760,fundsOut:940,currentCredits:62,amtPlayed:8200,amtWon:7380,netPlay:820,holdPct:9.8,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'06',asset:'A-7826',type:'single',game:'Lock It Link Diamonds',mfr:'L&W',cabinet:'Kascade',denom:'$0.25',heat:'hot',lift:'+21%',nti:['$1,490','$9.8K','$42.1K','$44.6K','$44.6K'],ntiNum:1490,bench:{avg:1230,peak:2180},bv:{amt:2920,cap:3500,pct:83,drop:'~1d',urgency:'soon'},cashless:{pct:64,amt:953,tito:92,wallet:36},jp:{name:'Powerhouse Link',tier:'Major',pool:'$24,890',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'32s',handpay:{type:'jp',amt:'$4,820'},
+   cashIn:2920,voucherIn:710,fundsIn:3630,fundsOut:2140,currentCredits:204,amtPlayed:14900,amtWon:13410,netPlay:1490,holdPct:11.4,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'07',asset:'A-7827',type:'single',game:'Munchkinland',mfr:'WMS',cabinet:'Bluebird 3',denom:'$0.01',heat:'cold',lift:'-28%',nti:['$310','$2.1K','$9.4K','$11.2K','$56.0K'],ntiNum:310,bench:{avg:430,peak:980},bv:{amt:3290,cap:3500,pct:94,drop:'TODAY',urgency:'urgent'},cashless:{pct:22,amt:68,tito:8,wallet:3},jp:null,service:{state:'warn',txt:'PM due 6d'},lastSpin:'38m',handpay:null,
+   cashIn:3290,voucherIn:40,fundsIn:3330,fundsOut:3020,currentCredits:18,amtPlayed:3100,amtWon:2790,netPlay:310,holdPct:2.9,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'08',asset:'A-7828',type:'pack',mfr:'IGT',cabinet:'Game King 30',denom:'multi',heat:'warm',lift:'+6%',pack:{brand:'IGT',name:'Game King',desc:'video poker 6-game',totalGames:6,games:[{name:'Triple Double Bonus Poker',nti:410,lift:'+8%'},{name:'Jacks or Better',nti:290,lift:'-3%'},{name:'Deuces Wild',nti:170,lift:'-8%'}]},nti:['$870','$6.4K','$28.9K','$30.6K','$122.4K'],ntiNum:870,bv:{amt:1620,cap:3500,pct:46,drop:'~4d',urgency:'ok'},cashless:{pct:44,amt:382,tito:34,wallet:15},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'2m',handpay:null,
+   cashIn:1620,voucherIn:260,fundsIn:1880,fundsOut:1010,currentCredits:44,amtPlayed:8700,amtWon:7830,netPlay:870,holdPct:10.0,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'09',asset:'A-7829',type:'single',game:'Game of Thrones Power Stacks',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.25',heat:'warm',lift:'+8%',nti:['$1,060','$7.4K','$33.6K','$35.4K','$106.2K'],ntiNum:1060,bench:{avg:980,peak:1720},bv:{amt:2140,cap:3500,pct:61,drop:'~3d',urgency:'ok'},cashless:{pct:49,amt:519,tito:42,wallet:18},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'1m',handpay:null,
+   cashIn:2140,voucherIn:380,fundsIn:2520,fundsOut:1460,currentCredits:76,amtPlayed:10600,amtWon:9540,netPlay:1060,holdPct:10.1,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'10',asset:'A-7830',type:'single',game:'Dancing Drums Prosperity',mfr:'L&W',cabinet:'Kascade',denom:'$0.10',heat:'hot',lift:'+27%',nti:['$1,720','$10.9K','$45.8K','$49.2K','$73.8K'],ntiNum:1720,bench:{avg:1350,peak:2180},bv:{amt:2740,cap:3500,pct:78,drop:'~2d',urgency:'soon'},cashless:{pct:55,amt:946,tito:78,wallet:32},jp:{name:'Drums Linked',tier:'Mini',pool:'$1,820',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'8s',handpay:{type:'hp',amt:'$2,140'},
+   cashIn:2740,voucherIn:620,fundsIn:3360,fundsOut:1640,currentCredits:168,amtPlayed:17200,amtWon:15480,netPlay:1720,holdPct:11.2,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'11',asset:'A-7831',type:'single',game:'Reel Em In Big Bass Bucks',mfr:'WMS',cabinet:'Bluebird 3',denom:'$0.01',heat:'cold',lift:'-34%',nti:['$240','$1.6K','$7.2K','$9.4K','$56.4K'],ntiNum:240,bench:{avg:360,peak:820},bv:{amt:980,cap:3500,pct:28,drop:'~8d',urgency:'ok'},cashless:{pct:18,amt:43,tito:5,wallet:2},jp:null,service:{state:'crit',txt:'BV jam x2'},lastSpin:'38m',handpay:null,
+   cashIn:980,voucherIn:20,fundsIn:1000,fundsOut:760,currentCredits:8,amtPlayed:2400,amtWon:2160,netPlay:240,holdPct:8.0,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'12',asset:'A-7832',type:'single',game:'88 Fortunes Gold',mfr:'L&W',cabinet:'Kascade',denom:'$0.01',heat:'warm',lift:'+3%',nti:['$910','$6.4K','$28.4K','$30.1K','$90.3K'],ntiNum:910,bench:{avg:880,peak:1520},bv:{amt:1840,cap:3500,pct:53,drop:'~4d',urgency:'ok'},cashless:{pct:46,amt:419,tito:38,wallet:16},jp:{name:'88 Fortunes',tier:'Minor',pool:'$3,210',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'4m',handpay:null,
+   cashIn:1840,voucherIn:320,fundsIn:2160,fundsOut:1250,currentCredits:88,amtPlayed:9100,amtWon:8190,netPlay:910,holdPct:9.6,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'13',asset:'A-7833',type:'single',game:'Cash Eruption',mfr:'IGT',cabinet:'Crystal Curve',denom:'$0.25',heat:'warm',lift:'-2%',nti:['$780','$5.6K','$25.6K','$27.2K','$68.0K'],ntiNum:780,bench:{avg:800,peak:1440},bv:{amt:1340,cap:3500,pct:38,drop:'~6d',urgency:'ok'},cashless:{pct:33,amt:257,tito:22,wallet:9},jp:null,service:{state:'ok',txt:'Operational'},lastSpin:'3m',handpay:null,
+   cashIn:1340,voucherIn:240,fundsIn:1580,fundsOut:800,currentCredits:38,amtPlayed:7800,amtWon:7020,netPlay:780,holdPct:9.9,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'14',asset:'A-7834',type:'single',game:'Buffalo Stampede',mfr:'Aristocrat',cabinet:'V32',denom:'$0.01',heat:'cold',lift:'-42%',nti:['$190','$1.3K','$5.8K','$8.4K','$33.6K'],ntiNum:190,bench:{avg:330,peak:720},bv:{amt:3180,cap:3500,pct:91,drop:'TODAY',urgency:'urgent'},cashless:{pct:14,amt:27,tito:3,wallet:1},jp:null,service:{state:'crit',txt:'Door open'},lastSpin:'2h 14m',handpay:null,
+   cashIn:3180,voucherIn:10,fundsIn:3190,fundsOut:3000,currentCredits:4,amtPlayed:1900,amtWon:1710,netPlay:190,holdPct:1.7,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false},
+  {id:'15',asset:'A-7835',type:'single',game:'Lightning Cash Tiki Fire',mfr:'Aristocrat',cabinet:'Helix XT',denom:'$0.10',heat:'hot',lift:'+19%',nti:['$1,380','$9.2K','$40.6K','$43.1K','$86.2K'],ntiNum:1380,bench:{avg:1160,peak:1940},bv:{amt:2580,cap:3500,pct:74,drop:'~2d',urgency:'soon'},cashless:{pct:58,amt:800,tito:68,wallet:28},jp:{name:'Lightning Cash',tier:'Major',pool:'$18,940',purple:false},service:{state:'ok',txt:'Operational'},lastSpin:'22s',handpay:{type:'hp',amt:'$1,260'},
+   cashIn:2580,voucherIn:560,fundsIn:3140,fundsOut:1760,currentCredits:124,amtPlayed:13800,amtWon:12420,netPlay:1380,holdPct:11.0,difference:0,sessionTime:'5:35:14 AM',licenseNum:'128701472',dark:false}
 ];
 
 var sfLM={
   slots:sfSlots.length,
   ntiToday:sfSlots.reduce(function(s,x){return s+x.ntiNum;},0),
   bvCash:sfSlots.reduce(function(s,x){return s+x.bv.amt;},0),
-  cashlessToday:sfSlots.reduce(function(s,x){return s+x.cashless.amt;},0)
+  cashlessToday:sfSlots.reduce(function(s,x){return s+x.cashless.amt;},0),
+  totalVoucherIn:sfSlots.reduce(function(s,x){return s+x.voucherIn;},0),
+  totalCashIn:sfSlots.reduce(function(s,x){return s+x.cashIn;},0),
+  totalFundsIn:sfSlots.reduce(function(s,x){return s+x.fundsIn;},0),
+  totalFundsOut:sfSlots.reduce(function(s,x){return s+x.fundsOut;},0),
+  totalCurrentCredits:sfSlots.reduce(function(s,x){return s+x.currentCredits;},0),
+  totalAmtPlayed:sfSlots.reduce(function(s,x){return s+x.amtPlayed;},0),
+  totalAmtWon:sfSlots.reduce(function(s,x){return s+x.amtWon;},0),
+  darkMachines:sfSlots.filter(function(x){return x.dark;}).length
 };
 sfLM.ntiWeek=sfLM.ntiToday*6.8;sfLM.ntiMonth=sfLM.ntiToday*28.5;
 sfLM.cashlessMix=Math.round(sfLM.cashlessToday/sfLM.ntiToday*100);
+sfLM.voucherPct=Math.round(sfLM.totalVoucherIn/sfLM.totalFundsIn*100);
+sfLM.holdPctAvg=sfLM.totalFundsIn>0?Math.round(sfLM.ntiToday/sfLM.totalFundsIn*1000)/10:0;
+
+/* Update stranded credits KPI */
+(function(){
+  var el=document.getElementById('sf-pb-stranded');
+  if(el)el.textContent=sfM(sfLM.totalCurrentCredits);
+})();
+
+/* ── AEGIS tab view ── */
+sfSlotTabViews.aegis=function(s){
+  var isDark=s.dark;
+  var diff=s.ntiNum-s.netPlay;
+  var holdCls=s.holdPct>=11?'good':s.holdPct>=8?'warn':'low';
+  return '<div style="overflow-x:auto;margin:0 -12px">'
+    +'<table class="sf-aegis-table" style="width:100%">'
+    +'<thead><tr>'
+    +'<th>Session</th><th>Cash In</th><th>Voucher In</th><th>Funds In</th>'
+    +'<th>Funds Out</th><th>Credits</th><th>NTI</th>'
+    +'<th>Amt Played</th><th>Amt Won</th><th>Net Play</th>'
+    +'<th>Hold%</th><th>Diff</th>'
+    +'</tr></thead>'
+    +'<tbody>'
+    +(isDark?'<tr class="dark-row">':'<tr>')
+    +'<td>'+s.sessionTime+'</td>'
+    +'<td>'+sfM(s.cashIn)+'</td>'
+    +'<td style="color:#0891B2">'+sfM(s.voucherIn)+'</td>'
+    +'<td style="font-weight:700">'+sfM(s.fundsIn)+'</td>'
+    +'<td class="neg-col">'+sfM(s.fundsOut)+'</td>'
+    +'<td class="warn-col">'+sfM(s.currentCredits)+'</td>'
+    +'<td class="nti-col">'+sfM(s.ntiNum)+'</td>'
+    +'<td>'+sfM(s.amtPlayed)+'</td>'
+    +'<td class="neg-col">'+sfM(s.amtWon)+'</td>'
+    +'<td style="font-weight:700">'+sfM(s.netPlay)+'</td>'
+    +'<td><span class="sf-hold-badge '+holdCls+'">'+s.holdPct+'%</span></td>'
+    +'<td style="color:'+(diff!==0?'#D97706':'#94A3B8')+'">'+(diff>=0?'+':'')+sfM(diff)+'</td>'
+    +'</tr>'
+    +(isDark?'<tr class="dark-row"><td colspan="12" style="text-align:center;color:#EF4444;font-family:var(--font);font-size:11px;padding:6px">⚠ Dark machine — no play recorded this session</td></tr>':'')
+    +'</tbody></table></div>';
+};
+
+/* ── P&L tab view ── */
+sfSlotTabViews.pnl=function(s){
+  var holdCls=s.holdPct>=11?'green':s.holdPct>=8?'amber':'red';
+  var fundsInFmt=sfM(s.fundsIn),fundsOutFmt=sfM(s.fundsOut);
+  var credFmt=sfM(s.currentCredits);
+  return '<div style="padding:2px 0">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'
+    +'<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:8px 10px">'
+    +'<div style="font-size:9.5px;font-weight:700;text-transform:uppercase;color:#64748B;letter-spacing:.07em">Net Terminal Income</div>'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:700;color:#15803D;line-height:1.2;margin-top:3px">'+sfM(s.ntiNum)+'</div>'
+    +'<div style="font-size:10px;color:#475569;margin-top:2px">Hold '+s.holdPct+'% of funds in</div>'
+    +'</div>'
+    +'<div style="background:#F8FAFC;border:1px solid #E5E7EB;border-radius:8px;padding:8px 10px">'
+    +'<div style="font-size:9.5px;font-weight:700;text-transform:uppercase;color:#64748B;letter-spacing:.07em">Stranded Credits</div>'
+    +'<div style="font-family:\'DM Mono\',monospace;font-size:20px;font-weight:700;color:#7C3AED;line-height:1.2;margin-top:3px">'+credFmt+'</div>'
+    +'<div style="font-size:10px;color:#475569;margin-top:2px">On machine at close</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:4px">'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #E5E7EB"><span style="color:#475569">Cash In</span><span style="font-family:\'DM Mono\',monospace;font-weight:600">'+sfM(s.cashIn)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #E5E7EB"><span style="color:#0891B2">Voucher In (TITO)</span><span style="font-family:\'DM Mono\',monospace;font-weight:600;color:#0891B2">'+sfM(s.voucherIn)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #E5E7EB;font-weight:700"><span>Funds In</span><span style="font-family:\'DM Mono\',monospace">'+fundsInFmt+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #E5E7EB"><span style="color:#DC2626">Funds Out</span><span style="font-family:\'DM Mono\',monospace;color:#DC2626">'+fundsOutFmt+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #E5E7EB"><span style="color:#475569">Amt Played</span><span style="font-family:\'DM Mono\',monospace;font-weight:600">'+sfM(s.amtPlayed)+'</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0"><span style="color:#475569">Amt Won</span><span style="font-family:\'DM Mono\',monospace;color:#DC2626">'+sfM(s.amtWon)+'</span></div>'
+    +'</div>'
+    +'<div style="margin-top:8px;padding:6px 10px;background:'+(s.dark?'#FEF2F2':'#F0FDF4')+';border-radius:7px;display:flex;align-items:center;justify-content:space-between">'
+    +(s.dark?'<span style="font-size:11px;color:#DC2626;font-weight:700">⚠ Dark machine — zero activity</span>':'<span style="font-size:11px;color:#475569">Hold efficiency</span><span class="sf-hold-badge '+holdCls+'">'+s.holdPct+'% hold</span>')
+    +'</div></div>';
+};
+
+/* ── Voucher vs Cash panel builder ── */
+function sfBuildVoucherPanel(){
+  var el=document.getElementById('sf-voucher-panel');if(!el)return;
+  var totalCash=sfSlots.reduce(function(a,s){return a+sfGetField(s,'cashIn');},0);
+  var totalTito=sfSlots.reduce(function(a,s){return a+sfGetField(s,'voucherIn');},0);
+  var total=totalCash+totalTito;
+  var cashPct=total>0?Math.round(totalCash/total*100):50,titoPct=100-cashPct;
+  el.innerHTML=
+    '<div class="sf-voucher-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>TITO Adoption · Period</div>'
+    +'<div class="sf-voucher-big">'+titoPct+'%</div>'
+    +'<div class="sf-voucher-sub">'+sfM(totalTito)+' voucher in · '+sfM(total)+' total funds in</div>'
+    +'<div class="sf-voucher-bar-wrap"><div class="sf-voucher-bar-cash" style="width:'+cashPct+'%"></div><div class="sf-voucher-bar-tito" style="width:'+titoPct+'%"></div></div>'
+    +'<div class="sf-voucher-legend"><div class="sf-voucher-legend-item"><div class="sf-voucher-legend-dot" style="background:#15803D"></div><span>Cash In '+cashPct+'%</span></div><div class="sf-voucher-legend-item"><div class="sf-voucher-legend-dot" style="background:#0891B2"></div><span>TITO Voucher '+titoPct+'%</span></div></div>'
+    +'<div class="sf-voucher-rows">'
+    +sfSlots.map(function(s){
+      var vi=sfGetField(s,'voucherIn'),fi=sfGetField(s,'fundsIn');
+      var pct=fi>0?Math.round(vi/fi*100):0;
+      return '<div class="sf-voucher-row">'
+        +'<span class="sf-voucher-row-label">Slot #'+s.id+'</span>'
+        +'<span class="sf-voucher-row-pct">'+pct+'% TITO</span>'
+        +'<span class="sf-voucher-row-amt">'+sfM(vi)+'</span>'
+        +'</div>';
+    }).join('')
+    +'</div>';
+}
+
+/* ── Date helpers ── */
+function sfTodayISO(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function sfFmtDate(iso){
+  if(!iso)return '';
+  var p=iso.split('-');
+  return (p[1]||'')+'/'+(p[2]||'')+'/'+(p[0]||'');
+}
+function sfFmtDateLong(iso){
+  if(!iso)return '';
+  var d=new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+}
+function sfIsToday(iso){return iso===sfTodayISO();}
+
+/* ── Seed historical data for a given date range ── */
+/* ════════════════════════════════════════════════════
+   SIMULATION ENGINE — date range + retailer aware
+   ════════════════════════════════════════════════════ */
+
+/* Retailer profiles: multiplier applied on top of date seed */
+var SF_RETAILER_PROFILES={
+  'all':         {mult:1.00, cashlessBias:0,   bvBias:0},
+  'eastside':    {mult:1.00, cashlessBias:0,   bvBias:0},
+  'airport':     {mult:1.48, cashlessBias:+14, bvBias:+8},   // airport = high traffic
+  'central':     {mult:0.76, cashlessBias:-6,  bvBias:-5},
+  'grand':       {mult:1.82, cashlessBias:+18, bvBias:+12},  // grand hotel = premium
+  'summerlin':   {mult:1.22, cashlessBias:+8,  bvBias:+4},
+  'henderson':   {mult:0.55, cashlessBias:-12, bvBias:-8},   // underperforming
+  'fremont':     {mult:1.35, cashlessBias:+6,  bvBias:+6},
+};
+
+function sfResolveRetailer(){
+  var rg=document.getElementById('sf-retailer-group');
+  if(!rg)return 'all';
+  return rg.value||'all';
+}
+
+function sfSeedHistorical(startISO,endISO,retailerKey){
+  function dateHash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))&0xffff;return h;}
+  var dStart=new Date(startISO+'T00:00:00'),dEnd=new Date(endISO+'T00:00:00');
+  var days=Math.max(1,Math.round((dEnd-dStart)/86400000)+1);
+  var seed=dateHash(startISO+endISO);
+  var dateMult=0.62+((seed%760)/1000); // 0.62 – 1.38
+  dateMult=dateMult*Math.sqrt(days);
+
+  var profile=SF_RETAILER_PROFILES[retailerKey]||SF_RETAILER_PROFILES['all'];
+  var totalMult=dateMult*profile.mult;
+
+  sfSlots.forEach(function(s,i){
+    var m=totalMult*(0.84+(((seed+i*17)%320)/1000));
+    var clBias=profile.cashlessBias;
+    var newClPct=Math.min(95,Math.max(5, s.cashless.pct + clBias + ((seed+i)%7)-3));
+    var newBvAmt=Math.round(s.bv.amt*m);
+    var newBvPct=Math.min(99,Math.max(5, Math.round(s.bv.pct*(0.88+((seed+i*3)%24)/100))));
+    var newNtiNum=Math.round(s.ntiNum*m);
+    var newCashlessAmt=Math.round(newNtiNum*(newClPct/100));
+    var newFundsIn=Math.round(s.fundsIn*m);
+    var newCashIn=Math.round(s.cashIn*m);
+    var newVoucherIn=newFundsIn-newCashIn;
+    s._hist={
+      /* financial */
+      ntiNum:     newNtiNum,
+      cashIn:     newCashIn,
+      voucherIn:  Math.max(0,newVoucherIn),
+      fundsIn:    newFundsIn,
+      fundsOut:   Math.round(s.fundsOut*m),
+      currentCredits: Math.round(s.currentCredits*(0.9+((seed+i)%18)/100)),
+      amtPlayed:  Math.round(s.amtPlayed*m),
+      amtWon:     Math.round(s.amtWon*m),
+      netPlay:    newNtiNum,
+      holdPct:    Math.round(s.holdPct*(0.91+(((seed+i)*7)%18)/100)*10)/10,
+      dark:       (days===1 && m<0.25),
+      /* NTI string array */
+      nti:        [
+        '$'+newNtiNum.toLocaleString(),
+        '$'+Math.round(newNtiNum*6.8/1000).toLocaleString()+'K',
+        '$'+Math.round(newNtiNum*28.5/1000).toLocaleString()+'K',
+        '$'+Math.round(newNtiNum*30.1/1000).toLocaleString()+'K',
+        '$'+Math.round(newNtiNum*285/1000).toLocaleString()+'K'
+      ],
+      /* bv */
+      bvAmt:   newBvAmt,
+      bvPct:   newBvPct,
+      bvDrop:  newBvPct>=90?'TODAY':newBvPct>=75?'~1d':newBvPct>=60?'~2d':'~4d',
+      bvUrgency: newBvPct>=90?'urgent':newBvPct>=75?'soon':'ok',
+      /* cashless */
+      cashlessPct:    newClPct,
+      cashlessAmt:    newCashlessAmt,
+      cashlessTito:   Math.round(s.cashless.tito*m),
+      cashlessWallet: Math.round(s.cashless.wallet*m),
+      /* lift — vary slightly */
+      liftNum: Math.round((parseInt(s.lift)||0)*(0.7+((seed+i*11)%60)/100)),
+    };
+  });
+}
+
+/* Deep-get with dot notation and _hist override */
+function sfGetField(s,field){
+  if(!s._hist)return _sfRawGet(s,field);
+  /* direct _hist field */
+  if(s._hist[field]!==undefined)return s._hist[field];
+  /* mapped dot-notation fields */
+  var map={
+    'bv.amt':          s._hist.bvAmt,
+    'bv.pct':          s._hist.bvPct,
+    'bv.drop':         s._hist.bvDrop,
+    'bv.urgency':      s._hist.bvUrgency,
+    'cashless.pct':    s._hist.cashlessPct,
+    'cashless.amt':    s._hist.cashlessAmt,
+    'cashless.tito':   s._hist.cashlessTito,
+    'cashless.wallet': s._hist.cashlessWallet,
+  };
+  if(field in map&&map[field]!==undefined)return map[field];
+  return _sfRawGet(s,field);
+}
+function _sfRawGet(s,field){
+  var parts=field.split('.');
+  var v=s;
+  for(var p=0;p<parts.length;p++){v=v&&v[parts[p]];}
+  return v;
+}
+
+/* Helper: get lift string for current sim */
+function sfGetLift(s){
+  if(!s._hist)return s.lift;
+  var n=s._hist.liftNum;
+  return (n>=0?'+':'')+n+'%';
+}
+
+/* ── Init date inputs to today ── */
+function sfInitDateBar(){
+  var today=sfTodayISO();
+  var ds=document.getElementById('sf-date-start');
+  var de=document.getElementById('sf-date-end');
+  if(ds)ds.value=today;
+  if(de)de.value=today;
+  sfUpdateSessionLabel(today,today,'All Retailers',true);
+}
+
+function sfUpdateSessionLabel(startISO,endISO,retailer,isLive){
+  var ts=document.getElementById('sf-session-ts');
+  if(!ts)return;
+  var now=new Date();
+  var timeStr=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'});
+  var dateLabel=startISO===endISO?sfFmtDate(startISO):sfFmtDate(startISO)+' → '+sfFmtDate(endISO);
+  ts.innerHTML=(isLive
+    ?'<span style="color:#10b981;font-weight:700">● LIVE</span> &nbsp;'
+    :'<span style="color:#F59E0B;font-weight:700">◷ HIST</span> &nbsp;')
+    +dateLabel+' &nbsp;·&nbsp; '+timeStr+' &nbsp;·&nbsp; '+retailer;
+}
+
+/* ── Apply date range + retailer ── */
+window.sfApplyDateRange=function(){
+  var today=sfTodayISO();
+  var ds=document.getElementById('sf-date-start');
+  var de=document.getElementById('sf-date-end');
+  var rg=document.getElementById('sf-retailer-group');
+  /* Default to today if dates are not yet set */
+  if(ds&&!ds.value) ds.value=today;
+  if(de&&!de.value) de.value=today;
+  var startVal=ds?ds.value:today;
+  var endVal=de?de.value:startVal;
+  var retailerKey=rg?rg.value:'all';
+  var rgVal=rg?rg.options[rg.selectedIndex].text:'All Retailers';
+  if(endVal<startVal) endVal=startVal;
+  var isLive=(startVal===today&&endVal===today&&retailerKey==='all');
+  if(!isLive){
+    sfSeedHistorical(startVal,endVal,retailerKey);
+  } else {
+    sfSlots.forEach(function(s){s._hist=null;});
+  }
+  sfUpdateSessionLabel(startVal,endVal,rgVal,isLive);
+  sfBuildGrid();
+  sfBuildVoucherPanel();
+  sfBuildGP();
+  var days=Math.round((new Date(endVal+'T00:00:00')-new Date(startVal+'T00:00:00'))/86400000)+1;
+  var rangeLabel=isLive?'Today · Live':sfFmtDateLong(startVal)+(startVal!==endVal?' → '+sfFmtDateLong(endVal)+' ('+days+'d)':'');
+  sfToast((isLive?'🟢 Live':'📅 Hist')+' · '+rgVal+' · '+rangeLabel,'',2400);
+};
 
 function sfBuildGrid(){
   var el=document.getElementById('sf-slot-grid');if(!el)return;
   var view=sfView||'performance';
+
+  /* AEGIS full table mode */
+  if(view==='aegis'){
+    var ds=document.getElementById('sf-date-start'),de=document.getElementById('sf-date-end');
+    var startISO=ds?ds.value:sfTodayISO(),endISO=de?de.value:startISO;
+    var isLive=(startISO===sfTodayISO()&&endISO===sfTodayISO());
+    var days=Math.round((new Date(endISO+'T00:00:00')-new Date(startISO+'T00:00:00'))/86400000)+1;
+    var dateLabel=startISO===endISO?sfFmtDateLong(startISO):sfFmtDateLong(startISO)+' → '+sfFmtDateLong(endISO)+(days>1?' ('+days+'d)':'');
+    var now=new Date();
+    var timeStr=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'});
+    var tFundsIn=0,tFundsOut=0,tCredits=0,tNti=0,tPlayed=0,tWon=0,tCash=0,tVoucher=0;
+    sfSlots.forEach(function(s){
+      tFundsIn+=sfGetField(s,'fundsIn');tFundsOut+=sfGetField(s,'fundsOut');
+      tCredits+=sfGetField(s,'currentCredits');tNti+=sfGetField(s,'ntiNum');
+      tPlayed+=sfGetField(s,'amtPlayed');tWon+=sfGetField(s,'amtWon');
+      tCash+=sfGetField(s,'cashIn');tVoucher+=sfGetField(s,'voucherIn');
+    });
+    var tHold=tFundsIn>0?Math.round(tNti/tFundsIn*1000)/10:0;
+    var tDiff=tNti-(tPlayed-tWon);
+    el.innerHTML='<div style="overflow-x:auto">'
+      +'<div class="sf-aegis-session">'
+      +(isLive?'<span style="color:#10b981;font-weight:700;font-size:10px">● LIVE</span>':'<span style="color:#F59E0B;font-weight:700;font-size:10px">◷ HISTORICAL</span>')
+      +' &nbsp;Site License: 128701472 &nbsp;·&nbsp;<span class="ts">'+dateLabel+'</span>&nbsp;·&nbsp; '+timeStr+' &nbsp;·&nbsp; Eastside Hotel &nbsp;·&nbsp; 15 machines'
+      +'</div>'
+      +'<table class="sf-aegis-table"><thead><tr>'
+      +'<th>VGT</th><th>Cash In</th><th>Voucher In</th><th>Funds In</th>'
+      +'<th>Funds Out</th><th>Credits</th><th>NTI</th>'
+      +'<th>Amt Played</th><th>Amt Won</th><th>Net Play</th>'
+      +'<th>Hold%</th><th>Diff</th>'
+      +'</tr></thead><tbody>'
+      +sfSlots.map(function(s){
+        var isDark=sfGetField(s,'dark');
+        var fi=sfGetField(s,'fundsIn'),fo=sfGetField(s,'fundsOut'),ci=sfGetField(s,'cashIn');
+        var vi=sfGetField(s,'voucherIn'),cr=sfGetField(s,'currentCredits');
+        var ni=sfGetField(s,'ntiNum'),ap=sfGetField(s,'amtPlayed'),aw=sfGetField(s,'amtWon');
+        var np=sfGetField(s,'netPlay'),hp=sfGetField(s,'holdPct');
+        var diff=ni-np;
+        var holdCls=hp>=11?'good':hp>=8?'warn':'low';
+        return (isDark?'<tr class="dark-row">':'<tr>')
+          +'<td style="text-align:left"><span style="font-weight:700">Slot #'+s.id+'</span><br><span style="font-size:10px;color:#94A3B8;font-family:var(--font)">'+(s.type==='pack'?s.pack.brand+' '+s.pack.name:s.game).slice(0,22)+'</span></td>'
+          +'<td>'+sfM(ci)+'</td>'
+          +'<td style="color:#0891B2">'+sfM(vi)+'</td>'
+          +'<td style="font-weight:700">'+sfM(fi)+'</td>'
+          +'<td class="neg-col">'+sfM(fo)+'</td>'
+          +'<td class="warn-col">'+sfM(cr)+'</td>'
+          +'<td class="nti-col">'+sfM(ni)+'</td>'
+          +'<td>'+sfM(ap)+'</td>'
+          +'<td class="neg-col">'+sfM(aw)+'</td>'
+          +'<td style="font-weight:700">'+sfM(np)+'</td>'
+          +'<td><span class="sf-hold-badge '+holdCls+'">'+hp+'%</span></td>'
+          +'<td style="color:'+(diff!==0?'#D97706':'#94A3B8')+'">'+(diff>=0?'+':'')+sfM(diff)+'</td>'
+          +'</tr>'
+          +(isDark?'<tr class="dark-row"><td colspan="12" style="text-align:center;color:#EF4444;font-family:var(--font);font-size:10.5px;padding:5px 10px">⚠ Dark machine — zero activity this session</td></tr>':'');
+      }).join('')
+      +'<tr class="totals-row"><td>TOTALS · 15 machines</td>'
+      +'<td>'+sfM(tCash)+'</td><td style="color:#0891B2">'+sfM(tVoucher)+'</td>'
+      +'<td>'+sfM(tFundsIn)+'</td><td class="neg-col">'+sfM(tFundsOut)+'</td>'
+      +'<td class="warn-col">'+sfM(tCredits)+'</td><td class="nti-col">'+sfM(tNti)+'</td>'
+      +'<td>'+sfM(tPlayed)+'</td><td class="neg-col">'+sfM(tWon)+'</td>'
+      +'<td>'+sfM(tPlayed-tWon)+'</td>'
+      +'<td><span class="sf-hold-badge good">'+tHold+'%</span></td>'
+      +'<td style="color:'+(tDiff!==0?'#D97706':'#94A3B8')+'">'+(tDiff>=0?'+':'')+sfM(tDiff)+'</td>'
+      +'</tr>'
+      +'</tbody></table></div>';
+    return;
+  }
+
+  /* P&L compact table mode */
+  if(view==='pnl'){
+    var tNtiP=0,tFiP=0,tFoP=0,tCrP=0,tVoP=0;
+    sfSlots.forEach(function(s){
+      tNtiP+=sfGetField(s,'ntiNum');tFiP+=sfGetField(s,'fundsIn');
+      tFoP+=sfGetField(s,'fundsOut');tCrP+=sfGetField(s,'currentCredits');
+      tVoP+=sfGetField(s,'voucherIn');
+    });
+    var avgHold=tFiP>0?Math.round(tNtiP/tFiP*1000)/10:0;
+    var vPct=tFiP>0?Math.round(tVoP/tFiP*100):0;
+    el.innerHTML='<div style="padding:12px 16px">'
+      +'<div class="sf-pnl-row header"><div class="sf-pnl-cell name">Machine</div><div class="sf-pnl-cell">Funds In</div><div class="sf-pnl-cell">Funds Out</div><div class="sf-pnl-cell">NTI</div><div class="sf-pnl-cell">Hold%</div></div>'
+      +sfSlots.map(function(s){
+        var hp=sfGetField(s,'holdPct'),fi=sfGetField(s,'fundsIn'),fo=sfGetField(s,'fundsOut'),ni=sfGetField(s,'ntiNum');
+        var isDark=sfGetField(s,'dark');
+        var holdCls=hp>=11?'green':hp>=8?'amber':'red';
+        var gname=(s.type==='pack'?s.pack.brand+' '+s.pack.name:s.game).slice(0,18);
+        return '<div class="sf-pnl-row'+(isDark?' dark':'')+'"><div class="sf-pnl-cell name">'+(isDark?'<span style="color:#EF4444">⚠</span> ':'')+'#'+s.id+' '+gname+'</div>'
+          +'<div class="sf-pnl-cell">'+sfM(fi)+'</div>'
+          +'<div class="sf-pnl-cell red">'+sfM(fo)+'</div>'
+          +'<div class="sf-pnl-cell green">'+sfM(ni)+'</div>'
+          +'<div class="sf-pnl-cell '+holdCls+'">'+hp+'%</div>'
+          +'</div>';
+      }).join('')
+      +'<div class="sf-pnl-row totals"><div class="sf-pnl-cell name">Totals</div>'
+      +'<div class="sf-pnl-cell">'+sfM(tFiP)+'</div>'
+      +'<div class="sf-pnl-cell red">'+sfM(tFoP)+'</div>'
+      +'<div class="sf-pnl-cell green">'+sfM(tNtiP)+'</div>'
+      +'<div class="sf-pnl-cell green">'+avgHold+'%</div>'
+      +'</div>'
+      +'<div style="margin-top:10px;padding:8px 10px;background:#F5F3FF;border-radius:8px;font-size:11.5px;color:#5B21B6;display:flex;justify-content:space-between">'
+      +'<span>Stranded credits on floor</span><span style="font-family:\'DM Mono\',monospace;font-weight:700">'+sfM(tCrP)+'</span></div>'
+      +'<div style="margin-top:6px;padding:8px 10px;background:#ECFEFF;border-radius:8px;font-size:11.5px;color:#0E7490;display:flex;justify-content:space-between">'
+      +'<span>TITO Voucher In</span><span style="font-family:\'DM Mono\',monospace;font-weight:700">'+sfM(tVoP)+' ('+vPct+'%)</span></div>'
+      +'</div>';
+    return;
+  }
+
+  /* Standard card view */
   el.innerHTML=sfSlots.map(function(s){
     var isPack=s.type==='pack';
     var tH=isPack?'<div class="sf-slot-title">'+s.pack.brand+' '+s.pack.name+'</div><div class="sf-slot-mfr">'+s.pack.desc+'</div>':'<div class="sf-slot-title">'+s.game+'</div><div class="sf-slot-mfr">'+s.mfr+' '+s.denom+' '+s.cabinet+'</div>';
@@ -16111,12 +16756,13 @@ function sfBuildGrid(){
     var viewFn=sfSlotTabViews[view]||sfSlotTabViews.performance;
     var mid=viewFn(s);
     var jp=s.jp?'<div class="sf-jp'+(s.jp.purple?' purple':'')+'"><div class="sf-jp-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8"/></svg></div><div><div class="sf-jp-name">'+s.jp.name+'</div><div class="sf-jp-tier">'+s.jp.tier+'</div></div><div class="sf-jp-pool">'+s.jp.pool+'</div></div>':'';
-    var ntiBlock=(view==='performance')?'<div class="sf-nti-mini"><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Day</div><div class="sf-nti-mini-val">'+s.nti[0]+'</div></div><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Week</div><div class="sf-nti-mini-val">'+s.nti[1]+'</div></div><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Month</div><div class="sf-nti-mini-val">'+s.nti[2]+'</div></div><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Avg/yr</div><div class="sf-nti-mini-val">'+s.nti[3]+'</div></div><div class="sf-nti-mini-cell total"><div class="sf-nti-mini-label">Total</div><div class="sf-nti-mini-val">'+s.nti[4]+'</div></div></div>':'';
+    var _nti=sfGetField(s,'nti')||s.nti;var ntiBlock=(view==='performance')?'<div class="sf-nti-mini"><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Day</div><div class="sf-nti-mini-val">'+_nti[0]+'</div></div><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Week</div><div class="sf-nti-mini-val">'+_nti[1]+'</div></div><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Month</div><div class="sf-nti-mini-val">'+_nti[2]+'</div></div><div class="sf-nti-mini-cell"><div class="sf-nti-mini-label">Avg/yr</div><div class="sf-nti-mini-val">'+_nti[3]+'</div></div><div class="sf-nti-mini-cell total"><div class="sf-nti-mini-label">Total</div><div class="sf-nti-mini-val">'+_nti[4]+'</div></div></div>':'';
     var jpBlock=(view==='performance'||view==='cash')?jp:'';
     var ft=s.handpay?sfHP(s.handpay):'<span style="font-size:10.5px;color:#94A3B8;font-family:monospace">spin '+s.lastSpin+' ago</span>';
+    var darkBadge=sfGetField(s,'dark')?'<span class="sf-dark-badge dark">⚠ Dark</span>':'';
     return '<div class="sf-slot-card '+s.heat+'" style="cursor:pointer">'
-      +'<div class="sf-slot-head"><div style="min-width:0"><div class="sf-slot-id">SLOT #'+s.id+' '+s.asset+'</div>'+tH+'</div>'
-      +'<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><span class="sf-lift-badge '+sfLC(s.lift)+'">'+sfLA(s.lift)+' '+s.lift+'</span>'+bdg+'</div></div>'
+      +'<div class="sf-slot-head"><div style="min-width:0"><div class="sf-slot-id">SLOT #'+s.id+' '+s.asset+darkBadge+'</div>'+tH+'</div>'
+      +'<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><span class="sf-lift-badge '+sfLC(sfGetLift(s))+'">'+sfLA(sfGetLift(s))+' '+sfGetLift(s)+'</span>'+bdg+'</div></div>'
       +ntiBlock
       +mid
       +jpBlock
@@ -16128,7 +16774,8 @@ function sfBuildGrid(){
 function sfBuildGP(){
   var el=document.getElementById('sf-game-perf-grid');if(!el)return;
   var ntiIdx=(sfGpPeriodNti&&sfGpPeriod)?sfGpPeriodNti[sfGpPeriod]||0:0;
-  var sorted=sfSlots.slice().sort(function(a,b){return b.ntiNum-a.ntiNum;});
+  /* Sort by sim-aware NTI */
+  var sorted=sfSlots.slice().sort(function(a,b){return sfGetField(b,'ntiNum')-sfGetField(a,'ntiNum');});
   var top5=sorted.slice(0,5),bot5=sorted.slice(-5).reverse();
   var periodLabels=['NTI/day','NTI/week','NTI/month','NTI avg/yr'];
   function gpR(s,rank,low){
@@ -16136,12 +16783,14 @@ function sfBuildGP(){
     var sub='Slot #'+s.id+(s.type==='pack'?' '+s.pack.totalGames+'g':'');
     if(sfGpScope==='route')sub+=' &middot; all locations';
     if(low&&s.service.state!=='ok')sub+=' &middot; <span style="color:#EF4444">'+s.service.txt+'</span>';
-    var ntiVal=s.nti[ntiIdx]||s.nti[0];
+    var ntiArr=sfGetField(s,'nti')||s.nti;
+    var ntiVal=ntiArr[ntiIdx]||ntiArr[0];
+    var lift=sfGetLift(s);
     return '<div class="sf-gp-row" style="cursor:pointer">'
       +'<span class="sf-gp-rank">'+rank+'</span>'
       +'<div><div class="sf-gp-game">'+dn+'</div><div class="sf-gp-meta">'+sub+'</div></div>'
       +'<div class="sf-gp-nti">'+ntiVal+'</div>'
-      +'<span class="sf-gp-lift '+sfLC(s.lift)+'">'+s.lift+'</span>'
+      +'<span class="sf-gp-lift '+sfLC(lift)+'">'+lift+'</span>'
       +'</div>';
   }
   var periodLabel=periodLabels[ntiIdx]||'NTI/day';
@@ -16151,36 +16800,96 @@ function sfBuildGP(){
 function sfBuildLocs(){
   var el=document.getElementById('sf-loc-switcher');if(!el)return;
   var locs=[
-    {name:'Eastside Hotel',id:'LOC-1009',addr:'4220 Boulder Hwy, Las Vegas NV',st:'crit',nti:'$15.4K',sl:'15/15',route:'ROUTE LV-EAST-04',act:true},
-    {name:'Main St Branch',id:'LOC-1000',addr:'1200 Main St, Las Vegas NV',st:'crit',nti:'$14.2K',sl:'12/12',route:'ROUTE LV-MAIN-01'},
-    {name:'Airport Terminal',id:'LOC-1001',addr:'5757 Wayne Newton Blvd, Las Vegas NV',st:'warn',nti:'$22.8K',sl:'14/15',route:'ROUTE LV-AIR-02'},
-    {name:'Central Plaza',id:'LOC-1002',addr:'3200 S Las Vegas Blvd, Las Vegas NV',st:'ok',nti:'$11.6K',sl:'10/10',route:'ROUTE LV-CTR-03'},
-    {name:'Tech Park',id:'LOC-1010',addr:'8685 S Eastern Ave, Las Vegas NV',st:'warn',nti:'$8.4K',sl:'8/8',route:'ROUTE LV-EAST-04'},
-    {name:'Harbor View',id:'LOC-1011',addr:'700 E Sahara Ave, Las Vegas NV',st:'ok',nti:'$13.2K',sl:'12/12',route:'ROUTE LV-CTR-03'},
-    {name:'Grand Hotel',id:'LOC-1014',addr:'3655 Las Vegas Blvd S, Las Vegas NV',st:'ok',nti:'$28.6K',sl:'15/15',route:'ROUTE LV-STRIP-05'},
-    {name:'City Center',id:'LOC-1015',addr:'3730 Las Vegas Blvd S, Las Vegas NV',st:'ok',nti:'$16.2K',sl:'12/12',route:'ROUTE LV-STRIP-05'}
+    {name:'Eastside Hotel',       id:'LOC-1009',lic:'128701472',addr:'4220 Boulder Hwy, Las Vegas NV',st:'crit', nti:'$15.4K',sl:'15/15',route:'ROUTE LV-EAST-04',  slots:15,cashless:'51%',drop:'overdue',  act:true},
+    {name:'Main St Branch',       id:'LOC-1000',lic:'128700001',addr:'1200 Main St, Las Vegas NV',    st:'crit', nti:'$14.2K',sl:'12/12',route:'ROUTE LV-MAIN-01',  slots:12,cashless:'44%',drop:'overdue'},
+    {name:'Airport Terminal',     id:'LOC-1001',lic:'128700195',addr:'5757 Wayne Newton Blvd, LV NV', st:'warn', nti:'$22.8K',sl:'14/15',route:'ROUTE LV-AIR-02',   slots:15,cashless:'68%',drop:'~2d'},
+    {name:'Central Plaza',        id:'LOC-1002',lic:'128700543',addr:'3200 S Las Vegas Blvd, LV NV',  st:'ok',   nti:'$11.6K',sl:'10/10',route:'ROUTE LV-CTR-03',   slots:10,cashless:'39%',drop:'~4d'},
+    {name:'Grand Hotel & Casino', id:'LOC-1014',lic:'128700820',addr:'3655 Las Vegas Blvd S, LV NV',  st:'ok',   nti:'$28.6K',sl:'15/15',route:'ROUTE LV-STRIP-05', slots:15,cashless:'72%',drop:'~1d'},
+    {name:'Tech Park',            id:'LOC-1010',lic:'128700312',addr:'8685 S Eastern Ave, Las Vegas NV',st:'warn',nti:'$8.4K', sl:'8/8',  route:'ROUTE LV-EAST-04',  slots:8, cashless:'33%',drop:'~3d'},
+    {name:'Harbor View',          id:'LOC-1011',lic:'128700418',addr:'700 E Sahara Ave, Las Vegas NV', st:'ok',   nti:'$13.2K',sl:'12/12',route:'ROUTE LV-CTR-03',   slots:12,cashless:'47%',drop:'~5d'},
+    {name:'City Center',          id:'LOC-1015',lic:'128701130',addr:'3730 Las Vegas Blvd S, LV NV',  st:'ok',   nti:'$16.2K',sl:'12/12',route:'ROUTE LV-STRIP-05', slots:12,cashless:'61%',drop:'~2d'},
+    {name:'Sahara Mall',          id:'LOC-1031',lic:'128701250',addr:'2880 W Sahara Ave, Las Vegas NV',st:'ok',  nti:'$9.8K', sl:'10/10',route:'ROUTE LV-WEST-06',   slots:10,cashless:'42%',drop:'~4d'},
+    {name:'University Hub',       id:'LOC-1012',lic:'128700640',addr:'4505 S Maryland Pkwy, LV NV',   st:'warn', nti:'$7.2K', sl:'8/8',  route:'ROUTE LV-EAST-04',  slots:8, cashless:'28%',drop:'~6d'},
+    {name:'North Rancho',         id:'LOC-1020',lic:'128701380',addr:'2550 N Rancho Dr, Las Vegas NV', st:'ok',   nti:'$11.4K',sl:'10/10',route:'ROUTE LV-NORTH-07', slots:10,cashless:'36%',drop:'~3d'},
+    {name:'Summerlin Gateway',    id:'LOC-1021',lic:'128701490',addr:'1980 Village Center Cir, LV NV', st:'ok',   nti:'$18.6K',sl:'14/14',route:'ROUTE LV-WEST-06',  slots:14,cashless:'55%',drop:'~2d'},
+    {name:'Henderson Station',    id:'LOC-1022',lic:'128701560',addr:'120 S Water St, Henderson NV',   st:'crit', nti:'$6.4K', sl:'8/9',  route:'ROUTE LV-SOUTH-08', slots:9, cashless:'22%',drop:'overdue'},
+    {name:'Boulder Station',      id:'LOC-1023',lic:'128701610',addr:'4111 Boulder Hwy, Las Vegas NV', st:'warn', nti:'$12.8K',sl:'12/12',route:'ROUTE LV-EAST-04',  slots:12,cashless:'48%',drop:'~1d'},
+    {name:'Nellis Exchange',      id:'LOC-1024',lic:'128701700',addr:'4475 N Nellis Blvd, Las Vegas NV',st:'ok',  nti:'$8.2K', sl:'8/8',  route:'ROUTE LV-NORTH-07', slots:8, cashless:'31%',drop:'~5d'},
+    {name:'Fremont East',         id:'LOC-1025',lic:'128701780',addr:'618 E Fremont St, Las Vegas NV',  st:'ok',   nti:'$19.4K',sl:'15/15',route:'ROUTE LV-DT-09',    slots:15,cashless:'63%',drop:'~2d'},
+    {name:'Spring Valley',        id:'LOC-1026',lic:'128701850',addr:'5765 Spring Mountain Rd, LV NV',  st:'ok',   nti:'$10.6K',sl:'10/10',route:'ROUTE LV-WEST-06',  slots:10,cashless:'40%',drop:'~4d'},
   ];
+
   el.innerHTML=locs.map(function(l){
+    var dropColor=l.drop==='overdue'?'#EF4444':l.drop.indexOf('1d')>-1?'#F59E0B':'#10B981';
+    var dropLabel=l.drop==='overdue'?'⚠ drop overdue':'drop '+l.drop;
     return '<div class="sf-loc-card'+(l.act?' active':'')+'" onclick="sfSwitchLoc(this)"'
-      +' data-name="'+l.name+'" data-id="'+l.id+'" data-addr="'+l.addr+'" data-route="'+l.route+'">'
+      +' data-name="'+l.name+'" data-id="'+l.id+'" data-addr="'+l.addr
+      +'" data-route="'+l.route+'" data-lic="'+l.lic+'" data-slots="'+l.slots
+      +'" data-cashless="'+l.cashless+'" data-drop="'+l.drop+'" data-nti="'+l.nti
+      +'" data-st="'+l.st+'">'
       +'<div class="sf-loc-status '+l.st+'"></div>'
       +'<div class="sf-loc-name">'+l.name+'</div>'
       +'<div class="sf-loc-id">'+l.id+'</div>'
       +'<div class="sf-loc-stats">'
       +'<div class="sf-loc-stat"><span class="sf-loc-stat-label">NTI</span><span class="sf-loc-stat-val">'+l.nti+'</span></div>'
       +'<div class="sf-loc-stat"><span class="sf-loc-stat-label">Slots</span><span class="sf-loc-stat-val">'+l.sl+'</span></div>'
-      +'</div></div>';
+      +'</div>'
+      +'<div style="margin-top:5px;font-size:9.5px;font-weight:600;color:'+dropColor+'">'+dropLabel+'</div>'
+      +'</div>';
   }).join('');
 }
 
 window.sfSwitchLoc=function(el){
   document.querySelectorAll('#sf-loc-switcher .sf-loc-card').forEach(function(c){c.classList.remove('active');});
   el.classList.add('active');
-  var name=el.dataset.name||'',id=el.dataset.id||'',addr=el.dataset.addr||'',route=el.dataset.route||'';
-  var hn=document.getElementById('sf-loc-h-name');if(hn)hn.textContent=name;
-  var hi=document.getElementById('sf-loc-h-id');if(hi)hi.textContent=id+' \u00b7 '+route;
-  var ha=document.getElementById('sf-loc-h-addr');if(ha)ha.textContent=addr;
-  sfToast('Switched to '+name,'&#128205;',2000);
+  var name=el.dataset.name||'', id=el.dataset.id||'', addr=el.dataset.addr||'';
+  var route=el.dataset.route||'', lic=el.dataset.lic||'—';
+  var slots=el.dataset.slots||'15', cashless=el.dataset.cashless||'—';
+  var drop=el.dataset.drop||'ok', nti=el.dataset.nti||'—', st=el.dataset.st||'ok';
+
+  /* Header name / id / addr */
+  var hn=document.getElementById('sf-loc-h-name'); if(hn)hn.textContent=name;
+  var hi=document.getElementById('sf-loc-h-id');   if(hi)hi.textContent=id+' · '+route;
+  var ha=document.getElementById('sf-loc-h-addr'); if(ha)ha.textContent=addr;
+
+  /* Site license + session */
+  var lb=document.getElementById('sf-license-badge');
+  if(lb)lb.innerHTML='🎰 Site Lic: '+lic;
+  var ls=document.getElementById('sf-loc-session');
+  var now=new Date();
+  if(ls)ls.textContent='Session '+now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'});
+
+  /* Status pill */
+  var sp=document.querySelector('.sf-loc-header .sf-pill.dot:first-child');
+  if(sp){
+    sp.className='sf-pill dot'+(st==='crit'?'':st==='warn'?' warn':' success');
+    sp.textContent=st==='crit'?'Critical · drop overdue':st==='warn'?'Warning · attention needed':'Operational';
+  }
+
+  /* Online pill */
+  var op=document.getElementById('sf-online-pill');
+  if(op)op.textContent=slots+'/'+slots+' online';
+
+  /* Cashless pill */
+  var cp=document.getElementById('sf-cashless-pill');
+  if(cp)cp.innerHTML='💳 '+cashless+' cashless';
+
+  /* NTI strip — generate scaled values from base nti */
+  var ntiNum=parseFloat((nti||'0').replace(/[$,K]/g,function(m){return m==='K'?'000':'';}));
+  var setNti=function(id,val){var e=document.getElementById(id);if(e)e.textContent='$'+Math.round(val).toLocaleString();};
+  setNti('sf-nti-today', ntiNum);
+  setNti('sf-nti-week',  ntiNum*6.8);
+  setNti('sf-nti-month', ntiNum*28.5);
+  var ps=document.getElementById('sf-per-slot');
+  if(ps)ps.textContent='$'+Math.round(ntiNum/parseInt(slots||1)).toLocaleString()+' NTI/slot/day';
+  var ntiTotEl=document.getElementById('sf-nti-total');
+  if(ntiTotEl)ntiTotEl.textContent='$'+(ntiNum*285/1e6).toFixed(2)+'M';
+
+  /* Left border color on header */
+  var lh=document.querySelector('.sf-loc-header');
+  if(lh)lh.style.setProperty('--loc-status-color', st==='crit'?'#EF4444':st==='warn'?'#F59E0B':'#10B981');
+
+  sfToast('📍 '+name+' · '+id,'',2000);
 };
 
 window.sfOpenRoutePlanner=function(){
@@ -16303,11 +17012,13 @@ window.sfGpPeriodTab=function(el){
 window._sfInit=function(){
   if(!sfDone){
     sfDone=true;
+    sfInitDateBar();
     sfBuildLocs();
     sfBuildGrid();
     sfBuildGP();
     sfBuildHourly();
     sfBuildHP();
+    sfBuildVoucherPanel();
     sfSetInitialMetrics();
     var rb=document.getElementById('sf-manual-refresh');
     if(rb)rb.addEventListener('click',sfTickFn);
@@ -16349,11 +17060,7 @@ window._sfInit=function(){
         Export run sheets
       </button>
       <button class="btn btn-solver" onclick="rpAutoAssign()">Auto-assign</button>
-      <button onclick="rpOpenAgent()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,#1e1b4b,#312e81);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:.01em;box-shadow:0 2px 10px rgba(49,46,129,.4);">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5"/><path d="M8 9h8M8 12h5M8 15h6" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Route AI
-        <span style="font-size:9px;padding:1px 5px;background:rgba(167,139,250,.3);border-radius:3px;letter-spacing:.06em;">AGENT</span>
-      </button>
+
     </div>
   </div>
 
@@ -16487,25 +17194,47 @@ window._sfInit=function(){
   </div>
 </div>
 
-<!-- Route Ops Agent Panel -->
-<div id="rp-agent-overlay" onclick="if(event.target===this)rpCloseAgent()">
+<!-- Floating FAB launcher -->
+<button id="rp-agent-fab" title="Open Route Ops AI" onclick="rpOpenAgent()">
+  <div class="fab-pulse"></div>
+  <div class="fab-badge">3</div>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.8" stroke-linejoin="round"/></svg>
+</button>
+
+<!-- Route Ops Agent Floating Panel -->
+<div id="rp-agent-overlay">
   <div id="rp-agent-panel">
-    <div class="rp-agent-head">
+    <div class="rp-agent-head" id="rp-drag-handle">
       <div class="rp-agent-logo">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>
       </div>
       <div class="rp-agent-title">
         <h3>Route Ops AI</h3>
         <span>Lucky Charm Gaming · Field Intelligence</span>
       </div>
       <div class="rp-agent-live">LIVE</div>
-      <button class="rp-agent-close" onclick="rpCloseAgent()">&times;</button>
+      <div class="rp-win-controls">
+        <button class="rp-win-btn rp-btn-min" title="Minimize" onclick="rpMinimizeAgent()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="rp-win-btn rp-btn-full" id="rp-fullscreen-btn" title="Fullscreen" onclick="rpToggleFullscreen()">
+          <svg id="rp-full-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4V1h3M8 1h3v3M11 8v3H8M4 11H1V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="rp-win-btn rp-btn-close" title="Close" onclick="rpCloseAgent()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
     </div>
     <div class="rp-agent-usecases" id="rp-uc-chips">
+      <span class="rp-uc-chip" onclick="rpRunUseCase('morning_briefing')">☀️ Morning briefing</span>
+      <span class="rp-uc-chip" onclick="rpRunUseCase('collector_status')">👥 Collector status</span>
       <span class="rp-uc-chip" onclick="rpRunUseCase('efficiency')">📊 Route efficiency</span>
       <span class="rp-uc-chip" onclick="rpRunUseCase('sla')">⚠️ SLA risks</span>
-      <span class="rp-uc-chip" onclick="rpRunUseCase('forecast')">💰 Cash forecast</span>
+      <span class="rp-uc-chip" onclick="rpRunUseCase('high_value')">💎 High-value stops</span>
+      <span class="rp-uc-chip" onclick="rpRunUseCase('forecast')">💵 Cash forecast</span>
+      <span class="rp-uc-chip" onclick="rpRunUseCase('dispatch')">🚨 Dispatch now</span>
       <span class="rp-uc-chip" onclick="rpRunUseCase('rebalance')">🔄 Rebalance loads</span>
+      <span class="rp-uc-chip" onclick="rpRunUseCase('overtime_risk')">⏰ Overtime risk</span>
       <span class="rp-uc-chip" onclick="rpRunUseCase('eod')">🏁 End-of-day plan</span>
     </div>
     <div class="rp-agent-messages" id="rp-agent-messages"></div>
@@ -16537,48 +17266,198 @@ Time: today 09:00 | estimated completion 15:48 | 3 P1 alerts active
 Rules: Respond concisely. Use bullet points. Include specific collector names and dollar amounts. Flag critical items first. End each response with 1-2 "Next action" recommendations formatted as: **ACTION:** description`;
 
 var RP_TOOLS_DATA = {
+
+  morning_briefing: {
+    icon: '☀️',
+    label: 'Pulling together your morning snapshot for today…',
+    summary: [
+      'Today is a full collection day — 34 assigned stops across 5 collectors',
+      '8 stops still waiting to be assigned to someone',
+      'Estimated total cash to collect: $247,890',
+      'Current time: 9:00 AM — projected team finish: 3:48 PM',
+      '3 Priority-1 alerts need your attention before routes begin:',
+      '  • Westside Casino — 14 days overdue, must be dispatched today',
+      '  • Lake Mead Pavilion — 2 days overdue, machine showing hopper errors',
+      '  • Centennial Hills — due at 2:00 PM, at risk of being missed',
+      'Weather: Clear, no delays expected on any routes today',
+      'All 5 collectors clocked in and vehicles confirmed ready'
+    ]
+  },
+
   efficiency: {
-    name: 'scan_route_efficiency',
-    args: '{"scope":"all_collectors","metric":"drive_time_vs_optimal"}',
-    result: '{"efficiency":{"F_Garza":{"score":0.87,"drive_min":312,"optimal_min":272,"gap_pct":14.7},"K_Patel":{"score":0.91,"drive_min":248,"optimal_min":226,"gap_pct":9.7},"M_Vargas":{"score":0.79,"drive_min":364,"optimal_min":288,"gap_pct":26.4},"J_Cruz":{"score":0.93,"drive_min":220,"optimal_min":205,"gap_pct":7.3},"T_Nguyen":{"score":0.82,"drive_min":312,"optimal_min":256,"gap_pct":21.9}},"fleet_avg":0.864,"idle_time_min":187,"detour_cost_est":42}'
+    icon: '📊',
+    label: 'Reviewing drive times and efficiency for all collectors today…',
+    summary: [
+      '5 collectors reviewed across all active routes',
+      'J. Cruz is the most efficient — only 7% above the ideal drive time',
+      'K. Patel is close behind at 10% above ideal',
+      'M. Vargas has the biggest gap — driving 26% longer than the optimal path',
+      'T. Nguyen is also running long at 22% above ideal',
+      'Total idle time across the fleet: about 3 hours',
+      'Estimated cost from unnecessary detours: ~$42'
+    ]
   },
+
+  collector_status: {
+    icon: '👥',
+    label: 'Checking where each collector is right now and how they\'re tracking…',
+    summary: [
+      'F. Garza (East Zone) — 2 of 6 stops done, on schedule, ETA finish 2:20 PM',
+      'K. Patel (Downtown) — 1 of 5 stops done, slightly ahead, ETA finish 1:45 PM',
+      'M. Vargas (North Zone) — 0 of 7 stops done, running 22 min behind — needs attention',
+      'J. Cruz (West Zone) — 2 of 4 stops done, on schedule, ETA finish 12:30 PM',
+      'T. Nguyen (South Zone) — 1 of 6 stops done, on schedule, ETA finish 3:10 PM',
+      'Overall fleet: 6 of 34 stops completed (18%)',
+      'M. Vargas is the only collector currently behind — recommend checking in'
+    ]
+  },
+
   sla: {
-    name: 'check_sla_status',
-    args: '{"include_risk_forecast":true}',
-    result: '{"breached":["Westside Casino (14d overdue, P1, $0 collected this cycle)","Lake Mead Pavilion (2d overdue, Hopper critical, customer complaint logged)"],"at_risk":["Centennial Hills (due today 14:00, M.Vargas ETA 15:30 — miss risk HIGH)","Green Valley Stn (due today 17:00, unassigned — miss risk MEDIUM)"],"on_track":24,"sla_breach_penalty_est":"$1,200/day"}'
+    icon: '⚠️',
+    label: 'Checking which stops have missed their collection deadlines or are about to…',
+    summary: [
+      '2 stops already overdue (breached):',
+      '  • Westside Casino — 14 days overdue, no cash collected this cycle, Priority 1',
+      '  • Lake Mead Pavilion — 2 days overdue, hopper machine critical, customer complaint on file',
+      '2 stops at risk of missing today\'s deadline:',
+      '  • Centennial Hills — due at 2:00 PM, M. Vargas isn\'t expected to arrive until 3:30 PM',
+      '  • Green Valley Station — due at 5:00 PM, currently not assigned to anyone',
+      '24 stops are on track and proceeding normally',
+      'Each day a stop is overdue costs the company ~$1,200 in penalties'
+    ]
   },
+
+  high_value: {
+    icon: '💎',
+    label: 'Finding the highest-cash stops that should be prioritized today…',
+    summary: [
+      'Top 5 stops by expected cash amount:',
+      '  1. NRT Kiosk (F. Garza) — $46,800 — URGENT, sensors flagged',
+      '  2. Floor Bill Validators, 13 cabinets (M. Vargas) — $27,400 — High priority',
+      '  3. Eastside Slot Singles (F. Garza) — $18,900 — Normal',
+      '  4. Lucky Charm Main Floor (K. Patel) — $16,200 — Normal',
+      '  5. Westside Casino (unassigned) — $14,500 — CRITICAL: 14 days overdue',
+      'Combined value of top 5 stops: $123,800 (50% of today\'s total)',
+      'Recommendation: Make sure NRT Kiosk and Westside Casino are handled first'
+    ]
+  },
+
   forecast: {
-    name: 'calculate_cash_forecast',
-    args: '{"date":"today","confidence":"high"}',
-    result: '{"total_forecast":247890,"collected_so_far":0,"remaining":247890,"by_collector":{"F_Garza":78400,"K_Patel":42300,"M_Vargas":61800,"J_Cruz":34200,"T_Nguyen":31190},"high_value_stops":[{"loc":"NRT-1009 Kiosk","amount":46800,"urgency":"critical"},{"loc":"Floor BV 13 cabs","amount":27400,"urgency":"high"},{"loc":"Eastside slot singles","amount":18900,"urgency":"normal"}],"variance_risk":"LOW — all BV sensors confirmed this AM"}'
+    icon: '💵',
+    label: 'Calculating today\'s expected cash collection totals across all stops…',
+    summary: [
+      'Total cash expected to be collected today: $247,890',
+      'Nothing collected yet — full amount still outstanding',
+      'Breakdown by collector:',
+      '  • F. Garza (East): $78,400',
+      '  • M. Vargas (North): $61,800',
+      '  • K. Patel (Downtown): $42,300',
+      '  • J. Cruz (West): $34,200',
+      '  • T. Nguyen (South): $31,190',
+      'Top priority stops by amount:',
+      '  • NRT Kiosk — $46,800 (urgent)',
+      '  • Floor Bill Validators (13 cabinets) — $27,400 (high priority)',
+      '  • Eastside slot machines — $18,900 (normal)',
+      'Risk level: LOW — all bill validator sensors confirmed working this morning'
+    ]
   },
+
+  dispatch: {
+    icon: '🚨',
+    label: 'Figuring out the best collector to send to the overdue stops right now…',
+    summary: [
+      'Westside Casino (14 days overdue, Priority 1):',
+      '  → Best option: J. Cruz — only 0.4 miles off his current route',
+      '  → J. Cruz can reach it in about 8 minutes from his current position',
+      '  → No other collector is closer without a major detour',
+      'Lake Mead Pavilion (2 days overdue):',
+      '  → Best option: F. Garza — 2.1 miles detour, fits before his next scheduled stop',
+      '  → Can be there by 10:15 AM if dispatched now',
+      'Green Valley Station (unassigned, due 5 PM):',
+      '  → Recommend assigning to T. Nguyen — finishes his route by 3 PM',
+      '  → 6.4 miles from his last stop, fully feasible today',
+      'Dispatching all 3 now means zero SLA breaches by end of day'
+    ]
+  },
+
   rebalance: {
-    name: 'optimize_collector_loads',
-    args: '{"strategy":"minimize_overtime","respect_zones":true}',
-    result: '{"current_imbalance_hrs":2.4,"recommended_moves":[{"from":"M_Vargas","to":"K_Patel","stop":"Harbor View","saving_mi":4.2},{"from":"T_Nguyen","to":"J_Cruz","stop":"Summerlin Heights","saving_mi":3.8},{"assign_from_queue":{"stop":"Lake Mead Pavilion","to":"F_Garza","rationale":"0.4mi deviation, already P1, en route"}}],"projected_completion_improvement_min":34}'
+    icon: '🔄',
+    label: 'Looking at each collector\'s workload and finding smarter stop assignments…',
+    summary: [
+      'Current workload gap between collectors: about 2.4 hours',
+      'Suggested reassignments to even things out:',
+      '  • Move Harbor View from M. Vargas → K. Patel (saves 4.2 miles)',
+      '  • Move Summerlin Heights from T. Nguyen → J. Cruz (saves 3.8 miles)',
+      '  • Add Lake Mead Pavilion to F. Garza\'s route — it\'s only 0.4 miles off his current path and already overdue',
+      'If these changes are made, the team finishes about 34 minutes earlier today'
+    ]
   },
+
+  overtime_risk: {
+    icon: '⏰',
+    label: 'Checking which collectors might run into overtime today…',
+    summary: [
+      'Overtime threshold: shifts longer than 8 hours (past 5:00 PM)',
+      'M. Vargas — HIGH RISK: currently 22 min behind, 7 stops remaining, projected finish 5:48 PM',
+      '  → Already 48 minutes into overtime territory if nothing changes',
+      'T. Nguyen — MEDIUM RISK: 6 stops, projected finish 4:55 PM (tight but okay)',
+      'F. Garza — LOW RISK: on track to finish by 2:20 PM',
+      'K. Patel — LOW RISK: slightly ahead, finish by 1:45 PM',
+      'J. Cruz — LOW RISK: finishes by 12:30 PM',
+      'Recommendation: Move 2 stops from M. Vargas to K. Patel or J. Cruz now to avoid overtime'
+    ]
+  },
+
   eod: {
-    name: 'generate_eod_plan',
-    args: '{"cutoff_time":"17:00","include_loomis":true}',
-    result: '{"loomis_window":"Thu 09:00-10:30, F.Garza CDV-14","unresolved_before_eod":["Westside Casino (must dispatch now)","Spring Mountain (can defer Thu)"],"cash_in_transit_est":247890,"count_room_eta":"18:30","recommended_actions":["Dispatch J.Cruz to Westside Casino immediately","Bundle Thu Loomis run: NRT-1009 + Slot #07 + Floor BV","Page M.Vargas re: Centennial Hills SLA deadline 14:00"]}'
+    icon: '🏁',
+    label: 'Building the end-of-day wrap-up plan — what needs to happen before 5:00 PM…',
+    summary: [
+      'Loomis armored pickup window: Thursday 9:00 – 10:30 AM (F. Garza, vehicle CDV-14)',
+      'Must be resolved today (cannot wait):',
+      '  • Westside Casino — needs to be dispatched immediately',
+      '  • Green Valley Station — currently unassigned, needs coverage before 5 PM',
+      'Can safely move to Thursday:',
+      '  • Spring Mountain — low urgency, fits Thursday Loomis run',
+      'Total cash to move to count room today: $247,890',
+      'Count room expected to receive everything by 6:30 PM',
+      'Top 3 actions to take right now:',
+      '  1. Send J. Cruz to Westside Casino immediately',
+      '  2. Bundle Thursday\'s Loomis run: NRT Kiosk + Slot #07 + Floor Bill Validators',
+      '  3. Notify M. Vargas about the 2:00 PM deadline at Centennial Hills'
+    ]
   }
+
 };
 
 var RP_USE_CASE_PROMPTS = {
+  morning_briefing: 'Give me a quick morning briefing — what does today\'s route situation look like and what do I need to know before we get started?',
   efficiency: 'Analyze today\'s route efficiency across all collectors. Where are we losing the most time and what should we do about it?',
+  collector_status: 'Where are each of my collectors right now and how are they tracking against their schedules?',
   sla: 'Which stops have SLA breaches or are at risk today? What are the immediate actions we need to take right now?',
+  high_value: 'Which stops have the most cash today? I want to make sure the high-value ones are being prioritized.',
   forecast: 'Give me the cash collection forecast for today with confidence levels and any risks I should know about.',
-  rebalance: 'The collector workloads look unbalanced. Recommend specific reassignments to optimize drive time and ensure we hit the 17:00 cutoff.',
-  eod: 'Build me the end-of-day plan — what needs to happen before 17:00 and what goes to Thursday?'
+  dispatch: 'Who should I send to cover the overdue and unassigned stops? Give me a specific dispatch plan right now.',
+  rebalance: 'The collector workloads look unbalanced. Recommend specific reassignments to optimize drive time and ensure we hit the 5 PM cutoff.',
+  overtime_risk: 'Which collectors are at risk of going into overtime today, and what can we do to prevent it?',
+  eod: 'Build me the end-of-day plan — what needs to happen before 5 PM and what can go to Thursday?'
 };
 
 /* ── Panel open/close ── */
+/* ── Floating window state ── */
+var rpIsMinimized = false;
+var rpIsFullscreen = false;
+
 window.rpOpenAgent = function() {
   var overlay = document.getElementById('rp-agent-overlay');
-  if (!overlay) return;
-  overlay.style.display = 'block';
+  var panel   = document.getElementById('rp-agent-panel');
+  var fab     = document.getElementById('rp-agent-fab');
+  if (!overlay || !panel) return;
+  overlay.classList.add('rp-fw-open');
+  panel.classList.remove('rp-minimized', 'rp-fullscreen');
+  rpIsMinimized = false; rpIsFullscreen = false;
+  rpUpdateFullscreenIcon();
   rpAgentOpen = true;
-  // Auto-run demo sequence if first open
+  if (fab) fab.classList.add('fab-hidden');
   if (rpAgentHistory.length === 0) {
     setTimeout(function() { rpRunDemoSequence(); }, 400);
   }
@@ -16586,9 +17465,102 @@ window.rpOpenAgent = function() {
 
 window.rpCloseAgent = function() {
   var overlay = document.getElementById('rp-agent-overlay');
-  if (overlay) overlay.style.display = 'none';
-  rpAgentOpen = false;
+  var panel   = document.getElementById('rp-agent-panel');
+  var fab     = document.getElementById('rp-agent-fab');
+  if (overlay) overlay.classList.remove('rp-fw-open');
+  if (panel)   panel.classList.remove('rp-minimized', 'rp-fullscreen');
+  rpAgentOpen = false; rpIsMinimized = false; rpIsFullscreen = false;
+  rpUpdateFullscreenIcon();
+  if (fab) fab.classList.remove('fab-hidden');
 };
+
+/* Minimize → hide panel, bring FAB back (state/history preserved) */
+window.rpMinimizeAgent = function() {
+  var overlay = document.getElementById('rp-agent-overlay');
+  var panel   = document.getElementById('rp-agent-panel');
+  var fab     = document.getElementById('rp-agent-fab');
+  if (!panel) return;
+  overlay.classList.remove('rp-fw-open');
+  panel.classList.remove('rp-fullscreen');
+  rpIsMinimized = true; rpIsFullscreen = false; rpAgentOpen = false;
+  rpUpdateFullscreenIcon();
+  if (fab) fab.classList.remove('fab-hidden');
+};
+
+window.rpToggleFullscreen = function() {
+  var panel = document.getElementById('rp-agent-panel');
+  if (!panel) return;
+  if (rpIsFullscreen) {
+    panel.classList.remove('rp-fullscreen');
+    rpIsFullscreen = false;
+  } else {
+    panel.classList.add('rp-fullscreen');
+    panel.classList.remove('rp-minimized');
+    rpIsMinimized = false;
+    rpIsFullscreen = true;
+  }
+  rpUpdateFullscreenIcon();
+};
+
+function rpUpdateFullscreenIcon() {
+  var icon = document.getElementById('rp-full-icon');
+  if (!icon) return;
+  icon.innerHTML = rpIsFullscreen
+    ? '<path d="M5 1H2v3M10 1h3v3M13 8v3h-3M2 8v3h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
+    : '<path d="M1 4V1h3M8 1h3v3M11 8v3H8M4 11H1V8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';
+}
+
+/* ── FAB drag (only the FAB moves, panel is a fixed right drawer) ── */
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var fab = document.getElementById('rp-agent-fab');
+    if (!fab) return;
+    var dragging = false, ox, oy, fabMoved = false, startX, startY;
+
+    function startDrag(e) {
+      var pt = e.touches ? e.touches[0] : e;
+      if (!e.touches && pt.button !== 0) return;
+      var r = fab.getBoundingClientRect();
+      ox = pt.clientX - r.left; oy = pt.clientY - r.top;
+      startX = pt.clientX; startY = pt.clientY;
+      dragging = true; fabMoved = false;
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onTouchMove, {passive:false});
+      document.addEventListener('touchend', onTouchEnd);
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      if (Math.abs(e.clientX - startX) > 4 || Math.abs(e.clientY - startY) > 4) fabMoved = true;
+      var x = Math.max(0, Math.min(window.innerWidth  - fab.offsetWidth,  e.clientX - ox));
+      var y = Math.max(0, Math.min(window.innerHeight - fab.offsetHeight, e.clientY - oy));
+      fab.style.left = x + 'px'; fab.style.top = y + 'px';
+      fab.style.right = 'auto'; fab.style.bottom = 'auto';
+    }
+    function onTouchMove(e) { e.preventDefault(); onMove(e.touches[0]); }
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+      // Snap to nearest horizontal edge
+      var r = fab.getBoundingClientRect();
+      if ((r.left + r.width/2) > window.innerWidth/2) {
+        fab.style.right = (window.innerWidth - r.right) + 'px'; fab.style.left = 'auto';
+      } else {
+        fab.style.left = r.left + 'px'; fab.style.right = 'auto';
+      }
+    }
+    function onTouchEnd(e) { onUp(); }
+
+    fab.addEventListener('mousedown', startDrag);
+    fab.addEventListener('touchstart', startDrag, {passive:true});
+    fab.addEventListener('click', function(){ if (!fabMoved) rpOpenAgent(); fabMoved = false; });
+    fab.removeAttribute('onclick');
+  });
+})();
 
 /* ── Message rendering ── */
 function rpAppendUser(text) {
@@ -16621,19 +17593,35 @@ function rpRemoveTyping() {
 function rpAppendToolCall(toolKey, status) {
   var msgs = document.getElementById('rp-agent-messages');
   if (!msgs) return null;
-  var data = RP_TOOLS_DATA[toolKey] || {name:'run_analysis',args:'{}',result:'{}'};
+  var data = RP_TOOLS_DATA[toolKey] || {icon:'🔍', label:'Running analysis…', summary:['Analysis complete.']};
   var id = 'rp-tool-' + Date.now();
   var div = document.createElement('div');
   div.className = 'rp-msg-agent';
-  div.innerHTML =
-    '<div class="rp-tool-block" id="' + id + '">' +
-      '<div class="rp-tool-header" onclick="rpToggleTool(\'' + id + '\')">' +
-        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" stroke="#7c3aed" stroke-width="1.5"/></svg>' +
-        '<span class="rp-tool-name">' + data.name + '(' + data.args + ')</span>' +
-        '<span class="rp-tool-status ' + (status||'running') + '" id="' + id + '-status">' + (status==='done'?'✓ done':'⟳ running') + '</span>' +
-      '</div>' +
-      '<div class="rp-tool-body" id="' + id + '-body" style="display:none">' + data.result + '</div>' +
+
+  var bulletHtml = (data.summary || []).map(function(line) {
+    var isIndented = /^\s{2,}/.test(line);
+    var clean = line.replace(/^\s+/, '');
+    return '<div class="rp-tool-bullet' + (isIndented ? ' indent' : '') + '">' +
+      '<span class="rp-tool-bullet-icon">' + (isIndented ? '◦' : '▸') + '</span>' +
+      '<span class="rp-tool-bullet-text">' + clean + '</span>' +
     '</div>';
+  }).join('');
+
+  div.innerHTML =
+    '<div class="rp-tool-block' + (status==='done' ? '' : ' collapsed') + '" id="' + id + '">' +
+      '<div class="rp-tool-header" onclick="rpToggleTool(\'' + id + '\')">' +
+        '<span style="font-size:16px;flex-shrink:0;">' + (data.icon||'🔍') + '</span>' +
+        '<span class="rp-tool-name">' + data.label + '</span>' +
+        '<span class="rp-tool-status ' + (status||'running') + '" id="' + id + '-status">' +
+          (status === 'done' ? '✓ Done' : '<span><span class="rp-tool-spin">⟳</span> Working…</span>') +
+        '</span>' +
+      '</div>' +
+      '<div class="rp-tool-body" id="' + id + '-body" style="display:none;">' +
+        '<div class="rp-tool-body-title">What I found:</div>' +
+        bulletHtml +
+      '</div>' +
+    '</div>';
+
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return id;
@@ -16641,12 +17629,22 @@ function rpAppendToolCall(toolKey, status) {
 
 window.rpToggleTool = function(id) {
   var body = document.getElementById(id + '-body');
-  if (body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+  var block = document.getElementById(id);
+  if (body) {
+    var opening = body.style.display === 'none';
+    body.style.display = opening ? 'block' : 'none';
+    if (block) block.classList.toggle('collapsed', !opening);
+  }
 };
 
 function rpMarkToolDone(id) {
   var st = document.getElementById(id + '-status');
-  if (st) { st.className = 'rp-tool-status done'; st.textContent = '✓ done'; }
+  if (st) { st.className = 'rp-tool-status done'; st.textContent = '✓ Done'; }
+  // Auto-expand so user sees results
+  var body = document.getElementById(id + '-body');
+  var block = document.getElementById(id);
+  if (body) body.style.display = 'block';
+  if (block) block.classList.remove('collapsed');
 }
 
 function rpAppendAgentMsg(html, streaming) {
@@ -16681,10 +17679,17 @@ function rpStreamText(el, text, done) {
 
 function rpFormatAgentText(t) {
   return t
-    .replace(/\*\*ACTION:\*\* (.*)/g, '<div style="margin-top:8px;padding:7px 10px;background:#EEF2FF;border-left:3px solid #4f46e5;border-radius:0 6px 6px 0;font-size:11.5px;"><span style="color:#a5b4fc;font-weight:700;">▶ ACTION:</span> <span style="color:#e2e8f0;">$1</span></div>')
+    /* **ACTION:** line → styled call-out box with readable dark text */
+    .replace(/\*\*ACTION:\*\* (.*)/g,
+      '<div class="rp-action-box"><span class="rp-action-label">▶ Next Action</span>$1</div>')
+    /* **bold** text */
     .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-    .replace(/^- (.*)/gm, '<div style="display:flex;gap:6px;margin:2px 0;"><span style="color:#4f46e5;flex-shrink:0;">▸</span><span>$1</span></div>')
-    .replace(/^(\d+)\. (.*)/gm, '<div style="display:flex;gap:6px;margin:2px 0;"><span style="color:#7c3aed;flex-shrink:0;font-weight:700;min-width:14px;">$1.</span><span>$2</span></div>')
+    /* bullet list items: - text */
+    .replace(/^- (.*)/gm,
+      '<div class="rp-bullet"><span class="rp-bullet-dot">▸</span><span>$1</span></div>')
+    /* numbered list: 1. text */
+    .replace(/^(\d+)\. (.*)/gm,
+      '<div class="rp-bullet"><span class="rp-bullet-num">$1.</span><span>$2</span></div>')
     .replace(/\n/g, '<br>');
 }
 
@@ -16692,7 +17697,9 @@ function rpFormatAgentText(t) {
 async function rpCallClaudeAgent(userMsg, toolKey) {
   var systemPrompt = RP_SYSTEM_PROMPT;
   if (toolKey && RP_TOOLS_DATA[toolKey]) {
-    systemPrompt += '\n\nTool result for this query:\n```json\n' + RP_TOOLS_DATA[toolKey].result + '\n```\nAnalyze this data to answer the user.';
+    var toolData = RP_TOOLS_DATA[toolKey];
+    var summaryText = (toolData.summary || []).join('\n');
+    systemPrompt += '\n\nData retrieved for this query (' + toolData.label + '):\n' + summaryText + '\n\nUse this data to answer the user in plain, friendly language.';
   }
   var messages = [];
   // Include last 4 turns of history
@@ -16768,7 +17775,6 @@ window.rpRunUseCase = async function(key) {
 
 /* ── Demo sequence on first open ── */
 async function rpRunDemoSequence() {
-  // Welcome message
   var msgs = document.getElementById('rp-agent-messages');
   if (msgs) {
     var welcome = document.createElement('div');
@@ -16776,19 +17782,19 @@ async function rpRunDemoSequence() {
     welcome.innerHTML =
       '<div class="rp-insight-card">' +
         '<div class="rp-insight-icon">🤖</div>' +
-        '<div class="rp-insight-text"><b>Route Ops AI is live.</b><br>I\'m scanning today\'s route data and running diagnostics. Auto-running 3 use cases now — or ask me anything using the input below.</div>' +
+        '<div class="rp-insight-text"><b>Route Ops AI is ready.</b><br>I\'m scanning today\'s routes, collector positions, and cash forecast. Running your morning briefing now — tap any chip above to dig deeper, or ask me anything below.</div>' +
       '</div>';
     msgs.appendChild(welcome);
     msgs.scrollTop = msgs.scrollHeight;
   }
   await new Promise(function(r){setTimeout(r,800)});
 
-  // Auto-run 3 use cases in sequence
-  await rpRunUseCase('sla');
+  // Start with morning briefing, then show efficiency and collector status
+  await rpRunUseCase('morning_briefing');
   await new Promise(function(r){setTimeout(r,600)});
-  await rpRunUseCase('forecast');
+  await rpRunUseCase('efficiency');
   await new Promise(function(r){setTimeout(r,600)});
-  await rpRunUseCase('rebalance');
+  await rpRunUseCase('collector_status');
 }
 
 /* ── Manual input ── */
