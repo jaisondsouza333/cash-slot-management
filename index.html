@@ -853,6 +853,7 @@ textarea.form-inp{resize:vertical;}
 #page-slotfloor .sf-gp-footer{padding:10px 16px;border-top:1px solid var(--sf-border);background:var(--sf-surface-2);font-size:11.5px;color:var(--sf-text-2);display:flex;justify-content:space-between;align-items:center;}
 #page-slotfloor .sf-gp-footer b{font-family:var(--mono);color:var(--sf-text);}
 #page-slotfloor .sf-slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--sf-border);}
+#page-slotfloor .sf-slot-grid.sf-report-mode{grid-template-columns:1fr!important;background:transparent;gap:0;}
 #page-slotfloor .sf-slot-card{background:var(--sf-surface);padding:14px 14px 12px;cursor:pointer;transition:background .12s;position:relative;display:flex;flex-direction:column;gap:10px;}
 #page-slotfloor .sf-slot-card:hover{background:var(--sf-surface-2);}
 #page-slotfloor .sf-slot-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
@@ -2028,7 +2029,9 @@ textarea.form-inp{resize:vertical;}
 .sf-hold-badge.low{background:#FEF2F2;color:#991B1B;}
 
 /* AEGIS transaction report tab */
-.sf-aegis-table{width:100%;border-collapse:collapse;font-size:11px;}
+.sf-report-wrap{background:#fff;min-width:0;overflow:hidden;}
+.sf-report-scroll{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.sf-aegis-table{width:100%;min-width:980px;border-collapse:collapse;font-size:11px;table-layout:auto;}
 .sf-aegis-table th{padding:7px 10px;text-align:right;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748B;background:#F8FAFC;border-bottom:2px solid #E5E7EB;white-space:nowrap;}
 .sf-aegis-table th:first-child{text-align:left;}
 .sf-aegis-table td{padding:8px 10px;text-align:right;border-bottom:1px solid #F1F5F9;font-family:'DM Mono',monospace;font-size:11px;color:#0F172A;white-space:nowrap;}
@@ -2041,7 +2044,7 @@ textarea.form-inp{resize:vertical;}
 .sf-aegis-table .warn-col{color:#D97706;}
 .sf-aegis-table .dark-row td{opacity:.55;background:#FAFBFC;}
 .sf-aegis-table .dark-row td:first-child{color:#DC2626;}
-.sf-aegis-session{padding:10px 16px 6px;font-size:10.5px;font-weight:700;color:#64748B;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB;}
+.sf-aegis-session{padding:10px 16px 6px;font-size:10.5px;font-weight:700;color:#64748B;display:flex;align-items:center;gap:6px;border-bottom:1px solid #E5E7EB;flex-wrap:wrap;}
 .sf-aegis-session .ts{font-family:'DM Mono',monospace;color:#475569;}
 
 /* Voucher vs Cash panel */
@@ -2068,15 +2071,20 @@ textarea.form-inp{resize:vertical;}
 .sf-pb-kpi.stranded .sf-pb-value{color:#C4B5FD;}
 
 /* P&L Machine card view */
-.sf-pnl-row{display:grid;grid-template-columns:130px 1fr 1fr 1fr 1fr;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid #F1F5F9;font-size:11.5px;}
+.sf-pnl-report{padding:12px 16px;background:#fff;min-width:0;}
+.sf-pnl-table{min-width:620px;}
+.sf-pnl-row{display:grid;grid-template-columns:minmax(170px,1.4fr) repeat(4,minmax(90px,1fr));gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #F1F5F9;font-size:11.5px;}
 .sf-pnl-row:last-child{border-bottom:none;}
 .sf-pnl-row.header{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#94A3B8;padding-bottom:5px;border-bottom:2px solid #E5E7EB;}
 .sf-pnl-row.totals{background:#F0FDF4;border-radius:6px;padding:6px 4px;font-weight:700;border-top:2px solid #BBF7D0;margin-top:4px;border-bottom:none;}
-.sf-pnl-cell{font-family:'DM Mono',monospace;text-align:right;}
-.sf-pnl-cell.name{font-family:var(--font);text-align:left;font-weight:600;color:#0F172A;font-size:12px;}
+.sf-pnl-cell{font-family:'DM Mono',monospace;text-align:right;min-width:0;white-space:nowrap;}
+.sf-pnl-cell.name{font-family:var(--font);text-align:left;font-weight:600;color:#0F172A;font-size:12px;overflow:hidden;text-overflow:ellipsis;}
 .sf-pnl-cell.green{color:#15803D;}
 .sf-pnl-cell.red{color:#DC2626;}
 .sf-pnl-cell.amber{color:#D97706;}
+.sf-pnl-summary{margin-top:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.sf-pnl-summary-card{padding:8px 10px;border-radius:8px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0;}
+.sf-pnl-summary-card span:last-child{font-family:'DM Mono',monospace;font-weight:700;white-space:nowrap;}
 
 /* ================================================================
    COMPLETE MOBILE & TABLET RESPONSIVE SYSTEM
@@ -2302,6 +2310,7 @@ input, select, textarea {
   #page-slotfloor .sf-cashless-panel { grid-template-columns: 1fr !important; }
   #page-slotfloor .sf-loc-h-grid   { grid-template-columns: 1fr !important; }
   #page-slotfloor .sf-game-perf-grid { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-pnl-summary { grid-template-columns: 1fr !important; }
   /* Slot floor section head: wrap tabs */
   .sf-section-head { flex-wrap: wrap !important; gap: 6px !important; }
   #sf-slot-tabs    { flex-wrap: wrap !important; gap: 4px !important; }
@@ -17371,6 +17380,7 @@ window.sfApplyDateRange=function(){
 function sfBuildGrid(){
   var el=document.getElementById('sf-slot-grid');if(!el)return;
   var view=sfView||'performance';
+  el.classList.toggle('sf-report-mode',view==='aegis'||view==='pnl');
 
   /* AEGIS full table mode */
   if(view==='aegis'){
@@ -17390,11 +17400,12 @@ function sfBuildGrid(){
     });
     var tHold=tFundsIn>0?Math.round(tNti/tFundsIn*1000)/10:0;
     var tDiff=tNti-(tPlayed-tWon);
-    el.innerHTML='<div style="overflow-x:auto">'
+    el.innerHTML='<div class="sf-report-wrap">'
       +'<div class="sf-aegis-session">'
       +(isLive?'<span style="color:#10b981;font-weight:700;font-size:10px">● LIVE</span>':'<span style="color:#F59E0B;font-weight:700;font-size:10px">◷ HISTORICAL</span>')
       +' &nbsp;Site License: 128701472 &nbsp;·&nbsp;<span class="ts">'+dateLabel+'</span>&nbsp;·&nbsp; '+timeStr+' &nbsp;·&nbsp; Eastside Hotel &nbsp;·&nbsp; 15 machines'
       +'</div>'
+      +'<div class="sf-report-scroll">'
       +'<table class="sf-aegis-table"><thead><tr>'
       +'<th>VGT</th><th>Cash In</th><th>Voucher In</th><th>Funds In</th>'
       +'<th>Funds Out</th><th>Credits</th><th>NTI</th>'
@@ -17434,7 +17445,7 @@ function sfBuildGrid(){
       +'<td><span class="sf-hold-badge good">'+tHold+'%</span></td>'
       +'<td style="color:'+(tDiff!==0?'#D97706':'#94A3B8')+'">'+(tDiff>=0?'+':'')+sfM(tDiff)+'</td>'
       +'</tr>'
-      +'</tbody></table></div>';
+      +'</tbody></table></div></div>';
     return;
   }
 
@@ -17448,7 +17459,9 @@ function sfBuildGrid(){
     });
     var avgHold=tFiP>0?Math.round(tNtiP/tFiP*1000)/10:0;
     var vPct=tFiP>0?Math.round(tVoP/tFiP*100):0;
-    el.innerHTML='<div style="padding:12px 16px">'
+    el.innerHTML='<div class="sf-pnl-report">'
+      +'<div class="sf-report-scroll">'
+      +'<div class="sf-pnl-table">'
       +'<div class="sf-pnl-row header"><div class="sf-pnl-cell name">Machine</div><div class="sf-pnl-cell">Funds In</div><div class="sf-pnl-cell">Funds Out</div><div class="sf-pnl-cell">NTI</div><div class="sf-pnl-cell">Hold%</div></div>'
       +sfSlots.map(function(s){
         var hp=sfGetField(s,'holdPct'),fi=sfGetField(s,'fundsIn'),fo=sfGetField(s,'fundsOut'),ni=sfGetField(s,'ntiNum');
@@ -17468,11 +17481,11 @@ function sfBuildGrid(){
       +'<div class="sf-pnl-cell green">'+sfM(tNtiP)+'</div>'
       +'<div class="sf-pnl-cell green">'+avgHold+'%</div>'
       +'</div>'
-      +'<div style="margin-top:10px;padding:8px 10px;background:#F5F3FF;border-radius:8px;font-size:11.5px;color:#5B21B6;display:flex;justify-content:space-between">'
-      +'<span>Stranded credits on floor</span><span style="font-family:\'DM Mono\',monospace;font-weight:700">'+sfM(tCrP)+'</span></div>'
-      +'<div style="margin-top:6px;padding:8px 10px;background:#ECFEFF;border-radius:8px;font-size:11.5px;color:#0E7490;display:flex;justify-content:space-between">'
-      +'<span>TITO Voucher In</span><span style="font-family:\'DM Mono\',monospace;font-weight:700">'+sfM(tVoP)+' ('+vPct+'%)</span></div>'
-      +'</div>';
+      +'</div></div>'
+      +'<div class="sf-pnl-summary">'
+      +'<div class="sf-pnl-summary-card" style="background:#F5F3FF;color:#5B21B6"><span>Stranded credits on floor</span><span>'+sfM(tCrP)+'</span></div>'
+      +'<div class="sf-pnl-summary-card" style="background:#ECFEFF;color:#0E7490"><span>TITO Voucher In</span><span>'+sfM(tVoP)+' ('+vPct+'%)</span></div>'
+      +'</div></div>';
     return;
   }
 
