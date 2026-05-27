@@ -636,7 +636,7 @@ body.bulk-bar-open .toast-container{bottom:108px;} /* clear the floating bulk ba
 .lp-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
 
 /* table */
-.lp-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow);overflow:hidden;}
+.lp-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow);overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;}
 .lp-table{width:100%;border-collapse:collapse;font-size:12.5px;}
 .lp-table thead tr{border-bottom:1px solid var(--border);background:var(--surface2);}
 .lp-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;user-select:none;}
@@ -1899,238 +1899,270 @@ textarea.form-inp{resize:vertical;}
 
 
 /* ================================================================
-   MOBILE & TABLET RESPONSIVE — Full overhaul
-   Breakpoints: 1024px (tablet), 767px (large phone), 480px (phone)
+   COMPLETE MOBILE & TABLET RESPONSIVE SYSTEM
+   Built from ground-up for this app's specific layout
    ================================================================ */
 
-/* ── Prevent iOS double-tap zoom on all interactive elements ── */
-button,a,.nav-item,.btn,.sf-tab,.day-btn,.map-ctrl,.rp-uc-chip,
-.sf-chip-sel,.stat-card,.card,input,select,textarea {
+/* ── Global: prevent zoom on tap, smooth scroll ── */
+*, *::before, *::after { box-sizing: border-box; }
+button, a, [onclick], .nav-item, .btn, .stat-card, label {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-/* Prevent iOS from zooming on input focus — MUST be 16px */
-input,select,textarea,.sf-form-input,.sf-form-select,.rp-agent-input-el {
+/* Prevent iOS auto-zoom when focusing inputs (MUST be ≥16px) */
+input, select, textarea {
   font-size: 16px !important;
 }
-/* Smooth momentum scrolling everywhere */
-.main,.page-view,*{-webkit-overflow-scrolling:touch;}
-
-/* ── Hamburger button ─ show on tablet/phone ── */
-@media(max-width:1024px){
-  #mob-hamburger{display:flex !important;}
+/* Smooth scroll on all containers */
+.main, .page-view, .wf-page, .lp-table-wrap, .bell-panel,
+#rp-agent-messages, #rp-activity-feed, .sidebar {
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ════════════════════════════════════════════
-   TABLET  ≤ 1024px
-   ════════════════════════════════════════════ */
-@media(max-width:1024px){
-  :root{--sidebar-w:0px;}
+/* ════════════════════════════════════════════════════
+   TABLET — ≤ 1024px
+   ════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
 
-  /* Sidebar becomes a slide-in drawer */
-  .sidebar{
-    transform:translateX(-100%);
-    transition:transform .28s cubic-bezier(.16,1,.3,1);
-    z-index:300 !important;
-    width:240px !important;
-    box-shadow:4px 0 32px rgba(0,0,0,.2);
+  /* 1. CSS variable override — fixes ALL var(--sidebar-w) uses */
+  :root { --sidebar-w: 0px !important; }
+
+  /* 2. Hamburger visible */
+  #mob-hamburger { display: flex !important; }
+
+  /* 3. Sidebar becomes slide-in drawer */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform .3s cubic-bezier(.16,1,.3,1);
+    z-index: 300 !important;
+    width: 240px !important;
+    box-shadow: 6px 0 40px rgba(0,0,0,.22);
   }
-  .sidebar.mob-open{transform:translateX(0);}
+  .sidebar.mob-open { transform: translateX(0); }
 
-  /* Topbar + main fill full width */
-  .topbar{left:0 !important;}
-  .main{left:0 !important;right:0 !important;padding:12px 14px 80px !important;}
-  .page-view{left:0 !important;padding:12px 14px 80px !important;}
+  /* 4. Nav items: bigger touch targets */
+  .nav-item {
+    padding: 11px 12px !important;
+    min-height: 44px !important;
+    font-size: 13px !important;
+  }
 
-  /* Nav items bigger touch targets */
-  .nav-item{padding:11px 12px !important;font-size:13.5px !important;min-height:44px !important;}
-  .nav-section-label{padding:10px 12px 4px !important;font-size:10.5px !important;}
+  /* 5. Bell panel: constrain width */
+  .bell-panel {
+    width: min(340px, 90vw) !important;
+    right: -8px !important;
+  }
 
-  /* Stats strip: 3 columns on tablet */
-  .stats-strip{grid-template-columns:repeat(3,1fr) !important;gap:10px !important;}
+  /* 6. Topbar user text: hide on tablet to save space */
+  #topbar-user-text { display: none !important; }
 
-  /* Modal: wider on tablet */
-  #sf-modal-box{width:94% !important;max-width:600px !important;}
+  /* 7. Hide topbar expand/grid icon buttons */
+  .tbl-icon-btn { display: none !important; }
 
-  /* Route planner: stack columns */
-  #page-routeplanner [style*="grid-template-columns:280px 1fr 280px"],
-  #page-routeplanner [style*="grid-template-columns:240px 1fr 1fr"],
-  .rp-planner-body{grid-template-columns:1fr !important;}
+  /* 8. Stats strip: 3 cols */
+  .stats-strip { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
 
-  /* Agent panel full width on tablet */
-  #rp-agent-panel{width:100% !important;max-width:420px !important;}
+  /* 9. Main padding adjustments + bottom for bottom-nav */
+  .main  { padding: 14px 16px 76px !important; }
+  .page-view { padding: 14px 16px 76px !important; }
+  .wf-page   { padding: 14px 16px 76px !important; }
+
+  /* 10. Footer hidden (bottom-nav replaces it) */
+  .app-footer { display: none !important; }
+
+  /* 11. Modal: wider */
+  #sf-modal-box { width: 95% !important; max-width: 620px !important; }
+
+  /* 12. Route planner agent panel */
+  #rp-agent-panel { max-width: 420px !important; }
 }
 
-/* ════════════════════════════════════════════
-   PHONE  ≤ 767px
-   ════════════════════════════════════════════ */
-@media(max-width:767px){
-  :root{--sidebar-w:0px;}
+/* ════════════════════════════════════════════════════
+   PHONE — ≤ 767px
+   ════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
 
-  /* Hide topbar title/sub text — keep logo only */
-  .topbar-title,.topbar-sub{display:none !important;}
-  /* Scale topbar user area */
-  .topbar{padding:0 8px !important;gap:6px !important;}
-
-  /* Main content */
-  .main{padding:8px 8px 74px !important;left:0 !important;}
-  .page-view{padding:8px 8px 74px !important;left:0 !important;}
-
-  /* Stats strip → 2 columns */
-  .stats-strip{grid-template-columns:repeat(2,1fr) !important;gap:7px !important;margin-bottom:10px !important;}
-  .stat-card{padding:10px 12px !important;}
-  .stat-val{font-size:20px !important;}
-
-  /* Cards */
-  .card{border-radius:10px !important;}
-
-  /* Tables: horizontal scroll */
-  .tbl-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;}
-  .tbl-wrap table{min-width:500px;}
-
-  /* ── Dashboard specific ── */
-  /* Stack any 2-col or multi-col dashboard grids */
-  .main [style*="grid-template-columns:1fr 380px"],
-  .main [style*="grid-template-columns:240px 1fr 1fr 220px"],
-  .main [style*="grid-template-columns:1fr 1fr"],
-  .main [style*="grid-template-columns:repeat(2"],
-  .main [style*="grid-template-columns:repeat(4"],
-  .main [style*="grid-template-columns:repeat(3"]{
-    grid-template-columns:1fr !important;
+  /* ── Topbar ── */
+  .topbar { padding: 0 8px !important; gap: 4px !important; }
+  /* Hide center logo text, keep icon */
+  .topbar > div[style*="position:absolute"] > div:last-child { display: none !important; }
+  /* Shrink center logo icon on very small screens */
+  .topbar > div[style*="position:absolute"] > div:first-child {
+    width: 28px !important; height: 28px !important;
   }
 
-  /* ── Accounts / Routes / Assets / UserMaster / RoleMaster pages ── */
-  .page-view [style*="grid-template-columns"],
-  .page-view [style*="display:grid"]{
-    grid-template-columns:1fr !important;
+  /* ── Layout ── */
+  .main      { padding: 10px 10px 74px !important; }
+  .page-view { padding: 10px 10px 74px !important; }
+  .wf-page   { padding: 10px 10px 74px !important; }
+
+  /* ── Stats strip: 2 cols ── */
+  .stats-strip { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  .stat-val { font-size: 20px !important; }
+  .stat-card { padding: 10px 12px !important; }
+
+  /* ── All grids in main dashboard ── */
+  .main [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  /* Exception: 2-col stat-like grids are OK */
+
+  /* ── All page-views: stack everything ── */
+  .page-view [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  .wf-page  [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+
+  /* ── Flex rows that overflow: wrap them ── */
+  .page-view > div > div[style*="display:flex"],
+  .page-view > div[style*="display:flex"],
+  .main > div[style*="display:flex"] {
+    flex-wrap: wrap !important;
   }
-  /* Search/filter bars on list pages */
-  .page-view [style*="display:flex"][style*="gap"],
-  .page-view [style*="display: flex"][style*="gap"]{
-    flex-wrap:wrap !important;
+
+  /* ── Tables: all get scroll wrapper ── */
+  .lp-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px !important;
   }
-  /* Form rows */
-  .page-view [style*="grid-template-columns:1fr 1fr"],
-  .page-view [style*="grid-template-columns: 1fr 1fr"]{
-    grid-template-columns:1fr !important;
+  /* Tables keep their min-width but parent scrolls */
+  .lp-table { min-width: auto !important; }
+  #um-table { min-width: 700px !important; }
+  #rm-table { min-width: 600px !important; }
+  #cl-table { min-width: 700px !important; }
+
+  /* ── Accounts page filter panel ── */
+  #acc-filter-panel {
+    width: 85vw !important;
+    max-width: 280px !important;
+    /* left is already 0 via CSS variable override */
   }
-  /* Fixed-width sidebars inside pages */
-  .page-view [style*="width:220px"],
-  .page-view [style*="width:240px"],
-  .page-view [style*="width:280px"],
-  .page-view [style*="width:320px"],
-  .page-view [style*="width:360px"]{
-    width:100% !important;
+
+  /* ── Account overview stats row ── */
+  #page-acct-overview [style*="grid-template-columns:repeat(5,1fr)"] {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* ── Asset checkin/checkout ── */
+  #page-asset-checkin [style*="grid-template-columns:420px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Fixed-width panels in modals / drawers ── */
+  [style*="width:500px"],
+  [style*="width:540px"],
+  [style*="width:580px"],
+  [style*="width:460px"],
+  [style*="width:480px"] {
+    width: 95vw !important;
+    max-width: 95vw !important;
   }
 
   /* ── Slot Floor ── */
-  #page-slotfloor .sf-slot-grid{grid-template-columns:1fr !important;}
-  #page-slotfloor .sf-pb-grid{grid-template-columns:repeat(2,1fr) !important;}
-  #page-slotfloor .sf-nti-strip{grid-template-columns:repeat(2,1fr) !important;}
-  #page-slotfloor .sf-cassettes{grid-template-columns:repeat(2,1fr) !important;}
-  #page-slotfloor .sf-main-grid{grid-template-columns:1fr !important;}
-  #page-slotfloor .sf-nrt-panel{grid-template-columns:1fr !important;}
-  #page-slotfloor .sf-cashless-panel{grid-template-columns:1fr !important;}
-  #page-slotfloor .sf-loc-h-grid{grid-template-columns:1fr !important;}
-  #page-slotfloor .sf-game-perf-grid{grid-template-columns:1fr !important;}
-  #page-slotfloor .sf-gp-col{min-width:0 !important;}
-  #sf-slot-tabs{flex-wrap:wrap !important;gap:4px !important;}
-  #sf-slot-tabs .sf-tab{font-size:11px !important;padding:4px 8px !important;}
-  #sf-gp-tabs{flex-wrap:wrap !important;gap:3px !important;}
-  /* Slot floor section heads */
-  #page-slotfloor .sf-section-head{flex-wrap:wrap !important;gap:6px !important;}
+  #page-slotfloor { padding: 10px 10px 74px !important; }
+  #page-slotfloor .sf-slot-grid    { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-pb-grid      { grid-template-columns: repeat(2,1fr) !important; }
+  #page-slotfloor .sf-nti-strip    { grid-template-columns: repeat(2,1fr) !important; }
+  #page-slotfloor .sf-cassettes    { grid-template-columns: repeat(2,1fr) !important; }
+  #page-slotfloor .sf-main-grid    { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-nrt-panel    { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-cashless-panel { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-loc-h-grid   { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-game-perf-grid { grid-template-columns: 1fr !important; }
+  /* Slot floor section head: wrap tabs */
+  .sf-section-head { flex-wrap: wrap !important; gap: 6px !important; }
+  #sf-slot-tabs    { flex-wrap: wrap !important; gap: 4px !important; }
+  #sf-gp-tabs      { flex-wrap: wrap !important; gap: 4px !important; }
+  .sf-tab          { font-size: 11px !important; padding: 4px 8px !important; }
+  /* SF location switcher: horizontal scroll */
+  #sf-loc-switcher { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 4px !important; }
+  .sf-loc-card     { min-width: 140px !important; flex-shrink: 0 !important; }
 
   /* ── Route Planner ── */
-  #page-routeplanner{padding:8px 8px 74px !important;}
-  /* Stack all multi-column layouts */
-  #page-routeplanner [style*="display:grid"],
-  #page-routeplanner [style*="display: grid"]{
-    grid-template-columns:1fr !important;
-  }
-  /* Hide map and collector rail on small screens */
-  #rp-map-section,.rp-map-section{display:none !important;}
-  .rp-rail-wrap,.rp-rail{display:none !important;}
-  /* Planning strip → 2 col */
-  .planning-strip{grid-template-columns:repeat(2,1fr) !important;}
-  /* Route planner toolbar wrap */
-  #page-routeplanner [style*="display:flex;gap:8px;align-items:center;flex-wrap:wrap"]{
-    flex-wrap:wrap !important;gap:6px !important;
-  }
+  #page-routeplanner { padding: 10px 10px 74px !important; }
+  /* Hide map and collector rail — too small to use */
+  .rp-map-section,  #rp-map-section  { display: none !important; }
+  .rp-rail-wrap,    .rp-rail          { display: none !important; }
+  /* Stack all RP grids */
+  #page-routeplanner [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  #page-routeplanner [style*="display:grid"]          { grid-template-columns: 1fr !important; }
+  /* Planning strip */
+  .planning-strip { grid-template-columns: repeat(2,1fr) !important; }
   /* Day picker */
-  #rp-day-picker{gap:4px !important;}
-  .day-btn{padding:6px 10px !important;font-size:11.5px !important;}
-  /* Agent panel: full screen */
-  #rp-agent-panel{
-    width:100vw !important;max-width:100vw !important;
-    border-radius:0 !important;
+  .day-btn { padding: 6px 10px !important; font-size: 11px !important; min-height: 36px !important; }
+  /* Route AI panel: full screen */
+  #rp-agent-panel {
+    width: 100vw !important; max-width: 100vw !important;
+    border-radius: 0 !important;
   }
+
+  /* ── Modal: bottom sheet on phone ── */
+  #sf-modal-overlay { align-items: flex-end !important; }
+  #sf-modal-box {
+    width: 100% !important; max-width: 100% !important;
+    max-height: 88vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+  /* Modal form inputs */
+  .sf-form-input, .sf-form-select { min-height: 44px !important; }
+  .sf-modal-btn { min-height: 44px !important; font-size: 13px !important; }
+  #sf-modal-footer { gap: 6px !important; flex-wrap: wrap !important; }
+  #sf-modal-footer .sf-modal-btn { flex: 1 !important; min-width: 100px !important; }
 
   /* ── Cash Load page ── */
-  #page-cashload [style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+  #page-cashload { padding: 10px 10px 74px !important; }
 
-  /* ── Documents page ── */
-  #page-documents [style*="grid-template-columns"]{grid-template-columns:1fr !important;}
-
-  /* ── Modal: sheet from bottom on phone ── */
-  #sf-modal-overlay{align-items:flex-end !important;}
-  #sf-modal-box{
-    width:100% !important;max-width:100% !important;
-    border-radius:16px 16px 0 0 !important;
-    max-height:90vh !important;
-    margin:0 !important;
-  }
-
-  /* ── Form inputs bigger ── */
-  .sf-form-input,.sf-form-select{
-    padding:11px 12px !important;min-height:44px !important;
-  }
-  .sf-modal-btn{min-height:44px !important;font-size:13.5px !important;}
-  .rp-agent-send{min-height:44px !important;}
-
-  /* ── Bottom nav adjustments ── */
-  .footer{display:none !important;}
-
-  /* Misc: hide bell panel & dropdowns that overflow */
-  .bell-panel{right:4px !important;left:4px !important;width:auto !important;}
+  /* ── Bell panel: narrower on phone ── */
+  .bell-panel { width: calc(100vw - 16px) !important; right: -60px !important; }
 }
 
-/* ════════════════════════════════════════════
-   SMALL PHONE  ≤ 390px (iPhone SE etc)
-   ════════════════════════════════════════════ */
-@media(max-width:390px){
-  .stats-strip{grid-template-columns:1fr 1fr !important;gap:6px !important;}
-  .stat-val{font-size:18px !important;}
-  #page-slotfloor .sf-pb-grid{grid-template-columns:1fr !important;}
-  .planning-strip{grid-template-columns:1fr 1fr !important;}
+/* ════════════════════════════════════════════════════
+   SMALL PHONE — ≤ 430px (iPhone 14/15, Pixel 8)
+   ════════════════════════════════════════════════════ */
+@media (max-width: 430px) {
+  .main, .page-view, .wf-page { padding: 8px 8px 74px !important; }
+  .stats-strip { grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+  .stat-val { font-size: 18px !important; }
+  #page-slotfloor .sf-pb-grid   { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-nti-strip { grid-template-columns: 1fr !important; }
+  .planning-strip               { grid-template-columns: 1fr 1fr !important; }
+  /* Hide page title text and show only the important bits */
+  .topbar > div[style*="position:absolute"] { display: none !important; }
 }
 
-/* ── Bottom navigation bar (phone + tablet) ── */
-#mob-bottom-nav{display:none;}
-@media(max-width:1024px){
-  #mob-bottom-nav{
-    display:flex;position:fixed;bottom:0;left:0;right:0;
-    height:60px;background:#fff;border-top:1px solid #e3e6ef;
-    z-index:190;align-items:stretch;
-    box-shadow:0 -2px 12px rgba(0,0,0,.08);
+/* ════════════════════════════════════════════════════
+   BOTTOM NAVIGATION BAR — all mobile ≤ 1024px
+   ════════════════════════════════════════════════════ */
+#mob-bottom-nav { display: none; }
+@media (max-width: 1024px) {
+  #mob-bottom-nav {
+    display: flex !important;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 190;
+    height: 60px; background: #fff; border-top: 1px solid #e3e6ef;
+    box-shadow: 0 -2px 16px rgba(0,0,0,.08);
+    align-items: stretch;
+    /* Safe area for notched phones */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  .mob-nav-btn{
-    flex:1;display:flex;flex-direction:column;align-items:center;
-    justify-content:center;gap:2px;background:none;border:none;
-    cursor:pointer;color:#6b7280;font-size:9px;font-weight:600;
-    padding:6px 4px;letter-spacing:.02em;text-transform:uppercase;
-    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-    border-top:2px solid transparent;transition:all .12s;
+  .mob-nb {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 2px;
+    background: none; border: none; cursor: pointer;
+    color: #6b7280; font-size: 9px; font-weight: 600;
+    letter-spacing: .03em; text-transform: uppercase;
+    padding: 5px 2px 7px;
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    border-top: 2px solid transparent; transition: color .12s, border-color .12s;
+    min-height: 60px;
   }
-  .mob-nav-btn:active{background:#f5f6fa;}
-  .mob-nav-btn.mob-active{color:#15803D;border-top-color:#15803D;}
-  .mob-nav-btn svg{flex-shrink:0;}
+  .mob-nb:active { background: #f5f6fa; }
+  .mob-nb.on { color: #15803D; border-top-color: #15803D; }
+  .mob-nb svg { flex-shrink: 0; margin-bottom: 1px; }
+
+  /* Adjust main / page-view bottom to clear the nav */
+  .main, .page-view, .wf-page {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 8px)) !important;
+  }
+  .app-footer { display: none !important; }
 }
 
-
-@media(max-width:1024px){
-  .main{padding-bottom:74px !important;}
-  .page-view{padding-bottom:74px !important;}
-}
 </style>
 
 <style id="wf-styles">
@@ -2787,9 +2819,9 @@ input,select,textarea,.sf-form-input,.sf-form-select,.rp-agent-input-el {
 
 <!-- TOPBAR — Lucky Charm Gaming style, shown on all pages -->
 <header class="topbar" style="justify-content:space-between;">
-  <!-- Left: hamburger + expand + grid icons -->
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button id="mob-hamburger" onclick="mobToggle()" aria-label="Menu" style="display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">
+  <!-- Left: hamburger (mobile) + expand + grid icons -->
+  <div style="display:flex;align-items:center;gap:6px;">
+    <button id="mob-hamburger" onclick="mobToggle()" aria-label="Open menu" style="display:none;background:none;border:none;cursor:pointer;padding:7px 6px;border-radius:6px;color:var(--text);flex-shrink:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <button class="tbl-icon-btn" title="Expand" style="border:none;background:transparent;box-shadow:none;">
@@ -2824,7 +2856,7 @@ input,select,textarea,.sf-form-input,.sf-form-select,.rp-agent-input-el {
         <div id="bell-list"></div>
       </div>
     </div>
-    <div style="text-align:right;line-height:1.3;">
+    <div id="topbar-user-text" style="text-align:right;line-height:1.3;">
       <div style="font-size:12.5px;font-weight:700;color:var(--text);">Scott Jones</div>
       <div style="font-size:10px;color:var(--text3);font-weight:500;">(Administrator)</div>
       <div style="font-size:10px;color:var(--text3);font-weight:500;">Lucky Charm Gaming</div>
@@ -17500,133 +17532,125 @@ window._rpInit=function(){
 </div>
 
 
-<!-- ── Mobile bottom navigation ── -->
-<nav id="mob-bottom-nav" aria-label="Mobile navigation">
-  <button class="mob-nav-btn mob-active" id="mobbtn-dashboard" onclick="mobNavTo('dashboard',this)">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Dashboard
+<!-- ── Mobile bottom navigation bar ── -->
+<nav id="mob-bottom-nav" role="navigation" aria-label="Mobile navigation">
+  <button class="mob-nb on" id="mobnb-dashboard" onclick="mobNavTo('dashboard',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>
+    Home
   </button>
-  <button class="mob-nav-btn" id="mobbtn-routes" onclick="mobNavTo('routes',this)">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h18M9 6l-6 6 6 6"/></svg>
+  <button class="mob-nb" id="mobnb-accounts" onclick="mobNavTo('accounts',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    Accounts
+  </button>
+  <button class="mob-nb" id="mobnb-slotfloor" onclick="mobNavTo('slotfloor',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
+    Slot Floor
+  </button>
+  <button class="mob-nb" id="mobnb-routeplanner" onclick="mobNavTo('routeplanner',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v5a4 4 0 004 4h.01"/><path d="M18 15V10a4 4 0 00-4-4h-.01"/></svg>
     Routes
   </button>
-  <button class="mob-nav-btn" id="mobbtn-slotfloor" onclick="mobNavTo('slotfloor',this)">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
-    Slots
-  </button>
-  <button class="mob-nav-btn" id="mobbtn-routeplanner" onclick="mobNavTo('routeplanner',this)">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v5a4 4 0 004 4h.01M18 15V10a4 4 0 00-4-4h-.01"/></svg>
-    Route Plan
-  </button>
-  <button class="mob-nav-btn" id="mobbtn-more" onclick="mobToggle()">
+  <button class="mob-nb" id="mobnb-more" onclick="mobToggle()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    Menu
+    More
   </button>
 </nav>
 
 <script>
-/* ═══════════════════════════════════════════════
-   MOBILE NAVIGATION  —  sidebar + swipe + bottom nav
-   ═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   MOBILE NAVIGATION SYSTEM
+   ═══════════════════════════════════════════════════════════ */
 
+/* ── Sidebar toggle ── */
 function mobToggle(){
-  var s=document.getElementById('main-sidebar');
-  var o=document.getElementById('mob-overlay');
+  var s = document.getElementById('main-sidebar');
+  var o = document.getElementById('mob-overlay');
   if(!s) return;
   if(s.classList.contains('mob-open')){
     mobClose();
   } else {
     s.classList.add('mob-open');
-    if(o){o.style.display='block';}
-    document.body.style.overflow='hidden';
+    if(o) o.style.display = 'block';
+    document.body.style.overflow = 'hidden';
   }
 }
 function mobClose(){
-  var s=document.getElementById('main-sidebar');
-  var o=document.getElementById('mob-overlay');
+  var s = document.getElementById('main-sidebar');
+  var o = document.getElementById('mob-overlay');
   if(s) s.classList.remove('mob-open');
-  if(o) o.style.display='none';
-  document.body.style.overflow='';
+  if(o) o.style.display = 'none';
+  document.body.style.overflow = '';
 }
 
-/* Close sidebar when nav item clicked on mobile */
-document.addEventListener('DOMContentLoaded',function(){
-  var s=document.getElementById('main-sidebar');
-  if(s){
-    s.addEventListener('click',function(e){
-      var item=e.target.closest('.nav-item');
-      if(item && window.innerWidth<=1024){
-        setTimeout(mobClose, 80);
-      }
-    });
-  }
+/* ── Auto-close sidebar when a nav-item is tapped ── */
+document.addEventListener('DOMContentLoaded', function(){
+  var sidebar = document.getElementById('main-sidebar');
+  if(!sidebar) return;
+  sidebar.addEventListener('click', function(e){
+    var item = e.target.closest('.nav-item');
+    if(item && window.innerWidth <= 1024){
+      setTimeout(mobClose, 100);
+    }
+  });
+  // Show hamburger if on mobile
+  mobCheckSize();
 });
+window.addEventListener('resize', mobCheckSize);
+function mobCheckSize(){
+  var hb = document.getElementById('mob-hamburger');
+  if(hb) hb.style.display = window.innerWidth <= 1024 ? 'flex' : 'none';
+}
 
-/* Swipe-right-from-edge → open, swipe-left → close */
+/* ── Swipe from left edge to open sidebar ── */
 (function(){
-  var sx=0,sy=0,tracking=false;
-  document.addEventListener('touchstart',function(e){
-    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
-    tracking = sx<32; // only track edge swipe
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    if(!tracking) return;
-    var dx=e.changedTouches[0].clientX-sx;
-    var dy=Math.abs(e.changedTouches[0].clientY-sy);
-    if(dx>60 && dy<80){mobToggle();}
-    tracking=false;
-  },{passive:true});
-  // Swipe left anywhere when open → close
-  document.addEventListener('touchstart',function(e){
-    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    var s=document.getElementById('main-sidebar');
-    if(!s||!s.classList.contains('mob-open')) return;
-    var dx=e.changedTouches[0].clientX-sx;
-    var dy=Math.abs(e.changedTouches[0].clientY-sy);
-    if(dx<-60 && dy<80) mobClose();
-  },{passive:true});
+  var sx = 0, sy = 0, edgeSwipe = false;
+  document.addEventListener('touchstart', function(e){
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    edgeSwipe = sx < 30;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var ex = e.changedTouches[0].clientX;
+    var ey = e.changedTouches[0].clientY;
+    var dx = ex - sx, dy = Math.abs(ey - sy);
+    // Swipe right from left edge → open
+    if(edgeSwipe && dx > 55 && dy < 80){
+      var s = document.getElementById('main-sidebar');
+      if(s && !s.classList.contains('mob-open')) mobToggle();
+    }
+    // Swipe left anywhere when open → close
+    var s = document.getElementById('main-sidebar');
+    if(s && s.classList.contains('mob-open') && dx < -55 && dy < 80){
+      mobClose();
+    }
+    edgeSwipe = false;
+  }, {passive:true});
 })();
 
-/* Bottom nav helper */
-function mobNavTo(page,btn){
-  // Clear active state on all bottom nav buttons
-  document.querySelectorAll('.mob-nav-btn').forEach(function(b){
-    b.classList.remove('mob-active');
-  });
-  if(btn) btn.classList.add('mob-active');
-  // Find the corresponding sidebar nav item
-  var navEl=document.querySelector('.nav-item[data-page="'+page+'"]');
+/* ── Bottom nav ── */
+function mobNavTo(page, btn){
+  // Remove active state from all bottom nav buttons
+  document.querySelectorAll('.mob-nb').forEach(function(b){ b.classList.remove('on'); });
+  if(btn) btn.classList.add('on');
+  // Find matching sidebar nav-item
+  var navEl = document.querySelector('.nav-item[data-page="' + page + '"]');
   navigateTo(page, navEl);
   mobClose();
 }
 
-/* Sync bottom nav active state when sidebar nav item is clicked */
-var _origNavigateTo = navigateTo;
-navigateTo = function(page, navEl){
-  _origNavigateTo(page, navEl);
-  // Sync bottom nav
-  document.querySelectorAll('.mob-nav-btn').forEach(function(b){
-    b.classList.remove('mob-active');
-  });
-  var matchBtn = document.getElementById('mobbtn-'+page);
-  if(matchBtn) matchBtn.classList.add('mob-active');
-  // Close sidebar on mobile
-  if(window.innerWidth<=1024) setTimeout(mobClose,80);
-};
-
-/* Adjust bottom nav & main bottom padding on resize */
-function mobAdjust(){
-  var nav=document.getElementById('mob-bottom-nav');
-  if(!nav) return;
-  var isMob=window.innerWidth<=1024;
-  // Already handled by CSS, but ensure the hamburger is visible
-  var hb=document.getElementById('mob-hamburger');
-  if(hb) hb.style.display=isMob?'flex':'none';
-}
-window.addEventListener('resize',mobAdjust);
-document.addEventListener('DOMContentLoaded',mobAdjust);
+/* ── Patch navigateTo to sync bottom nav + close sidebar ── */
+(function(){
+  var origNav = window.navigateTo;
+  window.navigateTo = function(page, navEl){
+    origNav(page, navEl);
+    // Sync bottom nav
+    document.querySelectorAll('.mob-nb').forEach(function(b){ b.classList.remove('on'); });
+    var matchBtn = document.getElementById('mobnb-' + page);
+    if(matchBtn) matchBtn.classList.add('on');
+    // Close sidebar on mobile
+    if(window.innerWidth <= 1024) setTimeout(mobClose, 80);
+  };
+})();
 </script>
 </body>
 </html>
