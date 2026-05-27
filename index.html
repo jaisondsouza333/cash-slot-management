@@ -51,6 +51,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .nav-item svg{flex-shrink:0;opacity:.75;}
 .nav-item.active svg{opacity:1;}
 .nav-badge{margin-left:auto;background:var(--red-soft);color:var(--red-text);border:1px solid var(--red-border);font-size:9px;font-weight:700;padding:1px 6px;border-radius:100px;font-family:var(--font);}
+.nav-future-badge{margin-left:auto;min-width:17px;height:17px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:#F5F3FF;color:#6D28D9;border:1px solid #DDD6FE;font-size:10px;font-weight:800;font-family:var(--mono);line-height:1;}
 .sidebar-footer{padding:8px 6px;border-top:1px solid var(--border);flex-shrink:0;}
 .user-row{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--r);cursor:pointer;}
 .user-row:hover{background:var(--bg);}
@@ -3658,11 +3659,11 @@ input, select, textarea {
     <div class="nav-section">Slot Floor</div>
     <div class="nav-item" data-page="slotfloor" onclick="navigateTo('slotfloor',this)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/></svg>
-      Slot Floor
+      <span>Slot Floor</span><span class="nav-future-badge" title="Future plan">*</span>
     </div>
     <div class="nav-item" data-page="routeplanner" onclick="navigateTo('routeplanner',this)">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
-      Route Planner
+      <span>Route Planner</span><span class="nav-future-badge" title="Future plan">*</span>
     </div>
     <div class="nav-section">Admin</div>
     <div class="nav-item" data-page="usermaster" onclick="navigateTo('usermaster',this)">
