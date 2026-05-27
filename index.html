@@ -18417,7 +18417,7 @@ function rpStreamText(el, text, done) {
   var i = 0;
   var interval = setInterval(function() {
     el.innerHTML = rpFormatAgentText(text.slice(0, i));
-    i += 3;
+    i += 2;
     var msgs = document.getElementById('rp-agent-messages');
     if (msgs) msgs.scrollTop = msgs.scrollHeight;
     if (i >= text.length) {
@@ -18425,7 +18425,7 @@ function rpStreamText(el, text, done) {
       el.innerHTML = rpFormatAgentText(text);
       if (done) done();
     }
-  }, 18);
+  }, 30);
 }
 
 function rpFormatAgentText(t) {
@@ -18718,8 +18718,8 @@ function rpSimulateReply(userMsg, toolKey) {
 
 /* ── Main agent call (simulation — no API key needed) ── */
 async function rpCallClaudeAgent(userMsg, toolKey) {
-  // Simulate realistic thinking delay (800ms–1.8s)
-  var delay = 800 + Math.random() * 1000;
+  // Simulate realistic thinking delay (1.8s–3.2s)
+  var delay = 1800 + Math.random() * 1400;
   await new Promise(function(r){ setTimeout(r, delay); });
   return rpSimulateReply(userMsg, toolKey);
 }
