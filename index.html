@@ -826,6 +826,9 @@ textarea.form-inp{resize:vertical;}
 #page-slotfloor .sf-hourly-bar.peak{opacity:1;box-shadow:0 0 0 1px #0891B2;}
 #page-slotfloor .sf-hourly-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--sf-text-3);font-family:var(--mono);margin-top:4px;}
 #page-slotfloor .sf-main-grid{display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start;}
+#page-slotfloor .sf-main-grid.sf-report-layout{grid-template-columns:1fr;}
+#page-slotfloor .sf-main-grid.sf-report-layout .sf-side-panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start;}
+#page-slotfloor .sf-main-grid.sf-report-layout .sf-side-panels .sf-section{margin-bottom:0;}
 #page-slotfloor .sf-section{background:var(--sf-surface);border:1px solid var(--sf-border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
 #page-slotfloor .sf-section-head{padding:14px 18px;border-bottom:1px solid var(--sf-border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
 #page-slotfloor .sf-section-title{font-size:14px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;color:var(--sf-text);}
@@ -16509,8 +16512,8 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
   </div>
 
   <!-- Main grid -->
-  <div class="sf-main-grid">
-    <div>
+  <div class="sf-main-grid" id="sf-main-grid">
+    <div class="sf-slot-panel">
       <div class="sf-section">
         <div class="sf-section-head">
           <div class="sf-section-title">Slot machines <span class="sf-count">15</span></div>
@@ -16526,7 +16529,7 @@ else document.addEventListener('DOMContentLoaded', _compBoot);
         <div class="sf-slot-grid" id="sf-slot-grid"></div>
       </div>
     </div>
-    <div>
+    <div class="sf-side-panels">
       <div class="sf-section">
         <div class="sf-section-head">
           <div class="sf-section-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Cash drop forecast</div>
@@ -17387,6 +17390,8 @@ function sfBuildGrid(){
   var isReportView=view==='aegis'||view==='pnl';
   el.classList.toggle('sf-report-mode',isReportView);
   el.classList.toggle('sf-card-mode',!isReportView);
+  var mainGrid=document.getElementById('sf-main-grid');
+  if(mainGrid)mainGrid.classList.toggle('sf-report-layout',isReportView);
 
   /* AEGIS full table mode */
   if(view==='aegis'){
