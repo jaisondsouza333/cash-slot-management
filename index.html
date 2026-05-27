@@ -1898,169 +1898,239 @@ textarea.form-inp{resize:vertical;}
 .rp-agent-send:disabled { opacity:.5; cursor:not-allowed; }
 
 
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE / MOBILE — Tablet (≤1024px) + Phone (≤640px)
-   ═══════════════════════════════════════════════════════════════ */
+/* ================================================================
+   MOBILE & TABLET RESPONSIVE — Full overhaul
+   Breakpoints: 1024px (tablet), 767px (large phone), 480px (phone)
+   ================================================================ */
 
-/* Tablet breakpoint */
-@media (max-width: 1024px) {
-  :root { --sidebar-w: 0px; }
+/* ── Prevent iOS double-tap zoom on all interactive elements ── */
+button,a,.nav-item,.btn,.sf-tab,.day-btn,.map-ctrl,.rp-uc-chip,
+.sf-chip-sel,.stat-card,.card,input,select,textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Prevent iOS from zooming on input focus — MUST be 16px */
+input,select,textarea,.sf-form-input,.sf-form-select,.rp-agent-input-el {
+  font-size: 16px !important;
+}
+/* Smooth momentum scrolling everywhere */
+.main,.page-view,*{-webkit-overflow-scrolling:touch;}
 
-  #sidebar-hamburger { display:flex !important; }
-
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform .25s cubic-bezier(.16,1,.3,1);
-    z-index: 300;
-    width: 220px !important;
-    box-shadow: 4px 0 24px rgba(0,0,0,.18);
-  }
-  .sidebar.open { transform: translateX(0); }
-
-  .topbar { left: 0 !important; padding: 0 12px !important; }
-  .main   { left: 0 !important; padding: 12px 12px 80px !important; }
-
-  .stats-strip { grid-template-columns: repeat(3, 1fr) !important; }
-  .topbar-title { font-size: 13px !important; }
-
-  /* Route planner */
-  #page-routeplanner .rp-main-grid,
-  .rp-planner-body { grid-template-columns: 1fr !important; }
-  #rp-agent-panel { width: 100% !important; max-width: 100% !important; }
-
-  /* Slot floor */
-  #page-slotfloor .sf-main-grid { grid-template-columns: 1fr !important; }
-  #page-slotfloor .sf-loc-h-grid { grid-template-columns: 1fr !important; }
-  #page-slotfloor .sf-cashless-panel { grid-template-columns: 1fr !important; }
-  #page-slotfloor .sf-nrt-panel { grid-template-columns: 1fr !important; }
-  #page-slotfloor .sf-game-perf-grid { grid-template-columns: 1fr !important; }
-  #page-slotfloor .sf-slot-grid { grid-template-columns: repeat(2, 1fr) !important; }
-
-  /* Modal */
-  #sf-modal-box { width: 96% !important; max-width: 96% !important; max-height: 92vh !important; }
+/* ── Hamburger button ─ show on tablet/phone ── */
+@media(max-width:1024px){
+  #mob-hamburger{display:flex !important;}
 }
 
-/* Phone breakpoint */
-@media (max-width: 640px) {
-  :root { --sidebar-w: 0px; }
+/* ════════════════════════════════════════════
+   TABLET  ≤ 1024px
+   ════════════════════════════════════════════ */
+@media(max-width:1024px){
+  :root{--sidebar-w:0px;}
 
-  body { font-size: 13px; }
+  /* Sidebar becomes a slide-in drawer */
+  .sidebar{
+    transform:translateX(-100%);
+    transition:transform .28s cubic-bezier(.16,1,.3,1);
+    z-index:300 !important;
+    width:240px !important;
+    box-shadow:4px 0 32px rgba(0,0,0,.2);
+  }
+  .sidebar.mob-open{transform:translateX(0);}
 
-  /* Topbar */
-  .topbar { padding: 0 10px !important; gap: 6px !important; }
-  .topbar-title { display: none !important; }
-  .topbar-sub   { display: none !important; }
-  /* Hide the centre logo text on very small screens, keep icon */
-  .topbar > div[style*="position:absolute"] span:last-child { display: none !important; }
+  /* Topbar + main fill full width */
+  .topbar{left:0 !important;}
+  .main{left:0 !important;right:0 !important;padding:12px 14px 80px !important;}
+  .page-view{left:0 !important;padding:12px 14px 80px !important;}
 
-  /* Sidebar becomes full-width drawer */
-  .sidebar { width: 85vw !important; max-width: 280px !important; }
+  /* Nav items bigger touch targets */
+  .nav-item{padding:11px 12px !important;font-size:13.5px !important;min-height:44px !important;}
+  .nav-section-label{padding:10px 12px 4px !important;font-size:10.5px !important;}
+
+  /* Stats strip: 3 columns on tablet */
+  .stats-strip{grid-template-columns:repeat(3,1fr) !important;gap:10px !important;}
+
+  /* Modal: wider on tablet */
+  #sf-modal-box{width:94% !important;max-width:600px !important;}
+
+  /* Route planner: stack columns */
+  #page-routeplanner [style*="grid-template-columns:280px 1fr 280px"],
+  #page-routeplanner [style*="grid-template-columns:240px 1fr 1fr"],
+  .rp-planner-body{grid-template-columns:1fr !important;}
+
+  /* Agent panel full width on tablet */
+  #rp-agent-panel{width:100% !important;max-width:420px !important;}
+}
+
+/* ════════════════════════════════════════════
+   PHONE  ≤ 767px
+   ════════════════════════════════════════════ */
+@media(max-width:767px){
+  :root{--sidebar-w:0px;}
+
+  /* Hide topbar title/sub text — keep logo only */
+  .topbar-title,.topbar-sub{display:none !important;}
+  /* Scale topbar user area */
+  .topbar{padding:0 8px !important;gap:6px !important;}
 
   /* Main content */
-  .main { padding: 10px 8px 80px !important; }
+  .main{padding:8px 8px 74px !important;left:0 !important;}
+  .page-view{padding:8px 8px 74px !important;left:0 !important;}
 
-  /* Stat strip → 2 columns */
-  .stats-strip { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+  /* Stats strip → 2 columns */
+  .stats-strip{grid-template-columns:repeat(2,1fr) !important;gap:7px !important;margin-bottom:10px !important;}
+  .stat-card{padding:10px 12px !important;}
+  .stat-val{font-size:20px !important;}
 
   /* Cards */
-  .card, .table-wrap { border-radius: 10px !important; }
+  .card{border-radius:10px !important;}
 
-  /* Accounts / routes / assets tables: hide less important columns */
-  .tbl-wrap th:nth-child(n+5),
-  .tbl-wrap td:nth-child(n+5) { display: none !important; }
+  /* Tables: horizontal scroll */
+  .tbl-wrap{overflow-x:auto !important;-webkit-overflow-scrolling:touch;}
+  .tbl-wrap table{min-width:500px;}
 
-  /* Make table rows taller for touch */
-  .tbl-wrap td { padding: 10px 8px !important; font-size: 12px !important; }
-  .tbl-wrap th { padding: 10px 8px !important; font-size: 11px !important; }
-
-  /* Slot floor */
-  #page-slotfloor .sf-slot-grid { grid-template-columns: 1fr !important; }
-  #page-slotfloor .sf-pb-grid   { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-slotfloor .sf-nti-strip { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-slotfloor .sf-cassettes { grid-template-columns: repeat(2, 1fr) !important; }
-  #page-slotfloor .sf-hp-feed   { max-height: 220px !important; }
-  #sf-slot-tabs .sf-tab { padding: 4px 7px !important; font-size: 10.5px !important; }
-
-  /* Route planner */
-  #page-routeplanner { padding: 12px 8px 80px !important; }
-  .rp-rail { display: none !important; }          /* hide collector rail on tiny screens */
-  .rp-map-section { display: none !important; }   /* hide map on phone, keep detail+queue */
-  .planning-strip { grid-template-columns: repeat(2, 1fr) !important; }
-  .rp-stop-detail-wrap { min-width: 0 !important; }
-
-  /* Live feed strip */
-  #page-routeplanner [style*="grid-template-columns:1fr 320px"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* Live KPI counters → 2 col */
-  #page-routeplanner [style*="grid-template-columns:repeat(4,1fr)"] {
-    grid-template-columns: repeat(2, 1fr) !important;
+  /* ── Dashboard specific ── */
+  /* Stack any 2-col or multi-col dashboard grids */
+  .main [style*="grid-template-columns:1fr 380px"],
+  .main [style*="grid-template-columns:240px 1fr 1fr 220px"],
+  .main [style*="grid-template-columns:1fr 1fr"],
+  .main [style*="grid-template-columns:repeat(2"],
+  .main [style*="grid-template-columns:repeat(4"],
+  .main [style*="grid-template-columns:repeat(3"]{
+    grid-template-columns:1fr !important;
   }
 
-  /* Agent panel full screen */
-  #rp-agent-panel {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    border-radius: 0 !important;
+  /* ── Accounts / Routes / Assets / UserMaster / RoleMaster pages ── */
+  .page-view [style*="grid-template-columns"],
+  .page-view [style*="display:grid"]{
+    grid-template-columns:1fr !important;
+  }
+  /* Search/filter bars on list pages */
+  .page-view [style*="display:flex"][style*="gap"],
+  .page-view [style*="display: flex"][style*="gap"]{
+    flex-wrap:wrap !important;
+  }
+  /* Form rows */
+  .page-view [style*="grid-template-columns:1fr 1fr"],
+  .page-view [style*="grid-template-columns: 1fr 1fr"]{
+    grid-template-columns:1fr !important;
+  }
+  /* Fixed-width sidebars inside pages */
+  .page-view [style*="width:220px"],
+  .page-view [style*="width:240px"],
+  .page-view [style*="width:280px"],
+  .page-view [style*="width:320px"],
+  .page-view [style*="width:360px"]{
+    width:100% !important;
   }
 
-  /* Buttons */
-  .btn, .sf-btn { min-height: 36px !important; font-size: 12px !important; }
-  .day-btn { padding: 5px 10px !important; font-size: 11px !important; }
+  /* ── Slot Floor ── */
+  #page-slotfloor .sf-slot-grid{grid-template-columns:1fr !important;}
+  #page-slotfloor .sf-pb-grid{grid-template-columns:repeat(2,1fr) !important;}
+  #page-slotfloor .sf-nti-strip{grid-template-columns:repeat(2,1fr) !important;}
+  #page-slotfloor .sf-cassettes{grid-template-columns:repeat(2,1fr) !important;}
+  #page-slotfloor .sf-main-grid{grid-template-columns:1fr !important;}
+  #page-slotfloor .sf-nrt-panel{grid-template-columns:1fr !important;}
+  #page-slotfloor .sf-cashless-panel{grid-template-columns:1fr !important;}
+  #page-slotfloor .sf-loc-h-grid{grid-template-columns:1fr !important;}
+  #page-slotfloor .sf-game-perf-grid{grid-template-columns:1fr !important;}
+  #page-slotfloor .sf-gp-col{min-width:0 !important;}
+  #sf-slot-tabs{flex-wrap:wrap !important;gap:4px !important;}
+  #sf-slot-tabs .sf-tab{font-size:11px !important;padding:4px 8px !important;}
+  #sf-gp-tabs{flex-wrap:wrap !important;gap:3px !important;}
+  /* Slot floor section heads */
+  #page-slotfloor .sf-section-head{flex-wrap:wrap !important;gap:6px !important;}
 
-  /* Modal */
-  #sf-modal-box {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 95vh !important;
-    border-radius: 14px 14px 0 0 !important;
-    margin-top: auto !important;
+  /* ── Route Planner ── */
+  #page-routeplanner{padding:8px 8px 74px !important;}
+  /* Stack all multi-column layouts */
+  #page-routeplanner [style*="display:grid"],
+  #page-routeplanner [style*="display: grid"]{
+    grid-template-columns:1fr !important;
   }
-  #sf-modal-overlay {
-    align-items: flex-end !important;
+  /* Hide map and collector rail on small screens */
+  #rp-map-section,.rp-map-section{display:none !important;}
+  .rp-rail-wrap,.rp-rail{display:none !important;}
+  /* Planning strip → 2 col */
+  .planning-strip{grid-template-columns:repeat(2,1fr) !important;}
+  /* Route planner toolbar wrap */
+  #page-routeplanner [style*="display:flex;gap:8px;align-items:center;flex-wrap:wrap"]{
+    flex-wrap:wrap !important;gap:6px !important;
+  }
+  /* Day picker */
+  #rp-day-picker{gap:4px !important;}
+  .day-btn{padding:6px 10px !important;font-size:11.5px !important;}
+  /* Agent panel: full screen */
+  #rp-agent-panel{
+    width:100vw !important;max-width:100vw !important;
+    border-radius:0 !important;
   }
 
-  /* Footer */
-  .footer { display: none !important; }
+  /* ── Cash Load page ── */
+  #page-cashload [style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+
+  /* ── Documents page ── */
+  #page-documents [style*="grid-template-columns"]{grid-template-columns:1fr !important;}
+
+  /* ── Modal: sheet from bottom on phone ── */
+  #sf-modal-overlay{align-items:flex-end !important;}
+  #sf-modal-box{
+    width:100% !important;max-width:100% !important;
+    border-radius:16px 16px 0 0 !important;
+    max-height:90vh !important;
+    margin:0 !important;
+  }
+
+  /* ── Form inputs bigger ── */
+  .sf-form-input,.sf-form-select{
+    padding:11px 12px !important;min-height:44px !important;
+  }
+  .sf-modal-btn{min-height:44px !important;font-size:13.5px !important;}
+  .rp-agent-send{min-height:44px !important;}
+
+  /* ── Bottom nav adjustments ── */
+  .footer{display:none !important;}
+
+  /* Misc: hide bell panel & dropdowns that overflow */
+  .bell-panel{right:4px !important;left:4px !important;width:auto !important;}
 }
 
-/* Touch-friendly nav items */
-@media (max-width: 1024px) {
-  .nav-item {
-    padding: 10px 10px !important;
-    min-height: 42px !important;
-    font-size: 13px !important;
+/* ════════════════════════════════════════════
+   SMALL PHONE  ≤ 390px (iPhone SE etc)
+   ════════════════════════════════════════════ */
+@media(max-width:390px){
+  .stats-strip{grid-template-columns:1fr 1fr !important;gap:6px !important;}
+  .stat-val{font-size:18px !important;}
+  #page-slotfloor .sf-pb-grid{grid-template-columns:1fr !important;}
+  .planning-strip{grid-template-columns:1fr 1fr !important;}
+}
+
+/* ── Bottom navigation bar (phone + tablet) ── */
+#mob-bottom-nav{display:none;}
+@media(max-width:1024px){
+  #mob-bottom-nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;
+    height:60px;background:#fff;border-top:1px solid #e3e6ef;
+    z-index:190;align-items:stretch;
+    box-shadow:0 -2px 12px rgba(0,0,0,.08);
   }
-  .nav-section-label { font-size: 10px !important; padding: 8px 10px 4px !important; }
-}
-
-
-/* Prevent double-tap zoom on interactive elements */
-button, .btn, .nav-item, .sf-tab, .day-btn, .map-ctrl, .rp-uc-chip, .sf-chip-sel {
-  touch-action: manipulation;
-}
-/* Smooth scrolling for all panels */
-.main, .rp-agent-messages, #rp-rail-scroll, #sf-hp-feed, #rp-activity-feed {
-  -webkit-overflow-scrolling: touch;
-}
-/* Larger touch targets for small buttons */
-@media (max-width: 1024px) {
-  .sf-modal-btn { min-height: 40px !important; padding: 8px 16px !important; }
-  .rp-agent-send { min-height: 40px !important; }
-  .sf-form-input, .sf-form-select { min-height: 40px !important; font-size: 16px !important; } /* 16px prevents iOS zoom */
-  .rp-agent-input-el { font-size: 16px !important; min-height: 40px !important; } /* prevent iOS keyboard zoom */
-  input[type="date"], input[type="text"], select, textarea {
-    font-size: 16px !important; /* prevent iOS auto-zoom on focus */
+  .mob-nav-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;background:none;border:none;
+    cursor:pointer;color:#6b7280;font-size:9px;font-weight:600;
+    padding:6px 4px;letter-spacing:.02em;text-transform:uppercase;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+    border-top:2px solid transparent;transition:all .12s;
   }
+  .mob-nav-btn:active{background:#f5f6fa;}
+  .mob-nav-btn.mob-active{color:#15803D;border-top-color:#15803D;}
+  .mob-nav-btn svg{flex-shrink:0;}
 }
 
 
-@media (max-width: 1024px) {
-  #mobile-bottom-nav { display: flex !important; }
-  .main { bottom: 58px !important; }
-  .footer { display: none !important; }
+@media(max-width:1024px){
+  .main{padding-bottom:74px !important;}
+  .page-view{padding-bottom:74px !important;}
 }
-
 </style>
 
 <style id="wf-styles">
@@ -2629,7 +2699,8 @@ button, .btn, .nav-item, .sf-tab, .day-btn, .map-ctrl, .rp-uc-chip, .sf-chip-sel
 <body>
 
 <!-- SIDEBAR -->
-<aside class="sidebar">
+<div id="mob-overlay" onclick="mobClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;"></div>
+<aside class="sidebar" id="main-sidebar">
   <div class="sidebar-logo" style="justify-content:center;padding:0 14px;">
     <div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
       <div style="display:flex;align-items:center;gap:6px;">
@@ -2716,10 +2787,10 @@ button, .btn, .nav-item, .sf-tab, .day-btn, .map-ctrl, .rp-uc-chip, .sf-chip-sel
 
 <!-- TOPBAR — Lucky Charm Gaming style, shown on all pages -->
 <header class="topbar" style="justify-content:space-between;">
-  <!-- Left: expand + grid icons -->
+  <!-- Left: hamburger + expand + grid icons -->
   <div style="display:flex;align-items:center;gap:8px;">
-    <button id="sidebar-hamburger" onclick="toggleSidebar()" title="Menu" style="border:none;background:transparent;box-shadow:none;cursor:pointer;padding:6px;border-radius:6px;display:none;align-items:center;justify-content:center;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <button id="mob-hamburger" onclick="mobToggle()" aria-label="Menu" style="display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <button class="tbl-icon-btn" title="Expand" style="border:none;background:transparent;box-shadow:none;">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -11476,8 +11547,6 @@ const PAGE_TITLES = {
 };
 
 function navigateTo(page, navEl) {
-  // Close sidebar on mobile when navigating
-  if (window.innerWidth <= 1024 && typeof closeSidebar === 'function') closeSidebar();
   // Update active nav item
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
@@ -17431,104 +17500,133 @@ window._rpInit=function(){
 </div>
 
 
-
-<script>
-/* ── Mobile sidebar toggle ── */
-function toggleSidebar() {
-  var sidebar  = document.getElementById('main-sidebar');
-  var overlay  = document.getElementById('sidebar-overlay');
-  if (!sidebar) return;
-  var isOpen = sidebar.classList.contains('open');
-  if (isOpen) {
-    closeSidebar();
-  } else {
-    sidebar.classList.add('open');
-    overlay.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-  }
-}
-function closeSidebar() {
-  var sidebar = document.getElementById('main-sidebar');
-  var overlay = document.getElementById('sidebar-overlay');
-  if (sidebar) sidebar.classList.remove('open');
-  if (overlay) overlay.style.display = 'none';
-  document.body.style.overflow = '';
-}
-
-/* Auto-close sidebar when a nav item is clicked on mobile */
-document.addEventListener('DOMContentLoaded', function() {
-  var sidebar = document.getElementById('main-sidebar');
-  if (!sidebar) return;
-  sidebar.addEventListener('click', function(e) {
-    var item = e.target.closest('.nav-item');
-    if (item && window.innerWidth <= 1024) {
-      setTimeout(closeSidebar, 120);
-    }
-  });
-});
-
-/* Swipe left to close sidebar on touch */
-(function() {
-  var startX = 0, startY = 0;
-  document.addEventListener('touchstart', function(e) {
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  }, {passive: true});
-  document.addEventListener('touchend', function(e) {
-    var dx = e.changedTouches[0].clientX - startX;
-    var dy = Math.abs(e.changedTouches[0].clientY - startY);
-    var sidebar = document.getElementById('main-sidebar');
-    if (!sidebar) return;
-    // Swipe right from left edge → open
-    if (startX < 28 && dx > 55 && dy < 60) {
-      sidebar.classList.add('open');
-      document.getElementById('sidebar-overlay').style.display = 'block';
-    }
-    // Swipe left on open sidebar → close
-    if (sidebar.classList.contains('open') && dx < -55 && dy < 60) {
-      closeSidebar();
-    }
-  }, {passive: true});
-})();
-
-/* Fix topbar centre logo overlap on small screens */
-(function() {
-  function adjustTopbar() {
-    var logo = document.querySelector('.topbar > div[style*="position:absolute"]');
-    if (!logo) return;
-    if (window.innerWidth < 500) {
-      logo.style.display = 'none';
-    } else {
-      logo.style.display = '';
-    }
-  }
-  window.addEventListener('resize', adjustTopbar);
-  document.addEventListener('DOMContentLoaded', adjustTopbar);
-})();
-</script>
-
-<!-- Mobile bottom nav bar -->
-<nav id="mobile-bottom-nav" style="display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:#fff;border-top:1px solid #E5E7EB;z-index:190;align-items:center;justify-content:space-around;padding:0 4px;">
-  <button onclick="navigateTo('dashboard',this)" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;color:#6b7280;font-size:9.5px;font-weight:600;min-width:52px;touch-action:manipulation;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+<!-- ── Mobile bottom navigation ── -->
+<nav id="mob-bottom-nav" aria-label="Mobile navigation">
+  <button class="mob-nav-btn mob-active" id="mobbtn-dashboard" onclick="mobNavTo('dashboard',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
     Dashboard
   </button>
-  <button onclick="navigateTo('routes',this)" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;color:#6b7280;font-size:9.5px;font-weight:600;min-width:52px;touch-action:manipulation;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+  <button class="mob-nav-btn" id="mobbtn-routes" onclick="mobNavTo('routes',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h18M9 6l-6 6 6 6"/></svg>
     Routes
   </button>
-  <button onclick="navigateTo('slotfloor',document.querySelector('[data-page=slotfloor]'))" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;color:#6b7280;font-size:9.5px;font-weight:600;min-width:52px;touch-action:manipulation;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
-    Slot Floor
+  <button class="mob-nav-btn" id="mobbtn-slotfloor" onclick="mobNavTo('slotfloor',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8M12 8v8"/></svg>
+    Slots
   </button>
-  <button onclick="navigateTo('routeplanner',document.querySelector('[data-page=routeplanner]'))" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;color:#6b7280;font-size:9.5px;font-weight:600;min-width:52px;touch-action:manipulation;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v6a6 6 0 006 6"/><path d="M18 15V9a6 6 0 00-6-6"/></svg>
+  <button class="mob-nav-btn" id="mobbtn-routeplanner" onclick="mobNavTo('routeplanner',this)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v5a4 4 0 004 4h.01M18 15V10a4 4 0 00-4-4h-.01"/></svg>
     Route Plan
   </button>
-  <button onclick="toggleSidebar()" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;color:#6b7280;font-size:9.5px;font-weight:600;min-width:52px;touch-action:manipulation;">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    More
+  <button class="mob-nav-btn" id="mobbtn-more" onclick="mobToggle()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    Menu
   </button>
 </nav>
+
+<script>
+/* ═══════════════════════════════════════════════
+   MOBILE NAVIGATION  —  sidebar + swipe + bottom nav
+   ═══════════════════════════════════════════════ */
+
+function mobToggle(){
+  var s=document.getElementById('main-sidebar');
+  var o=document.getElementById('mob-overlay');
+  if(!s) return;
+  if(s.classList.contains('mob-open')){
+    mobClose();
+  } else {
+    s.classList.add('mob-open');
+    if(o){o.style.display='block';}
+    document.body.style.overflow='hidden';
+  }
+}
+function mobClose(){
+  var s=document.getElementById('main-sidebar');
+  var o=document.getElementById('mob-overlay');
+  if(s) s.classList.remove('mob-open');
+  if(o) o.style.display='none';
+  document.body.style.overflow='';
+}
+
+/* Close sidebar when nav item clicked on mobile */
+document.addEventListener('DOMContentLoaded',function(){
+  var s=document.getElementById('main-sidebar');
+  if(s){
+    s.addEventListener('click',function(e){
+      var item=e.target.closest('.nav-item');
+      if(item && window.innerWidth<=1024){
+        setTimeout(mobClose, 80);
+      }
+    });
+  }
+});
+
+/* Swipe-right-from-edge → open, swipe-left → close */
+(function(){
+  var sx=0,sy=0,tracking=false;
+  document.addEventListener('touchstart',function(e){
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+    tracking = sx<32; // only track edge swipe
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(!tracking) return;
+    var dx=e.changedTouches[0].clientX-sx;
+    var dy=Math.abs(e.changedTouches[0].clientY-sy);
+    if(dx>60 && dy<80){mobToggle();}
+    tracking=false;
+  },{passive:true});
+  // Swipe left anywhere when open → close
+  document.addEventListener('touchstart',function(e){
+    sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    var s=document.getElementById('main-sidebar');
+    if(!s||!s.classList.contains('mob-open')) return;
+    var dx=e.changedTouches[0].clientX-sx;
+    var dy=Math.abs(e.changedTouches[0].clientY-sy);
+    if(dx<-60 && dy<80) mobClose();
+  },{passive:true});
+})();
+
+/* Bottom nav helper */
+function mobNavTo(page,btn){
+  // Clear active state on all bottom nav buttons
+  document.querySelectorAll('.mob-nav-btn').forEach(function(b){
+    b.classList.remove('mob-active');
+  });
+  if(btn) btn.classList.add('mob-active');
+  // Find the corresponding sidebar nav item
+  var navEl=document.querySelector('.nav-item[data-page="'+page+'"]');
+  navigateTo(page, navEl);
+  mobClose();
+}
+
+/* Sync bottom nav active state when sidebar nav item is clicked */
+var _origNavigateTo = navigateTo;
+navigateTo = function(page, navEl){
+  _origNavigateTo(page, navEl);
+  // Sync bottom nav
+  document.querySelectorAll('.mob-nav-btn').forEach(function(b){
+    b.classList.remove('mob-active');
+  });
+  var matchBtn = document.getElementById('mobbtn-'+page);
+  if(matchBtn) matchBtn.classList.add('mob-active');
+  // Close sidebar on mobile
+  if(window.innerWidth<=1024) setTimeout(mobClose,80);
+};
+
+/* Adjust bottom nav & main bottom padding on resize */
+function mobAdjust(){
+  var nav=document.getElementById('mob-bottom-nav');
+  if(!nav) return;
+  var isMob=window.innerWidth<=1024;
+  // Already handled by CSS, but ensure the hamburger is visible
+  var hb=document.getElementById('mob-hamburger');
+  if(hb) hb.style.display=isMob?'flex':'none';
+}
+window.addEventListener('resize',mobAdjust);
+document.addEventListener('DOMContentLoaded',mobAdjust);
+</script>
 </body>
 </html>
