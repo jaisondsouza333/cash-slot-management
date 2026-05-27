@@ -12078,6 +12078,13 @@ function openDrill(id){
 
   document.getElementById('drill-body').innerHTML=`
     ${anomalyHTML}
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface2);">
+      <div style="min-width:0;">
+        <div style="font-size:10px;font-weight:800;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;">Account actions</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.35;">Open the full account workspace for load history, dispenser detail, events, and load creation.</div>
+      </div>
+      <button class="btn btn-primary" onclick="drillViewAccount('${a.id}')" style="flex-shrink:0;border-radius:999px;padding:7px 14px;">View account</button>
+    </div>
     <div class="drill-section">
       <div class="drill-section-title">Overview</div>
       <div class="drill-meta-grid">
@@ -12107,6 +12114,13 @@ function openDrill(id){
   document.getElementById('drill-backdrop').classList.add('open');
   document.getElementById('drill-panel').classList.add('open');
   document.getElementById('drill-panel').setAttribute('aria-hidden','false');
+}
+
+function drillViewAccount(id){
+  const a=ALL_ACCOUNTS.find(x=>x.id===id);
+  if(!a)return;
+  closeDrill();
+  openAcctOverview(a.name,'dashboard',a.nrt,a.id);
 }
 
 function closeDrill(){
@@ -12829,10 +12843,14 @@ function openAcctOverview(accountName, fromPage, nrt, acctId) {
   if (nrtEl) nrtEl.textContent = _ovAccountData.nrt;
   // Navigate to overview page
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var navEl = document.querySelector('[data-page="accounts"]');
+  if (navEl) navEl.classList.add('active');
+  var titleEl = document.querySelector('.topbar-title');
+  if (titleEl) titleEl.textContent = 'Account Overview';
   document.querySelector('.main') && (document.querySelector('.main').style.display = 'none');
   document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
   var pv = document.getElementById('page-acct-overview');
-  if (pv) pv.classList.add('active');
+  if (pv) { pv.classList.add('active'); pv.scrollTop = 0; }
 }
 
 function closeAcctOverview() {
