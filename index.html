@@ -2136,8 +2136,12 @@ input, select, textarea {
   /* 6. Topbar user text: hide on tablet to save space */
   #topbar-user-text { display: none !important; }
 
-  /* 7. Hide topbar expand/grid icon buttons */
-  .tbl-icon-btn { display: none !important; }
+  /* 7. Keep table action buttons available on touch devices */
+  .tbl-icon-btn {
+    display: inline-flex !important;
+    width: 34px !important;
+    height: 34px !important;
+  }
 
   /* 8. Stats strip: 3 cols */
   .stats-strip { grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; }
@@ -2201,12 +2205,64 @@ input, select, textarea {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     border-radius: 10px !important;
+    max-width: 100% !important;
   }
   /* Tables keep their min-width but parent scrolls */
-  .lp-table { min-width: auto !important; }
-  #um-table { min-width: 700px !important; }
-  #rm-table { min-width: 600px !important; }
-  #cl-table { min-width: 700px !important; }
+  .lp-table { min-width: 760px !important; }
+  #um-table { min-width: 1060px !important; }
+  #rm-table { min-width: 760px !important; }
+  #cl-table { min-width: 860px !important; }
+
+  .lp-table th,
+  .lp-table td {
+    padding: 9px 10px !important;
+    white-space: nowrap;
+  }
+
+  .lp-table th:first-child,
+  .lp-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 128px;
+    min-width: 128px;
+    background: var(--surface);
+    box-shadow: 8px 0 14px rgba(26,31,54,.08);
+  }
+  .lp-table th:first-child {
+    z-index: 3;
+    background: var(--surface2);
+  }
+  .tbl-actions {
+    gap: 7px !important;
+    min-width: max-content;
+  }
+
+  .doc-table {
+    min-width: 760px !important;
+  }
+  .doc-table th,
+  .doc-table td {
+    white-space: nowrap;
+  }
+  .doc-table th:first-child,
+  .doc-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 124px;
+    min-width: 124px;
+    background: var(--surface);
+    box-shadow: 8px 0 14px rgba(26,31,54,.08);
+  }
+  .doc-table th:first-child {
+    z-index: 3;
+    background: var(--surface2);
+  }
+  .doc-action-btn {
+    width: 34px !important;
+    height: 34px !important;
+  }
 
   /* ── Accounts page filter panel ── */
   #acc-filter-panel {
@@ -2279,6 +2335,55 @@ input, select, textarea {
 
   /* ── Bell panel: narrower on phone ── */
   .bell-panel { width: calc(100vw - 16px) !important; right: -60px !important; }
+
+  .lp-header {
+    align-items: stretch !important;
+    gap: 10px !important;
+    flex-direction: column !important;
+    margin-bottom: 12px !important;
+  }
+  .lp-toolbar {
+    width: 100% !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    flex-wrap: wrap !important;
+  }
+  .lp-search-wrap,
+  .lp-search {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .lp-toolbar .btn,
+  .lp-toolbar .per-page-select {
+    min-height: 38px;
+  }
+  .lp-pagination {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 10px !important;
+  }
+  .lp-pag-btns {
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .doc-toolbar {
+    align-items: stretch !important;
+  }
+  .doc-search-wrap {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+  .doc-filter-tabs {
+    overflow-x: auto;
+    max-width: 100%;
+    scrollbar-width: none;
+  }
+  .doc-filter-tabs::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* ════════════════════════════════════════════════════
@@ -2733,12 +2838,12 @@ input, select, textarea {
   }
   /* Most tables: let them scroll */
   #acc-table   { min-width: 640px !important; }
-  #asset-table { min-width: 700px !important; }
-  #routes-table { min-width: 600px !important; }
-  #markets-table { min-width: 580px !important; }
-  #um-table    { min-width: 700px !important; }
-  #rm-table    { min-width: 600px !important; }
-  #cl-table    { min-width: 700px !important; }
+  #assets-table  { min-width: 820px !important; }
+  #routes-table  { min-width: 780px !important; }
+  #markets-table { min-width: 900px !important; }
+  #um-table      { min-width: 1060px !important; }
+  #rm-table      { min-width: 760px !important; }
+  #cl-table      { min-width: 860px !important; }
 
   /* ────────────────────────────────────
      MODAL SYSTEM (global)
@@ -2876,7 +2981,11 @@ input, select, textarea {
   .topbar { padding: 0 8px !important; gap: 4px !important; height: var(--topbar-h) !important; }
   .topbar-spacer { flex: 1 !important; }
   #topbar-user-text { display: none !important; }
-  .tbl-icon-btn { display: none !important; }
+  .tbl-icon-btn {
+    display: inline-flex !important;
+    width: 34px !important;
+    height: 34px !important;
+  }
   .sync-text { display: none !important; }
   .sync-dot { margin-right: 0 !important; }
 
