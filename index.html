@@ -379,7 +379,7 @@ body.select-mode .card-checkbox{display:inline-flex;}
   background:var(--text);color:#fff;border-radius:100px;
   display:flex;align-items:center;gap:14px;padding:8px 8px 8px 18px;
   box-shadow:0 8px 30px rgba(26,31,54,.28);
-  z-index:400;opacity:0;pointer-events:none;
+  z-index:9000;opacity:0;pointer-events:none;
   transition:opacity .2s,transform .2s;font-family:var(--font);
 }
 .bulk-bar.open{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0);}
@@ -1860,6 +1860,7 @@ textarea.form-inp{resize:vertical;}
   pointer-events:all;
   z-index:59001;
   transition:width .22s;
+  overflow:hidden; /* needed for history panel overlay */
 }
 @keyframes agentSlideIn { from{transform:translateX(100%)} to{transform:none} }
 
@@ -2254,23 +2255,11 @@ input, select, textarea {
   #sf-loc-switcher { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 4px !important; }
   .sf-loc-card     { min-width: 140px !important; flex-shrink: 0 !important; }
 
-  /* ── Route Planner ── */
+  /* ── Route Planner: already handled by dedicated section above ── */
   #page-routeplanner { padding: 10px 10px 74px !important; }
-  /* Hide map and collector rail — too small to use */
-  .rp-map-section,  #rp-map-section  { display: none !important; }
-  .rp-rail-wrap,    .rp-rail          { display: none !important; }
-  /* Stack all RP grids */
-  #page-routeplanner [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
-  #page-routeplanner [style*="display:grid"]          { grid-template-columns: 1fr !important; }
-  /* Planning strip */
-  .planning-strip { grid-template-columns: repeat(2,1fr) !important; }
-  /* Day picker */
-  .day-btn { padding: 6px 10px !important; font-size: 11px !important; min-height: 36px !important; }
-  /* Route AI panel: full screen */
-  #rp-agent-panel {
-    width: 100vw !important; max-width: 100vw !important;
-    border-radius: 0 !important;
-  }
+  /* Hide map on phone */
+  .rp-map-section, #rp-map-section { display: none !important; }
+  .rp-rail-wrap, .rp-rail { display: none !important; }
 
   /* ── Modal: bottom sheet on phone ── */
   #sf-modal-overlay { align-items: flex-end !important; }
@@ -2313,11 +2302,11 @@ input, select, textarea {
 @media (max-width: 1024px) {
   #mob-bottom-nav {
     display: flex !important;
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 190;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 9100;  /* above wf-page, below modals */
     height: 60px; background: #fff; border-top: 1px solid #e3e6ef;
     box-shadow: 0 -2px 16px rgba(0,0,0,.08);
     align-items: stretch;
-    /* Safe area for notched phones */
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   .mob-nb {
@@ -2335,11 +2324,520 @@ input, select, textarea {
   .mob-nb.on { color: #15803D; border-top-color: #15803D; }
   .mob-nb svg { flex-shrink: 0; margin-bottom: 1px; }
 
-  /* Adjust main / page-view bottom to clear the nav */
+  /* Sidebar must slide over wf-page */
+  #main-sidebar { z-index: 9200 !important; }
+  #mob-overlay   { z-index: 9150 !important; }
+
+  /* wf-page: lower z-index so sidebar and bottom-nav sit above it */
+  .wf-page { z-index: 800 !important; }
+
+  /* Adjust main / page-view / wf-page bottom to clear the nav */
   .main, .page-view, .wf-page {
     padding-bottom: calc(60px + env(safe-area-inset-bottom, 8px)) !important;
   }
   .app-footer { display: none !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   DASHBOARD — MOBILE
+   ════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .filter-bar { flex-wrap: wrap !important; gap: 8px !important; }
+  .filter-bar .tabs { overflow-x: auto; flex-wrap: nowrap !important; scrollbar-width: none; max-width: 100%; -webkit-overflow-scrolling: touch; }
+  .filter-bar .tabs::-webkit-scrollbar { display: none; }
+  .search-wrap { flex: 1 1 140px !important; max-width: 100% !important; }
+  .filter-wrap { margin-left: 0 !important; }
+}
+@media (max-width: 767px) {
+  .filter-bar { gap: 6px !important; }
+  .filter-bar .tabs { flex: 0 0 100%; order: 1; }
+  .search-wrap { order: 2; max-width: 100% !important; flex: 1 1 auto !important; }
+  .filter-wrap { order: 3; }
+  .cards-grid { grid-template-columns: 1fr !important; }
+  #drill-overlay { width: 100vw !important; max-width: 100vw !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   ROUTE PLANNER — MOBILE
+   ════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  #page-routeplanner {
+    padding: 14px 14px calc(68px + env(safe-area-inset-bottom,8px)) !important;
+  }
+  /* Planning strip: 3 col on tablet */
+  #page-routeplanner .ps-grid { grid-template-columns: repeat(3,1fr) !important; }
+  /* Planner grid: drop map, keep rail + detail */
+  #page-routeplanner .planner-grid {
+    grid-template-columns: 260px 1fr !important;
+    height: auto !important; min-height: 0 !important;
+  }
+  #page-routeplanner .map-pane { display: none !important; }
+  /* Unassigned: 2 col */
+  #page-routeplanner .uq-list { grid-template-columns: repeat(2,1fr) !important; }
+}
+
+@media (max-width: 767px) {
+  #page-routeplanner {
+    padding: 10px 10px calc(68px + env(safe-area-inset-bottom,8px)) !important;
+  }
+  /* Planning strip: 2 col */
+  #page-routeplanner .ps-grid { grid-template-columns: repeat(2,1fr) !important; }
+  #page-routeplanner .planning-strip { padding: 12px 14px 14px !important; border-radius: 10px !important; }
+  #page-routeplanner .ps-head { flex-wrap: wrap !important; gap: 6px !important; margin-bottom: 8px !important; }
+  #page-routeplanner .ps-value { font-size: 20px !important; }
+
+  /* Day picker: horizontal scroll strip */
+  #page-routeplanner .day-picker {
+    overflow-x: auto !important; flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch; padding: 3px !important; gap: 2px !important;
+  }
+  #page-routeplanner .day-btn { flex-shrink: 0 !important; padding: 6px 10px !important; font-size: 11.5px !important; }
+
+  /* Planner grid: single column */
+  #page-routeplanner .planner-grid {
+    grid-template-columns: 1fr !important;
+    height: auto !important; min-height: 0 !important; gap: 10px !important;
+  }
+
+  /* Collectors rail: bounded height */
+  #page-routeplanner .collectors-rail { max-height: 440px !important; height: auto !important; }
+  .rail-scroll { max-height: 340px !important; overflow-y: auto !important; }
+
+  /* Stop detail: auto height */
+  #page-routeplanner .stop-detail { height: auto !important; max-height: none !important; }
+  .sd-body { max-height: 380px !important; overflow-y: auto !important; }
+
+  /* Map: hidden */
+  #page-routeplanner .map-pane { display: none !important; }
+
+  /* Unassigned: 1 col */
+  #page-routeplanner .uq-list { grid-template-columns: 1fr !important; padding: 10px 12px !important; gap: 8px !important; }
+  #page-routeplanner .uq-head { flex-wrap: wrap !important; gap: 8px !important; }
+  #page-routeplanner .uq-head .btn { width: 100% !important; justify-content: center !important; }
+
+  /* Toolbar rows: wrap */
+  #page-routeplanner > div[style*="display:flex"],
+  #page-routeplanner > div > div[style*="display:flex"] { flex-wrap: wrap !important; gap: 8px !important; }
+
+  /* Touch targets */
+  #page-routeplanner .stop-row { padding: 8px !important; min-height: 40px !important; }
+  #page-routeplanner .collector-head { padding: 10px 12px !important; }
+  #page-routeplanner .btn { min-height: 40px !important; }
+
+  /* SD actions */
+  #page-routeplanner .sd-actions { flex-wrap: wrap !important; padding: 10px 12px !important; }
+  #page-routeplanner .sd-actions .btn { flex: 1 1 120px !important; justify-content: center !important; }
+
+  /* Activity feed */
+  #rp-activity-feed { max-height: 260px !important; }
+}
+
+@media (max-width: 430px) {
+  #page-routeplanner .ps-grid { grid-template-columns: 1fr 1fr !important; }
+  #page-routeplanner .ps-value { font-size: 17px !important; }
+  #page-routeplanner .ps-label { font-size: 9px !important; }
+  #page-routeplanner .collectors-rail { max-height: 360px !important; }
+}
+
+/* ────────────────────────────────────────────────────
+   WF-PAGE MOBILE RESPONSIVE — full fix
+   ────────────────────────────────────────────────────*/
+@media (max-width: 1024px) {
+  /* Correct inset so wf-page fills screen edge-to-edge */
+  .wf-page {
+    left: 0 !important;
+    top: var(--topbar-h) !important;
+    bottom: 0 !important;
+  }
+
+  /* Inner .main padding */
+  .wf-page .main {
+    padding: 14px 14px calc(70px + env(safe-area-inset-bottom,8px)) !important;
+  }
+
+  /* Stepper: shrink labels on tablet */
+  .wf-page .step-label { font-size: 10px !important; }
+  .wf-page .step-circle { width: 28px !important; height: 28px !important; font-size: 12px !important; }
+}
+
+@media (max-width: 767px) {
+  /* wf-page inner main: tighter padding on phone */
+  .wf-page .main {
+    padding: 10px 10px calc(70px + env(safe-area-inset-bottom,8px)) !important;
+  }
+
+  /* ── Stepper: compress on phone ── */
+  .wf-page .stepper { padding: 10px 0 8px !important; }
+  .wf-page .step-label { font-size: 9px !important; white-space: normal !important; text-align: center !important; max-width: 52px !important; }
+  .wf-page .step-circle { width: 24px !important; height: 24px !important; font-size: 11px !important; }
+  .wf-page .step-line { margin-bottom: 14px !important; }
+
+  /* ── Page header ── */
+  .wf-page .page-header { flex-direction: column !important; gap: 8px !important; }
+  .wf-page .meta-right { text-align: left !important; }
+
+  /* ── All multi-column grids collapse to single column ── */
+  .wf-page .grid-2,
+  .wf-page .grid-3,
+  .wf-page .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Cassette grid: 1 column on small phone ── */
+  .wf-page .cassettes-grid {
+    grid-template-columns: 1fr !important;
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+
+  /* ── BV grid: 2 cols instead of 4 ── */
+  .wf-page .bv-grid {
+    grid-template-columns: 1fr 1fr !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* ── Side-by-side grid ── */
+  .wf-page .grid-side-by-side { grid-template-columns: 1fr !important; }
+
+  /* ── Checkout summary: 1 col ── */
+  .wf-page .checkout-summary { grid-template-columns: 1fr !important; padding: 0 12px 12px !important; }
+
+  /* ── Verify stats: 1 col ── */
+  .wf-page .verify-stats-3 { grid-template-columns: 1fr !important; }
+
+  /* ── Custody row: stack vertically ── */
+  .wf-page .custody-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  .wf-page .custody-arrow { display: none !important; }
+
+  /* ── Footer actions: full width buttons ── */
+  .wf-page .footer-actions {
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+    padding: 14px 0 8px !important;
+  }
+  .wf-page .footer-actions .btn { width: 100% !important; justify-content: center !important; }
+
+  /* ── Upload zone ── */
+  .wf-page .upload-zone { padding: 16px 12px !important; }
+
+  /* ── Scan input ── */
+  .wf-page .scan-input-wrap { flex-wrap: wrap !important; }
+
+  /* ── Card body: tighter padding ── */
+  .wf-page .card-body { padding: 12px !important; }
+  .wf-page .card-header { padding: 10px 12px !important; }
+
+  /* ── Tables: horizontal scroll ── */
+  .wf-page .card-body table,
+  .wf-page .main table {
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: nowrap !important;
+  }
+
+  /* ── Flag modal ── */
+  .wf-page .flag-modal-box { width: 95vw !important; padding: 16px !important; }
+  .wf-page .flag-detail-grid { grid-template-columns: 1fr !important; }
+
+  /* ── Person card ── */
+  .wf-page .person-card { flex-wrap: wrap !important; }
+
+  /* ── Date fields ── */
+  .wf-page input[type="date"] { font-size: 14px !important; min-height: 44px !important; }
+
+  /* ── All inputs: touch-friendly height ── */
+  .wf-page input,
+  .wf-page select,
+  .wf-page textarea { min-height: 44px !important; font-size: 14px !important; }
+
+  /* ── Buttons: touch-friendly ── */
+  .wf-page .btn { min-height: 44px !important; font-size: 13px !important; padding: 10px 18px !important; }
+  .wf-page .btn-sm { min-height: 36px !important; }
+}
+
+@media (max-width: 430px) {
+  /* Tightest phone — cassettes stay 1 col, bv-grid stays 2 col */
+  .wf-page .cassettes-grid { padding: 8px !important; gap: 8px !important; }
+  .wf-page .main { padding: 8px 8px calc(70px + env(safe-area-inset-bottom,8px)) !important; }
+  .wf-page .step-label { font-size: 8px !important; max-width: 44px !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLOBAL MOBILE FIX — ALL PAGES
+   Covers: action buttons, toolbars, bulk bar, tables, modals,
+   drill panels, toasts, every list page, compliance, accounts
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Base touch improvements (all sizes) ── */
+.btn, button, [onclick], .nav-item, .tab, .fp-chip {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ── Bulk bar: must clear bottom nav on mobile ── */
+@media (max-width: 1024px) {
+  .bulk-bar {
+    bottom: calc(60px + env(safe-area-inset-bottom, 8px) + 8px) !important;
+    z-index: 9000 !important;
+    max-width: calc(100vw - 24px) !important;
+    left: 50% !important;
+  }
+}
+
+/* ── Toast: must clear bottom nav ── */
+@media (max-width: 1024px) {
+  .toast-container {
+    bottom: calc(60px + env(safe-area-inset-bottom, 8px) + 8px) !important;
+    z-index: 9050 !important;
+  }
+  #sf-toast {
+    bottom: calc(60px + env(safe-area-inset-bottom, 8px) + 8px) !important;
+    z-index: 9050 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* ────────────────────────────────────
+     LIST PAGE HEADER + TOOLBAR
+     All pages: routes, assets, markets,
+     cashload, usermaster, rolemaster
+     ──────────────────────────────────── */
+  .lp-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+  .lp-title { font-size: 17px !important; }
+  .lp-toolbar {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .lp-search-wrap { flex: 1 1 100% !important; order: -1; }
+  .lp-search { width: 100% !important; font-size: 14px !important; min-height: 40px !important; }
+
+  /* Action buttons: full width on phone */
+  .lp-toolbar .btn,
+  .lp-toolbar button {
+    flex: 1 1 auto !important;
+    min-height: 40px !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+  }
+  /* Primary action buttons together */
+  .lp-toolbar .btn-primary { flex: 1 1 calc(50% - 4px) !important; }
+
+  /* ────────────────────────────────────
+     ACCOUNTS PAGE
+     ──────────────────────────────────── */
+  #page-accounts { padding: 10px 10px 74px !important; }
+  /* Accounts filter panel: slide from left edge */
+  #acc-filter-panel {
+    left: 0 !important;
+    width: min(85vw, 280px) !important;
+    top: var(--topbar-h) !important;
+    bottom: 60px !important;
+    z-index: 9200 !important;
+  }
+  #acc-filter-backdrop { z-index: 9150 !important; }
+
+  /* ────────────────────────────────────
+     DRILL PANEL (account detail)
+     ──────────────────────────────────── */
+  .drill-overlay, #drill-overlay {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+  }
+
+  /* ────────────────────────────────────
+     ALL LIST-PAGE TABLES
+     ──────────────────────────────────── */
+  .lp-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: var(--r-xl) !important;
+  }
+  /* Most tables: let them scroll */
+  #acc-table   { min-width: 640px !important; }
+  #asset-table { min-width: 700px !important; }
+  #routes-table { min-width: 600px !important; }
+  #markets-table { min-width: 580px !important; }
+  #um-table    { min-width: 700px !important; }
+  #rm-table    { min-width: 600px !important; }
+  #cl-table    { min-width: 700px !important; }
+
+  /* ────────────────────────────────────
+     MODAL SYSTEM (global)
+     ──────────────────────────────────── */
+  .modal-backdrop { z-index: 9500 !important; }
+  .modal-box {
+    width: 95vw !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    border-radius: 12px !important;
+  }
+  /* SF modal: bottom sheet on phone */
+  #sf-modal-overlay { align-items: flex-end !important; z-index: 9500 !important; }
+  #sf-modal-box {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 88vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+  .sf-form-input, .sf-form-select, .sf-form-input[type] { min-height: 44px !important; font-size: 14px !important; }
+  .sf-modal-btn { min-height: 44px !important; font-size: 13px !important; }
+  #sf-modal-footer { flex-wrap: wrap !important; gap: 6px !important; }
+  #sf-modal-footer .sf-modal-btn { flex: 1 1 calc(50% - 6px) !important; }
+
+  /* ────────────────────────────────────
+     FILTER PANELS (floating dropdowns)
+     ──────────────────────────────────── */
+  .filter-panel {
+    position: fixed !important;
+    top: auto !important;
+    bottom: calc(60px + env(safe-area-inset-bottom,8px)) !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    z-index: 9300 !important;
+    border-radius: 12px !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+  }
+  /* Asset & user filter panels too */
+  #as-filter-panel,
+  #um-filter-panel,
+  #rm-filter-panel {
+    position: fixed !important;
+    top: auto !important;
+    bottom: calc(60px + env(safe-area-inset-bottom,8px)) !important;
+    left: 8px !important; right: 8px !important;
+    width: auto !important;
+    z-index: 9300 !important;
+    border-radius: 12px !important;
+    max-height: 65vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* ────────────────────────────────────
+     CASHLOAD PAGE
+     ──────────────────────────────────── */
+  #page-cashload { padding: 10px 10px 74px !important; }
+
+  /* ────────────────────────────────────
+     COMPLIANCE PAGE
+     ──────────────────────────────────── */
+  #page-compliance { padding: 10px 10px 74px !important; }
+  .comp-page { padding: 10px 10px 16px !important; }
+  .comp-hd-row { flex-direction: column !important; gap: 8px !important; }
+  .comp-toolbar { justify-content: flex-start !important; gap: 6px !important; }
+  .comp-btn-filters { min-height: 36px !important; }
+
+  /* Compliance table */
+  .comp-fp-overlay { z-index: 9300 !important; }
+  .comp-page table {
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: nowrap !important;
+  }
+
+  /* ────────────────────────────────────
+     MARKETS + USER MASTER + ROLE MASTER
+     ──────────────────────────────────── */
+  #page-markets, #page-usermaster, #page-rolemaster {
+    padding: 10px 10px 74px !important;
+  }
+
+  /* ────────────────────────────────────
+     ROUTES PAGE
+     ──────────────────────────────────── */
+  #page-routes { padding: 10px 10px 74px !important; }
+
+  /* ────────────────────────────────────
+     ASSETS PAGE
+     ──────────────────────────────────── */
+  #page-assets { padding: 10px 10px 74px !important; }
+
+  /* Asset check-in/checkout modal panels */
+  #page-asset-checkin { padding: 10px !important; }
+  #page-asset-checkin [style*="grid-template-columns:420px 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ────────────────────────────────────
+     SLOT FLOOR — additional fixes
+     ──────────────────────────────────── */
+  #page-slotfloor .sf-cashless-panel { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-pb-grid { grid-template-columns: repeat(3,1fr) !important; }
+  #page-slotfloor .sf-main-grid { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-loc-h-grid { grid-template-columns: 1fr !important; }
+  #page-slotfloor .sf-slot-grid { grid-template-columns: 1fr !important; }
+  .sf-date-bar { flex-wrap: wrap !important; gap: 6px !important; }
+  .sf-date-bar .sf-retailer-select { flex: 1 1 100% !important; }
+  .sf-date-bar .sf-date-go { flex: 1 !important; min-height: 40px !important; }
+  .sf-date-session { flex: 0 0 100% !important; text-align: center !important; }
+  /* Slot floor tabs wrap */
+  #sf-slot-tabs { flex-wrap: wrap !important; }
+
+  /* ────────────────────────────────────
+     MAIN DASHBOARD TABLE / CARDS
+     ──────────────────────────────────── */
+  .main { padding: 10px 10px calc(68px + env(safe-area-inset-bottom,8px)) !important; }
+  /* Bulk bar on dashboard */
+  .bulk-bar {
+    left: 8px !important; right: 8px !important;
+    width: auto !important; max-width: none !important;
+    transform: translateY(20px) !important;
+    border-radius: 12px !important;
+    flex-wrap: wrap !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+  .bulk-bar.open { transform: translateY(0) !important; }
+
+  /* ────────────────────────────────────
+     TOPBAR — keep it tight
+     ──────────────────────────────────── */
+  .topbar { padding: 0 8px !important; gap: 4px !important; height: var(--topbar-h) !important; }
+  .topbar-spacer { flex: 1 !important; }
+  #topbar-user-text { display: none !important; }
+  .tbl-icon-btn { display: none !important; }
+  .sync-text { display: none !important; }
+  .sync-dot { margin-right: 0 !important; }
+
+  /* ────────────────────────────────────
+     AGENT PANEL — full screen on phone
+     ──────────────────────────────────── */
+  #rp-agent-panel {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+  }
+  #rp-agent-fab {
+    bottom: calc(70px + env(safe-area-inset-bottom,4px)) !important;
+    right: 16px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
+/* ── Small phone (≤430px) additional ── */
+@media (max-width: 430px) {
+  .lp-toolbar .btn-primary { flex: 1 1 100% !important; }
+  .lp-toolbar .btn { flex: 1 1 100% !important; }
+  #sf-modal-footer .sf-modal-btn { flex: 1 1 100% !important; }
+  .bulk-bar { gap: 6px !important; padding: 8px 10px !important; }
+  .bulk-link { font-size: 11px !important; padding: 3px 4px !important; }
 }
 
 </style>
@@ -2910,7 +3408,7 @@ input, select, textarea {
 <body>
 
 <!-- SIDEBAR -->
-<div id="mob-overlay" onclick="mobClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;"></div>
+<div id="mob-overlay" onclick="mobClose()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9150;"></div>
 <aside class="sidebar" id="main-sidebar">
   <div class="sidebar-logo" style="justify-content:center;padding:0 14px;">
     <div style="display:flex;align-items:center;gap:8px;">
@@ -3173,7 +3671,7 @@ input, select, textarea {
 
   <!-- Filter Side Panel -->
   <div id="acc-filter-backdrop" onclick="closeAccFilter()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:600;"></div>
-  <div id="acc-filter-panel" style="display:none;position:fixed;left:var(--sidebar-w);top:var(--topbar-h);bottom:28px;width:220px;background:var(--surface);border-right:1px solid var(--border);z-index:601;overflow-y:auto;padding:16px 14px;box-shadow:var(--shadow-md);">
+  <div id="acc-filter-panel" style="display:none;position:fixed;left:var(--sidebar-w);top:var(--topbar-h);bottom:28px;width:220px;background:var(--surface);border-right:1px solid var(--border);z-index:601;overflow-y:auto;padding:16px 14px;box-shadow:var(--shadow-md);" class="acc-filter-panel-el">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <span style="font-size:13px;font-weight:800;color:var(--text);">Filters (0)</span>
       <span onclick="closeAccFilter()" style="cursor:pointer;color:var(--text3);font-size:16px;line-height:1;">&times;</span>
@@ -17214,6 +17712,9 @@ window._sfInit=function(){
       </div>
       <div class="rp-agent-live">LIVE</div>
       <div class="rp-win-controls">
+        <button class="rp-win-btn" id="rp-history-btn" title="Chat history" onclick="rpToggleHistory()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 3.5V6l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
         <button class="rp-win-btn rp-btn-min" title="Minimize" onclick="rpMinimizeAgent()">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </button>
@@ -17223,6 +17724,26 @@ window._sfInit=function(){
         <button class="rp-win-btn rp-btn-close" title="Close" onclick="rpCloseAgent()">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </button>
+      </div>
+    </div>
+
+    <!-- History panel (slides over messages) -->
+    <div id="rp-history-panel" style="display:none;position:absolute;inset:0;top:53px;background:#fff;z-index:10;display:none;flex-direction:column;">
+      <div style="padding:10px 14px;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#F8FAFC;">
+        <div style="font-size:12.5px;font-weight:700;color:#0F172A;display:flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#4f46e5" stroke-width="1.5"/><path d="M6 3.5V6l1.5 1.5" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Chat History
+          <span id="rp-hist-count" style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:1px 6px;border-radius:10px;"></span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="rpHistSelectAll()" style="font-size:11px;font-weight:600;color:#4f46e5;background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:5px;" title="Select all">Select all</button>
+          <button onclick="rpHistClearAll()" style="font-size:11px;font-weight:600;color:#DC2626;background:#FEF2F2;border:1px solid #FECACA;cursor:pointer;padding:3px 8px;border-radius:5px;" title="Clear entire history">🗑 Clear all</button>
+        </div>
+      </div>
+      <div id="rp-hist-list" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:#F8FAFC;"></div>
+      <div style="padding:10px 14px;border-top:1px solid #E5E7EB;display:flex;gap:8px;flex-shrink:0;background:#fff;">
+        <button onclick="rpToggleHistory()" style="flex:1;padding:8px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#475569;">← Back</button>
+        <button onclick="rpHistResumeSelected()" style="flex:2;padding:8px;border-radius:8px;border:none;background:#4f46e5;color:#fff;font-size:12px;font-weight:700;cursor:pointer;" id="rp-hist-resume-btn">Resume with selected</button>
       </div>
     </div>
     <div class="rp-agent-usecases" id="rp-uc-chips">
@@ -17252,6 +17773,119 @@ window._sfInit=function(){
 var rpAgentOpen = false;
 var rpAgentBusy = false;
 var rpAgentHistory = [];  // {role, content}
+var rpHistoryOpen = false;
+
+/* ── History panel ── */
+window.rpToggleHistory = function(){
+  var panel = document.getElementById('rp-history-panel');
+  var btn   = document.getElementById('rp-history-btn');
+  if(!panel) return;
+  rpHistoryOpen = !rpHistoryOpen;
+  panel.style.display = rpHistoryOpen ? 'flex' : 'none';
+  if(btn) btn.style.background = rpHistoryOpen ? '#EEF2FF' : '';
+  if(rpHistoryOpen) rpRenderHistoryList();
+};
+
+function rpRenderHistoryList(){
+  var list  = document.getElementById('rp-hist-list');
+  var count = document.getElementById('rp-hist-count');
+  if(!list) return;
+  var turns = rpAgentHistory.filter(function(m){ return m.role==='user' || m.role==='assistant'; });
+  if(count) count.textContent = turns.length + ' messages';
+  if(turns.length === 0){
+    list.innerHTML = '<div style="text-align:center;padding:30px 16px;color:#94A3B8;font-size:12.5px;">No chat history yet.<br>Start a conversation first.</div>';
+    return;
+  }
+  list.innerHTML = turns.map(function(m, i){
+    var isUser = m.role === 'user';
+    var snippet = m.content.replace(/<[^>]+>/g,'').slice(0,120) + (m.content.length > 120 ? '…' : '');
+    return '<label style="display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:9px;background:#fff;border:1px solid #E5E7EB;cursor:pointer;transition:border-color .12s;" '
+      + 'onmouseenter="this.style.borderColor=\'#4f46e5\'" onmouseleave="this.style.borderColor=this.querySelector(\'input\').checked?\'#4f46e5\':\'#E5E7EB\'">'
+      + '<input type="checkbox" data-idx="'+i+'" checked '
+      + 'style="margin-top:2px;accent-color:#4f46e5;width:14px;height:14px;flex-shrink:0;cursor:pointer;" '
+      + 'onchange="rpHistCheckChange(this)" />'
+      + '<div style="min-width:0;flex:1">'
+      + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:'+(isUser?'#4f46e5':'#10b981')+';margin-bottom:2px;">'
+      + (isUser ? '👤 You' : '🤖 Route Ops AI') + '</div>'
+      + '<div style="font-size:11.5px;color:#1E293B;line-height:1.45;word-break:break-word;">'+snippet+'</div>'
+      + '</div></label>';
+  }).join('');
+  rpHistUpdateResumeBtn();
+}
+
+window.rpHistCheckChange = function(cb){
+  var lbl = cb.closest('label');
+  if(lbl) lbl.style.borderColor = cb.checked ? '#4f46e5' : '#E5E7EB';
+  rpHistUpdateResumeBtn();
+};
+
+function rpHistUpdateResumeBtn(){
+  var btn = document.getElementById('rp-hist-resume-btn');
+  var checked = document.querySelectorAll('#rp-hist-list input[type=checkbox]:checked');
+  if(btn) btn.textContent = checked.length > 0
+    ? 'Resume with '+checked.length+' message'+(checked.length!==1?'s':'')
+    : 'Start fresh';
+}
+
+window.rpHistSelectAll = function(){
+  document.querySelectorAll('#rp-hist-list input[type=checkbox]').forEach(function(cb){
+    cb.checked = true;
+    var lbl = cb.closest('label');
+    if(lbl) lbl.style.borderColor = '#4f46e5';
+  });
+  rpHistUpdateResumeBtn();
+};
+
+window.rpHistClearAll = function(){
+  if(!confirm('Clear the entire chat history? This cannot be undone.')) return;
+  rpAgentHistory = [];
+  var msgs = document.getElementById('rp-agent-messages');
+  if(msgs) msgs.innerHTML = '';
+  rpHistoryOpen = false;
+  var panel = document.getElementById('rp-history-panel');
+  if(panel) panel.style.display = 'none';
+  var btn = document.getElementById('rp-history-btn');
+  if(btn) btn.style.background = '';
+  setTimeout(function(){
+    rpAppendAgent('<div class="rp-msg-agent-inner" style="border-left:3px solid #10b981"><b>🗑 Chat cleared.</b> Starting fresh — tap a chip above or ask me anything.</div>');
+  }, 150);
+};
+
+window.rpHistResumeSelected = function(){
+  var checkboxes = document.querySelectorAll('#rp-hist-list input[type=checkbox]');
+  var turns = rpAgentHistory.filter(function(m){ return m.role==='user'||m.role==='assistant'; });
+  // Build new history from selected indices
+  var newHistory = [];
+  checkboxes.forEach(function(cb){
+    var idx = parseInt(cb.dataset.idx);
+    if(cb.checked && turns[idx]) newHistory.push(turns[idx]);
+  });
+  // Rebuild full history (keep any non-turn items like system notes)
+  rpAgentHistory = newHistory;
+  // Rebuild the visible chat
+  var msgs = document.getElementById('rp-agent-messages');
+  if(msgs){
+    msgs.innerHTML = '';
+    newHistory.forEach(function(m){
+      if(m.role==='user'){
+        rpAppendUser(m.content);
+      } else {
+        var el = rpAppendAgentMsg('', false);
+        if(el) el.innerHTML = rpFormatAgentText ? rpFormatAgentText(m.content) : m.content;
+      }
+    });
+    if(newHistory.length === 0){
+      rpAppendAgent('<div class="rp-msg-agent-inner" style="border-left:3px solid #4f46e5"><b>✓ History cleared.</b> Ask me anything to continue.</div>');
+    } else {
+      rpAppendAgent('<div class="rp-msg-agent-inner" style="border-left:3px solid #10b981"><b>✓ Resumed</b> with '+newHistory.length+' selected message'+(newHistory.length!==1?'s':'')+'. Continue the conversation below.</div>');
+    }
+  }
+  rpHistoryOpen = false;
+  var panel = document.getElementById('rp-history-panel');
+  if(panel) panel.style.display = 'none';
+  var hbtn = document.getElementById('rp-history-btn');
+  if(hbtn) hbtn.style.background = '';
+};
 
 var RP_SYSTEM_PROMPT = `You are Route Ops AI, an intelligent field-operations agent for Lucky Charm Gaming's cash collection routes in Las Vegas.
 
@@ -17694,7 +18328,72 @@ function rpFormatAgentText(t) {
 }
 
 /* ── Core API call ── */
+/* ── API key management ── */
+var RP_API_KEY = '';
+
+function rpGetApiKey(){
+  if(RP_API_KEY) return RP_API_KEY;
+  // Try sessionStorage fallback
+  try{ var k=sessionStorage.getItem('rp_api_key'); if(k){RP_API_KEY=k;return k;} }catch(e){}
+  return '';
+}
+
+function rpSetApiKey(k){
+  RP_API_KEY = k.trim();
+  try{ sessionStorage.setItem('rp_api_key', RP_API_KEY); }catch(e){}
+}
+
+function rpShowApiKeyPrompt(){
+  var msgs = document.getElementById('rp-agent-messages');
+  if(!msgs) return;
+  // Remove any existing key prompt
+  var old = document.getElementById('rp-key-prompt');
+  if(old) old.remove();
+
+  var div = document.createElement('div');
+  div.id = 'rp-key-prompt';
+  div.className = 'rp-msg-agent';
+  div.innerHTML = '<div class="rp-msg-agent-inner" style="border-left:3px solid #4f46e5">'
+    + '<div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:6px">🔑 API Key Required</div>'
+    + '<div style="font-size:12px;color:#475569;margin-bottom:10px;line-height:1.5">'
+    + 'To use Route Ops AI outside of Claude.ai, enter your Anthropic API key.<br>'
+    + 'Get one at <a href="https://console.anthropic.com" target="_blank" style="color:#4f46e5">console.anthropic.com</a>'
+    + '</div>'
+    + '<div style="display:flex;gap:6px">'
+    + '<input id="rp-key-input" type="password" placeholder="sk-ant-..." '
+    + 'style="flex:1;padding:7px 10px;border:1px solid #D1D5DB;border-radius:8px;font-size:12px;font-family:inherit;outline:none" />'
+    + '<button onclick="rpSaveApiKey()" '
+    + 'style="padding:7px 14px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Save</button>'
+    + '</div>'
+    + '<div style="font-size:10.5px;color:#94A3B8;margin-top:6px">Your key is stored in this browser session only and never sent anywhere except the Anthropic API.</div>'
+    + '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(function(){ var inp=document.getElementById('rp-key-input'); if(inp) inp.focus(); }, 100);
+}
+
+window.rpSaveApiKey = function(){
+  var inp = document.getElementById('rp-key-input');
+  if(!inp || !inp.value.trim()){ return; }
+  var k = inp.value.trim();
+  if(!k.startsWith('sk-')){
+    inp.style.borderColor='#EF4444';
+    inp.placeholder='Must start with sk-ant-...';
+    return;
+  }
+  rpSetApiKey(k);
+  var prompt = document.getElementById('rp-key-prompt');
+  if(prompt) prompt.remove();
+  rpAppendAgent('<div class="rp-msg-agent-inner" style="border-left:3px solid #10b981"><b>✓ API key saved.</b> Route Ops AI is ready. Ask me anything or tap a chip above.</div>');
+};
+
 async function rpCallClaudeAgent(userMsg, toolKey) {
+  var key = rpGetApiKey();
+  if(!key){
+    rpShowApiKeyPrompt();
+    return null; // signal caller to not append a bubble
+  }
+
   var systemPrompt = RP_SYSTEM_PROMPT;
   if (toolKey && RP_TOOLS_DATA[toolKey]) {
     var toolData = RP_TOOLS_DATA[toolKey];
@@ -17702,7 +18401,6 @@ async function rpCallClaudeAgent(userMsg, toolKey) {
     systemPrompt += '\n\nData retrieved for this query (' + toolData.label + '):\n' + summaryText + '\n\nUse this data to answer the user in plain, friendly language.';
   }
   var messages = [];
-  // Include last 4 turns of history
   var hist = rpAgentHistory.slice(-4);
   hist.forEach(function(m) { messages.push({role:m.role, content:m.content}); });
   messages.push({role:'user', content:userMsg});
@@ -17710,7 +18408,12 @@ async function rpCallClaudeAgent(userMsg, toolKey) {
   try {
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
@@ -17719,12 +18422,20 @@ async function rpCallClaudeAgent(userMsg, toolKey) {
       })
     });
     var data = await resp.json();
+    if(data.error){
+      if(data.error.type === 'authentication_error'){
+        rpSetApiKey(''); // clear bad key
+        rpShowApiKeyPrompt();
+        return null;
+      }
+      return '⚠ API error: ' + data.error.message;
+    }
     if (data.content && data.content[0] && data.content[0].text) {
       return data.content[0].text;
     }
     return 'Agent encountered an issue. Please try again.';
   } catch(err) {
-    return 'Unable to reach agent API. Check connection.';
+    return '⚠ Could not reach the Anthropic API. Check your internet connection and try again.';
   }
 }
 
@@ -17760,6 +18471,7 @@ window.rpRunUseCase = async function(key) {
   var reply = await rpCallClaudeAgent(prompt, key);
 
   rpRemoveTyping();
+  if(reply === null){ rpAgentBusy=false; if(btn)btn.disabled=false; if(chip)chip.classList.remove('active'); return; }
   var msgEl = rpAppendAgentMsg('', true);
   if (msgEl) {
     await new Promise(function(resolve) {
@@ -17776,6 +18488,24 @@ window.rpRunUseCase = async function(key) {
 /* ── Demo sequence on first open ── */
 async function rpRunDemoSequence() {
   var msgs = document.getElementById('rp-agent-messages');
+
+  // If no API key, show key prompt immediately instead of demo
+  if(!rpGetApiKey()){
+    if(msgs){
+      var welcome = document.createElement('div');
+      welcome.className = 'rp-msg-agent';
+      welcome.innerHTML =
+        '<div class="rp-insight-card">' +
+          '<div class="rp-insight-icon">🤖</div>' +
+          '<div class="rp-insight-text"><b>Route Ops AI</b><br>Enter your Anthropic API key below to activate the agent.</div>' +
+        '</div>';
+      msgs.appendChild(welcome);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    rpShowApiKeyPrompt();
+    return;
+  }
+
   if (msgs) {
     var welcome = document.createElement('div');
     welcome.className = 'rp-msg-agent';
@@ -17817,6 +18547,7 @@ window.rpAgentSendInput = async function() {
 
   var reply = await rpCallClaudeAgent(text, null);
   rpRemoveTyping();
+  if(reply === null){ rpAgentBusy=false; if(btn)btn.disabled=false; return; }
   var msgEl = rpAppendAgentMsg('', true);
   if (msgEl) {
     await new Promise(function(resolve){rpStreamText(msgEl, reply, resolve);});
