@@ -2581,6 +2581,22 @@ input, select, textarea {
   touch-action: manipulation;
 }
 
+/* ════════════════════════════════════════════════
+   CRITICAL: page-view & .main bottom fix on mobile
+   Desktop has bottom:28px for footer bar.
+   On mobile the footer is hidden but bottom:28px
+   still clips content — change to 0 so the
+   padding-bottom inside handles clearance.
+   ════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .main,
+  .page-view,
+  .wf-page {
+    bottom: 0 !important;
+    padding-bottom: calc(68px + env(safe-area-inset-bottom, 8px)) !important;
+  }
+}
+
 /* ── Bulk bar: must clear bottom nav on mobile ── */
 @media (max-width: 1024px) {
   .bulk-bar {
@@ -2588,6 +2604,55 @@ input, select, textarea {
     z-index: 9000 !important;
     max-width: calc(100vw - 24px) !important;
     left: 50% !important;
+  }
+}
+
+/* ── Accounts page inline toolbar — catch with attribute selector ── */
+@media (max-width: 767px) {
+  /* The accounts toolbar uses inline flex styles, not a class */
+  #acc-list-view > div[style*="display:flex"] {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  /* Inline search input — make it stretch */
+  #acc-search-input {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 14px !important;
+    min-height: 44px !important;
+  }
+  /* Its wrapper div */
+  #acc-search-input + svg,
+  #acc-search-by { min-height: 44px !important; font-size: 14px !important; }
+  /* Kill the flex:1 spacer that pushes buttons off screen */
+  #acc-list-view > div[style*="display:flex"] > div[style*="flex:1"] {
+    display: none !important;
+  }
+  /* All buttons in any inline flex toolbar get touch-friendly sizing */
+  #page-accounts button.btn,
+  #page-accounts .btn {
+    min-height: 44px !important;
+    flex: 1 1 calc(50% - 6px) !important;
+    justify-content: center !important;
+    font-size: 12.5px !important;
+  }
+  #page-accounts .btn-primary { order: -1; flex: 1 1 100% !important; }
+  /* Per-page select: full width */
+  #acc-per-page { width: 100% !important; min-height: 44px !important; }
+  #acc-list-view .lp-table-wrap { overflow-x: auto !important; }
+
+  /* Generic: any inline-styled flex toolbar in a page-view */
+  .page-view > div > div[style*="display:flex"][style*="align-items:center"],
+  .page-view div[style*="justify-content:space-between"][style*="display:flex"] {
+    flex-wrap: wrap !important;
+  }
+  /* Inline-width inputs: let them grow */
+  .page-view input[style*="width:220px"],
+  .page-view input[style*="width:230px"],
+  .page-view input[style*="width:200px"] {
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 14px !important;
   }
 }
 
@@ -6739,6 +6804,33 @@ input, select, textarea {
     var target = document.getElementById('step-' + n + '-content');
     if (target) target.style.display = 'block';
 
+    // Step 4: auto-select the logged-in user as receiving operator
+    if (n === 4 && !currentOperator) {
+      var topbarName = (document.querySelector('#topbar-user-text div:first-child') || {}).textContent || '';
+      var sel = document.getElementById('operator-select');
+      if (sel && topbarName) {
+        // Try to find a matching option
+        var matched = false;
+        for (var oi = 0; oi < sel.options.length; oi++) {
+          if (sel.options[oi].value && topbarName.indexOf(sel.options[oi].value.split(' ')[0]) !== -1) {
+            sel.value = sel.options[oi].value;
+            matched = true;
+            break;
+          }
+        }
+        // If no match, select the first non-empty option as default
+        if (!matched && sel.options.length > 1) {
+          sel.selectedIndex = 1;
+        }
+        if (sel.value) {
+          // Trigger the selection logic without scrolling or jumping
+          setTimeout(function() {
+            if (!currentOperator) onOperatorSelect();
+          }, 150);
+        }
+      }
+    }
+
     updateStepper();
     var wfEl = document.getElementById('page-load-workflow');
     if (wfEl) wfEl.scrollTop = 0;
@@ -6942,11 +7034,10 @@ input, select, textarea {
       return;
     }
     if (currentStep === 3) {
-      // Step 3 is a status page. If the collector hasn't been simulated as
-      // done, pulse that button. If they have, pulse the proceed button.
+      // Step 3 is a status page. Pulse the relevant button; user navigates manually.
       var proceedBtn = document.getElementById('proceed-checkin-btn');
       if (proceedBtn && !proceedBtn.disabled) {
-    setTimeout(function() { goToStep(4); }, 600);
+        pulseButton('proceed-checkin-btn');
         return;
       }
       pulseButton('sim-complete-btn');
@@ -7194,8 +7285,8 @@ input, select, textarea {
     proceedBtn.disabled = false;
     advanceMaxStep(4);
 
-    // Now that proceed is enabled, draw the eye to it
-    setTimeout(function() { goToStep(4); }, 600);
+    // Highlight the proceed button so the user can navigate manually
+    pulseButton('proceed-checkin-btn');
   }
 
   // ===== Step 4: Verify & Check In returning assets =====
@@ -13416,6 +13507,33 @@ function initLoadWorkflow() {
     var target = document.getElementById('step-' + n + '-content');
     if (target) target.style.display = 'block';
 
+    // Step 4: auto-select the logged-in user as receiving operator
+    if (n === 4 && !currentOperator) {
+      var topbarName = (document.querySelector('#topbar-user-text div:first-child') || {}).textContent || '';
+      var sel = document.getElementById('operator-select');
+      if (sel && topbarName) {
+        // Try to find a matching option
+        var matched = false;
+        for (var oi = 0; oi < sel.options.length; oi++) {
+          if (sel.options[oi].value && topbarName.indexOf(sel.options[oi].value.split(' ')[0]) !== -1) {
+            sel.value = sel.options[oi].value;
+            matched = true;
+            break;
+          }
+        }
+        // If no match, select the first non-empty option as default
+        if (!matched && sel.options.length > 1) {
+          sel.selectedIndex = 1;
+        }
+        if (sel.value) {
+          // Trigger the selection logic without scrolling or jumping
+          setTimeout(function() {
+            if (!currentOperator) onOperatorSelect();
+          }, 150);
+        }
+      }
+    }
+
     updateStepper();
     var wfEl2 = document.getElementById('page-load-workflow');
     if (wfEl2) wfEl2.scrollTop = 0;
@@ -13619,11 +13737,10 @@ function initLoadWorkflow() {
       return;
     }
     if (currentStep === 3) {
-      // Step 3 is a status page. If the collector hasn't been simulated as
-      // done, pulse that button. If they have, pulse the proceed button.
+      // Step 3 is a status page. Pulse the relevant button; user navigates manually.
       var proceedBtn = document.getElementById('proceed-checkin-btn');
       if (proceedBtn && !proceedBtn.disabled) {
-    setTimeout(function() { goToStep(4); }, 600);
+        pulseButton('proceed-checkin-btn');
         return;
       }
       pulseButton('sim-complete-btn');
@@ -13871,8 +13988,8 @@ function initLoadWorkflow() {
     proceedBtn.disabled = false;
     advanceMaxStep(4);
 
-    // Now that proceed is enabled, draw the eye to it
-    setTimeout(function() { goToStep(4); }, 600);
+    // Highlight the proceed button so the user can navigate manually
+    pulseButton('proceed-checkin-btn');
   }
 
   // ===== Step 4: Verify & Check In returning assets =====
@@ -18327,119 +18444,303 @@ function rpFormatAgentText(t) {
     .replace(/\n/g, '<br>');
 }
 
-/* ── Core API call ── */
-/* ── API key management ── */
-var RP_API_KEY = '';
+/* ── Route Ops AI Simulation Engine (no API key required) ── */
 
-function rpGetApiKey(){
-  if(RP_API_KEY) return RP_API_KEY;
-  // Try sessionStorage fallback
-  try{ var k=sessionStorage.getItem('rp_api_key'); if(k){RP_API_KEY=k;return k;} }catch(e){}
-  return '';
+/* Slight variance helper so replies never feel identical */
+function rpRand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function rpJitter(n,pct){ return Math.round(n*(1+(Math.random()-0.5)*pct*0.01)); }
+
+/* Live sim state pulled from the route planner data */
+function rpLiveState(){
+  var now = new Date();
+  var hh = now.getHours(), mm = now.getMinutes();
+  var timeStr = (hh%12||12)+':'+(mm<10?'0'+mm:mm)+(hh<12?'AM':'PM');
+  return {
+    time: timeStr,
+    collectors:[
+      {name:'F. Garza', zone:'East',      truck:'T-04', stops:6,  done:2, miles:84,  eta:'2:20 PM', status:'on schedule',  cash:'$42,400'},
+      {name:'K. Patel', zone:'Downtown',  truck:'T-09', stops:5,  done:1, miles:62,  eta:'1:45 PM', status:'slightly ahead',cash:'$38,200'},
+      {name:'M. Vargas',zone:'North',     truck:'T-12', stops:7,  done:0, miles:91,  eta:'delayed', status:'22 min behind', cash:'$51,600'},
+      {name:'J. Cruz',  zone:'West',      truck:'T-07', stops:4,  done:2, miles:55,  eta:'12:30 PM',status:'on schedule',  cash:'$29,800'},
+      {name:'T. Nguyen',zone:'South',     truck:'T-11', stops:6,  done:1, miles:78,  eta:'3:10 PM', status:'on schedule',  cash:'$46,200'}
+    ],
+    unassigned:8,
+    totalCash:'$247,890',
+    p1Alerts:3,
+    completionEta:'3:48 PM',
+    overdueLocations:['Westside Casino P1','Lake Mead Pavilion','Centennial Hills']
+  };
 }
 
-function rpSetApiKey(k){
-  RP_API_KEY = k.trim();
-  try{ sessionStorage.setItem('rp_api_key', RP_API_KEY); }catch(e){}
+/* ── Simulation responses for each use case ── */
+var RP_SIM_RESPONSES = {
+
+morning_briefing: function(){
+  var s = rpLiveState();
+  return '**Good morning — here\'s your ' + s.time + ' Route Ops briefing.**\n\n'
+    +'**Fleet overview:**\n'
+    +'- ' + s.collectors.length + ' collectors active · ' + s.unassigned + ' stops in unassigned queue\n'
+    +'- Total cash on street: **' + s.totalCash + '**\n'
+    +'- Estimated completion: **' + s.completionEta + '**\n\n'
+    +'**Collector status:**\n'
+    + s.collectors.map(function(c){
+        return '- **'+c.name+'** ('+c.zone+') — '+c.done+'/'+c.stops+' stops done · '+c.status+' · ETA '+c.eta;
+      }).join('\n') + '\n\n'
+    +'**⚠ Critical alerts ('+s.p1Alerts+' P1):**\n'
+    + s.overdueLocations.map(function(l){ return '- '+l+' — overdue, needs same-day service'; }).join('\n') + '\n\n'
+    +'**ACTION:** Assign Westside Casino P1 to J. Cruz (+0.4 mi detour) and dispatch immediately — it\'s the highest priority overdue stop.';
+},
+
+collector_status: function(){
+  var s = rpLiveState();
+  return '**Collector positions as of ' + s.time + ':**\n\n'
+    + s.collectors.map(function(c){
+        var flag = c.status.indexOf('behind') > -1 ? ' ⚠' : c.status.indexOf('ahead') > -1 ? ' ✓' : '';
+        return '**'+c.name+' · '+c.zone+' ('+c.truck+')**'+flag+'\n'
+          +'- Progress: '+c.done+'/'+c.stops+' stops · '+c.miles+' mi route\n'
+          +'- Status: '+c.status+' · ETA finish '+c.eta+'\n'
+          +'- Estimated pull: '+c.cash;
+      }).join('\n\n') + '\n\n'
+    +'**ACTION:** Contact M. Vargas immediately — 22 min behind with 7 stops still pending. Recommend re-routing 2 lower-priority stops to T. Nguyen\'s return path.';
+},
+
+efficiency: function(){
+  var s = rpLiveState();
+  var avgMiles = Math.round(s.collectors.reduce(function(a,c){return a+c.miles;},0)/s.collectors.length);
+  return '**Route efficiency analysis — ' + s.time + ':**\n\n'
+    +'**Miles & productivity:**\n'
+    +'- Fleet average: **'+avgMiles+' mi/route**\n'
+    +'- Most efficient: J. Cruz (West) — 55 mi · 4 stops · $7,450/stop\n'
+    +'- Most loaded: M. Vargas (North) — 91 mi · 7 stops · highest total pull\n\n'
+    +'**Cash per mile:**\n'
+    +'- Best: K. Patel $615/mi (Downtown density)\n'
+    +'- Lowest: T. Nguyen $592/mi (South spread)\n'
+    +'- Fleet avg: $'+rpJitter(601,8)+'/mi\n\n'
+    +'**Optimization opportunity:**\n'
+    +'- Consolidating M. Vargas North-2 cluster saves est. **14 mi and 38 min**\n'
+    +'- 3 stops on West route could shift to South route saving **J. Cruz 0.8 mi** and balancing loads\n\n'
+    +'**ACTION:** Run the auto-assign solver after today\'s routes complete to re-optimize tomorrow\'s clusters. Estimated saving: 8.4% total mileage.';
+},
+
+sla: function(){
+  var s = rpLiveState();
+  return '**SLA risk assessment — ' + s.time + ':**\n\n'
+    +'**🔴 Critical (P1) — overdue now:**\n'
+    +'- **Westside Casino P1** — overdue 14 days · $'+rpJitter(8200,5)+' est. pull · closest to J. Cruz (+0.4 mi)\n'
+    +'- **Lake Mead Pavilion** — overdue · $'+rpJitter(5400,5)+' · closest to F. Garza (+2.1 mi)\n'
+    +'- **Centennial Hills** — overdue · $'+rpJitter(6100,5)+' · M. Vargas zone (+4.8 mi)\n\n'
+    +'**🟡 Warning (approaching SLA):**\n'
+    +'- Green Valley Station — due today · SE zone · between T. Nguyen and M. Vargas\n'
+    +'- Summerlin Heights — due today · NW zone · J. Cruz +0.8 mi\n\n'
+    +'**Compliance risk:**\n'
+    +'- 3 P1 locations exceeding contractual 7-day service window\n'
+    +'- Client notification required for Westside Casino (14d overdue)\n\n'
+    +'**ACTION:** Dispatch J. Cruz to Westside Casino P1 immediately. F. Garza should add Lake Mead Pavilion after current stop #3. Notify account manager for Westside Casino SLA breach.';
+},
+
+high_value: function(){
+  var s = rpLiveState();
+  return '**High-value stop analysis — today:**\n\n'
+    +'**Top 5 pulls forecast:**\n'
+    +'1. NRT-1009 kiosk — $46,800 · CS4 critical · F. Garza route\n'
+    +'2. M. Vargas total pull — $51,600 · 7 stops combined\n'
+    +'3. Airport Terminal NRT — $'+rpJitter(38400,6)+' · K. Patel stop 2\n'
+    +'4. Grand Hotel floor BV — $'+rpJitter(27400,5)+' · J. Cruz stop 4\n'
+    +'5. Centennial Hills BV — $'+rpJitter(22100,5)+' · unassigned (P1 overdue)\n\n'
+    +'**Cash concentration risk:**\n'
+    +'- M. Vargas carrying est. $51.6K — highest single-collector exposure\n'
+    +'- Recommend Loomis CIT handoff at 2:00 PM if M. Vargas exceeds $60K\n\n'
+    +'**Cash forecast by type:**\n'
+    +'- Floor BV: $'+rpJitter(94200,4)+'\n'
+    +'- NRT kiosk: $'+rpJitter(46800,4)+'\n'
+    +'- Slot singles: $'+rpJitter(107890,4)+'\n\n'
+    +'**ACTION:** Schedule Loomis CDV-14 pickup window for M. Vargas at 2:00 PM near North Zone depot. Pre-authorize for up to $65K handoff.';
+},
+
+forecast: function(){
+  var s = rpLiveState();
+  return '**Cash collection forecast — today:**\n\n'
+    +'**Total projected: **' + s.totalCash + '****\n\n'
+    +'**By collector:**\n'
+    + s.collectors.map(function(c,i){
+        return (i+1)+'. '+c.name+' ('+c.zone+') — **'+c.cash+'**';
+      }).join('\n') + '\n\n'
+    +'**By type:**\n'
+    +'- NRT kiosk: **$46,800** (1 unit, CS4 critical)\n'
+    +'- Floor bill validators: **$94,200** (13 cabinets)\n'
+    +'- Slot singles: **$107,890** (22 machines)\n\n'
+    +'**Confidence factors:**\n'
+    +'- 8 unassigned stops could add **$'+rpJitter(38000,8)+'** if dispatched today\n'
+    +'- M. Vargas delay may push $'+rpJitter(12000,10)+' to tomorrow\n'
+    +'- Payday weekend factor: +18-24% vs. weekday average\n\n'
+    +'**ACTION:** If M. Vargas delay extends past 4 PM, reassign Green Valley Station and Pearson Park to T. Nguyen to protect today\'s forecast.';
+},
+
+dispatch: function(){
+  var s = rpLiveState();
+  return '**🚨 Dispatch recommendations — ' + s.time + ':**\n\n'
+    +'**Immediate dispatch needed:**\n\n'
+    +'1. **Westside Casino P1** → assign J. Cruz\n'
+    +'   - Overdue 14 days · P1 breach · +0.4 mi from current position\n'
+    +'   - ETA on-site: 35 min · Est. pull: $8,200\n\n'
+    +'2. **Lake Mead Pavilion** → assign F. Garza\n'
+    +'   - Overdue · BV at 91% · +2.1 mi after stop #3\n'
+    +'   - ETA on-site: 1:15 PM · Est. pull: $5,400\n\n'
+    +'3. **Summerlin Heights** → assign J. Cruz (after Westside)\n'
+    +'   - Due today · +0.8 mi · Est. pull: $'+rpJitter(4200,6)+'\n\n'
+    +'**Available capacity:**\n'
+    +'- J. Cruz: 2 stops remaining + 1 new = capacity OK\n'
+    +'- F. Garza: 4 stops remaining + 1 new = slight overload, monitor\n\n'
+    +'**ACTION:** Use the route planner Auto-assign solver to optimize all 3 dispatch decisions simultaneously — it accounts for current positions and drive times.';
+},
+
+rebalance: function(){
+  var s = rpLiveState();
+  return '**Route rebalancing analysis — ' + s.time + ':**\n\n'
+    +'**Current imbalance:**\n'
+    +'- M. Vargas: 7 stops · 91 mi · **overloaded** (22 min behind)\n'
+    +'- J. Cruz: 4 stops · 55 mi · **underutilized** (ahead of schedule)\n'
+    +'- T. Nguyen: 6 stops · 78 mi · on schedule with spare capacity\n\n'
+    +'**Recommended transfers:**\n'
+    +'1. Move **Pearson Park** (North) from M. Vargas → T. Nguyen\n'
+    +'   - Saves M. Vargas 2.2 mi · T. Nguyen +2.8 mi detour\n'
+    +'   - Net time saving for M. Vargas: ~28 min\n\n'
+    +'2. Move **Green Valley Station** (SE) from unassigned → T. Nguyen\n'
+    +'   - Between T. Nguyen stops 4 and 5\n'
+    +'   - +1.4 mi · $'+rpJitter(5100,5)+' additional pull\n\n'
+    +'3. Move **Summerlin Heights** (NW) → J. Cruz\n'
+    +'   - J. Cruz +0.8 mi · captures $'+rpJitter(4200,5)+' pull J. Cruz has capacity for\n\n'
+    +'**Result after rebalancing:**\n'
+    +'- M. Vargas: 5 stops · est. back on schedule by 11:45 AM\n'
+    +'- Overall fleet completion: **3:22 PM** (26 min earlier)\n\n'
+    +'**ACTION:** Click "Auto-assign" in the route planner to implement these changes automatically. Review and confirm before dispatching.';
+},
+
+overtime_risk: function(){
+  var s = rpLiveState();
+  return '**Overtime risk assessment — ' + s.time + ':**\n\n'
+    +'**High risk:**\n'
+    +'- **M. Vargas** — 22 min behind · 7 stops · current ETA: delayed\n'
+    +'  If delay grows: projected finish **5:48 PM** (+1.8h overtime)\n\n'
+    +'**Moderate risk:**\n'
+    +'- **F. Garza** — 6 stops remaining · 84 mi total route\n'
+    +'  Adding Lake Mead Pavilion pushes ETA to **3:40 PM** (borderline)\n\n'
+    +'**On track:**\n'
+    +'- J. Cruz: ETA 12:30 PM ✓\n'
+    +'- K. Patel: ETA 1:45 PM ✓\n'
+    +'- T. Nguyen: ETA 3:10 PM ✓\n\n'
+    +'**Cost exposure:**\n'
+    +'- M. Vargas overtime (est. 1.8h × $'+rpJitter(42,5)+'/h OT rate): **$'+rpJitter(226,8)+'**\n'
+    +'- Fleet total OT exposure if no action: **$'+rpJitter(340,10)+'**\n\n'
+    +'**ACTION:** Transfer 2 stops from M. Vargas to T. Nguyen now (see Rebalance chip). This eliminates overtime risk for M. Vargas and keeps fleet total OT exposure at $0.';
+},
+
+eod: function(){
+  var s = rpLiveState();
+  return '**End-of-day plan — ' + s.time + ':**\n\n'
+    +'**Remaining work:**\n'
+    +'- '+s.collectors.reduce(function(a,c){return a+(c.stops-c.done);},0)+' stops still to complete across all routes\n'
+    +'- '+s.unassigned+' stops in unassigned queue\n'
+    +'- 3 P1 overdue locations require same-day resolution\n\n'
+    +'**Priority order for remainder of day:**\n'
+    +'1. Dispatch J. Cruz → Westside Casino P1 (P1 breach, must complete today)\n'
+    +'2. F. Garza adds Lake Mead Pavilion after stop #3\n'
+    +'3. Rebalance M. Vargas → transfer Pearson Park to T. Nguyen\n'
+    +'4. Assign Green Valley Station to T. Nguyen (on return path)\n'
+    +'5. Schedule Loomis CIT handoff at 2:00 PM for M. Vargas\n\n'
+    +'**EOD cash-in forecast:**\n'
+    +'- Confirmed routes: **'+s.totalCash+'**\n'
+    +'- If all 8 unassigned dispatched: +$'+rpJitter(38000,8)+' additional\n'
+    +'- **Total EOD target: ~$'+rpJitter(286000,3)+'**\n\n'
+    +'**Tomorrow prep:**\n'
+    +'- Spring Mountain (West, P3) — defer to Thu per schedule\n'
+    +'- Mountains Edge (SW) — add to T. Nguyen\'s Thu morning run\n\n'
+    +'**ACTION:** Run auto-assign solver now to finalize today\'s dispatches, then confirm Loomis CIT window with armored carrier dispatch.';
 }
 
-function rpShowApiKeyPrompt(){
-  var msgs = document.getElementById('rp-agent-messages');
-  if(!msgs) return;
-  // Remove any existing key prompt
-  var old = document.getElementById('rp-key-prompt');
-  if(old) old.remove();
-
-  var div = document.createElement('div');
-  div.id = 'rp-key-prompt';
-  div.className = 'rp-msg-agent';
-  div.innerHTML = '<div class="rp-msg-agent-inner" style="border-left:3px solid #4f46e5">'
-    + '<div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:6px">🔑 API Key Required</div>'
-    + '<div style="font-size:12px;color:#475569;margin-bottom:10px;line-height:1.5">'
-    + 'To use Route Ops AI outside of Claude.ai, enter your Anthropic API key.<br>'
-    + 'Get one at <a href="https://console.anthropic.com" target="_blank" style="color:#4f46e5">console.anthropic.com</a>'
-    + '</div>'
-    + '<div style="display:flex;gap:6px">'
-    + '<input id="rp-key-input" type="password" placeholder="sk-ant-..." '
-    + 'style="flex:1;padding:7px 10px;border:1px solid #D1D5DB;border-radius:8px;font-size:12px;font-family:inherit;outline:none" />'
-    + '<button onclick="rpSaveApiKey()" '
-    + 'style="padding:7px 14px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Save</button>'
-    + '</div>'
-    + '<div style="font-size:10.5px;color:#94A3B8;margin-top:6px">Your key is stored in this browser session only and never sent anywhere except the Anthropic API.</div>'
-    + '</div>';
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-  setTimeout(function(){ var inp=document.getElementById('rp-key-input'); if(inp) inp.focus(); }, 100);
-}
-
-window.rpSaveApiKey = function(){
-  var inp = document.getElementById('rp-key-input');
-  if(!inp || !inp.value.trim()){ return; }
-  var k = inp.value.trim();
-  if(!k.startsWith('sk-')){
-    inp.style.borderColor='#EF4444';
-    inp.placeholder='Must start with sk-ant-...';
-    return;
-  }
-  rpSetApiKey(k);
-  var prompt = document.getElementById('rp-key-prompt');
-  if(prompt) prompt.remove();
-  rpAppendAgent('<div class="rp-msg-agent-inner" style="border-left:3px solid #10b981"><b>✓ API key saved.</b> Route Ops AI is ready. Ask me anything or tap a chip above.</div>');
 };
 
-async function rpCallClaudeAgent(userMsg, toolKey) {
-  var key = rpGetApiKey();
-  if(!key){
-    rpShowApiKeyPrompt();
-    return null; // signal caller to not append a bubble
+/* ── Smart free-text simulation ── */
+function rpSimulateReply(userMsg, toolKey) {
+  var msg = userMsg.toLowerCase();
+
+  // Use case key match
+  if (toolKey && RP_SIM_RESPONSES[toolKey]) {
+    return RP_SIM_RESPONSES[toolKey]();
   }
 
-  var systemPrompt = RP_SYSTEM_PROMPT;
-  if (toolKey && RP_TOOLS_DATA[toolKey]) {
-    var toolData = RP_TOOLS_DATA[toolKey];
-    var summaryText = (toolData.summary || []).join('\n');
-    systemPrompt += '\n\nData retrieved for this query (' + toolData.label + '):\n' + summaryText + '\n\nUse this data to answer the user in plain, friendly language.';
+  // Keyword routing for free-text
+  if (/vargas|behind|delay|late/.test(msg)){
+    return '**M. Vargas update:**\n\n- Currently 22 min behind schedule on the North route\n- 7 stops assigned · 0 completed so far\n- Delay likely caused by extended service at first stop (Centennial Hills BV jam)\n\n**Recommended actions:**\n- Transfer Pearson Park (+2.2 mi) to T. Nguyen\'s return route\n- Move Green Valley Station to T. Nguyen as well\n- Contact M. Vargas directly to confirm ETA at stop 2\n\n**ACTION:** Transfer 2 stops to T. Nguyen now to bring M. Vargas back within schedule window.';
   }
-  var messages = [];
-  var hist = rpAgentHistory.slice(-4);
-  hist.forEach(function(m) { messages.push({role:m.role, content:m.content}); });
-  messages.push({role:'user', content:userMsg});
-
-  try {
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: messages
-      })
-    });
-    var data = await resp.json();
-    if(data.error){
-      if(data.error.type === 'authentication_error'){
-        rpSetApiKey(''); // clear bad key
-        rpShowApiKeyPrompt();
-        return null;
-      }
-      return '⚠ API error: ' + data.error.message;
-    }
-    if (data.content && data.content[0] && data.content[0].text) {
-      return data.content[0].text;
-    }
-    return 'Agent encountered an issue. Please try again.';
-  } catch(err) {
-    return '⚠ Could not reach the Anthropic API. Check your internet connection and try again.';
+  if (/cash|money|forecast|total|pull|collect/.test(msg)){
+    return RP_SIM_RESPONSES.forecast();
   }
+  if (/overtime|ot|hours|shift|late/.test(msg)){
+    return RP_SIM_RESPONSES.overtime_risk();
+  }
+  if (/dispatch|send|assign|urgent|p1|overdue|critical/.test(msg)){
+    return RP_SIM_RESPONSES.dispatch();
+  }
+  if (/sla|compliance|breach|overdue|contract/.test(msg)){
+    return RP_SIM_RESPONSES.sla();
+  }
+  if (/rebalanc|transfer|move|swap|shift/.test(msg)){
+    return RP_SIM_RESPONSES.rebalance();
+  }
+  if (/efficien|mile|distance|optim|route/.test(msg)){
+    return RP_SIM_RESPONSES.efficiency();
+  }
+  if (/where|location|position|status|collector|garza|patel|cruz|nguyen/.test(msg)){
+    return RP_SIM_RESPONSES.collector_status();
+  }
+  if (/high.value|biggest|most|top|largest|jackpot|kiosk/.test(msg)){
+    return RP_SIM_RESPONSES.high_value();
+  }
+  if (/end.of.day|eod|tonight|finish|wrap|close/.test(msg)){
+    return RP_SIM_RESPONSES.eod();
+  }
+  if (/morning|briefing|overview|summary|today/.test(msg)){
+    return RP_SIM_RESPONSES.morning_briefing();
+  }
+  if (/hello|hi |hey|help|what can|start/.test(msg)){
+    return 'Hello! I\'m **Route Ops AI** for Lucky Charm Gaming.\n\nI have full visibility into today\'s 5 active collectors, 34 assigned stops, and **$247,890** in cash on street.\n\nHere\'s what I can help with:\n- 📊 Route efficiency & rebalancing\n- 🚨 Dispatch recommendations\n- ⚠️ SLA risk & P1 overdue alerts\n- 💵 Cash forecasting & high-value stops\n- ⏰ Overtime risk analysis\n- 🏁 End-of-day planning\n\nTap any chip above or ask me anything about today\'s routes.\n\n**ACTION:** Start with ☀️ Morning briefing for a full status snapshot.';
+  }
+  // Generic intelligent-sounding fallback
+  var s = rpLiveState();
+  return 'Based on current route data at ' + s.time + ':\n\n'
+    +'- **5 collectors active** · M. Vargas running 22 min behind\n'
+    +'- **3 P1 alerts** active (Westside Casino, Lake Mead Pavilion, Centennial Hills)\n'
+    +'- **$247,890** total cash on street · ETA completion ' + s.completionEta + '\n\n'
+    +'For that specific question I\'d recommend checking the collector status or SLA risk chips above for detailed data.\n\n'
+    +'**ACTION:** Tap **👥 Collector status** or **⚠️ SLA risks** for the most relevant breakdown.';
 }
 
-/* ── Run a use case ── */
+/* ── Main agent call (simulation — no API key needed) ── */
+async function rpCallClaudeAgent(userMsg, toolKey) {
+  // Simulate realistic thinking delay (800ms–1.8s)
+  var delay = 800 + Math.random() * 1000;
+  await new Promise(function(r){ setTimeout(r, delay); });
+  return rpSimulateReply(userMsg, toolKey);
+}
+
+/* ── Demo sequence: show immediately on first open ── */
+async function rpRunDemoSequence() {
+  var msgs = document.getElementById('rp-agent-messages');
+  if (msgs) {
+    var welcome = document.createElement('div');
+    welcome.className = 'rp-msg-agent';
+    welcome.innerHTML =
+      '<div class="rp-insight-card">' +
+        '<div class="rp-insight-icon">🤖</div>' +
+        '<div class="rp-insight-text"><b>Route Ops AI is ready.</b><br>I\'m scanning today\'s routes, collector positions, and cash forecast. Running your morning briefing now — tap any chip above to dig deeper, or ask me anything below.</div>' +
+      '</div>';
+    msgs.appendChild(welcome);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+  await new Promise(function(r){setTimeout(r,800)});
+  await rpRunUseCase('morning_briefing');
+}
 window.rpRunUseCase = async function(key) {
   if (rpAgentBusy) return;
   // highlight chip
@@ -18471,7 +18772,6 @@ window.rpRunUseCase = async function(key) {
   var reply = await rpCallClaudeAgent(prompt, key);
 
   rpRemoveTyping();
-  if(reply === null){ rpAgentBusy=false; if(btn)btn.disabled=false; if(chip)chip.classList.remove('active'); return; }
   var msgEl = rpAppendAgentMsg('', true);
   if (msgEl) {
     await new Promise(function(resolve) {
@@ -18485,47 +18785,7 @@ window.rpRunUseCase = async function(key) {
   if (chip) chip.classList.remove('active');
 };
 
-/* ── Demo sequence on first open ── */
-async function rpRunDemoSequence() {
-  var msgs = document.getElementById('rp-agent-messages');
-
-  // If no API key, show key prompt immediately instead of demo
-  if(!rpGetApiKey()){
-    if(msgs){
-      var welcome = document.createElement('div');
-      welcome.className = 'rp-msg-agent';
-      welcome.innerHTML =
-        '<div class="rp-insight-card">' +
-          '<div class="rp-insight-icon">🤖</div>' +
-          '<div class="rp-insight-text"><b>Route Ops AI</b><br>Enter your Anthropic API key below to activate the agent.</div>' +
-        '</div>';
-      msgs.appendChild(welcome);
-      msgs.scrollTop = msgs.scrollHeight;
-    }
-    rpShowApiKeyPrompt();
-    return;
-  }
-
-  if (msgs) {
-    var welcome = document.createElement('div');
-    welcome.className = 'rp-msg-agent';
-    welcome.innerHTML =
-      '<div class="rp-insight-card">' +
-        '<div class="rp-insight-icon">🤖</div>' +
-        '<div class="rp-insight-text"><b>Route Ops AI is ready.</b><br>I\'m scanning today\'s routes, collector positions, and cash forecast. Running your morning briefing now — tap any chip above to dig deeper, or ask me anything below.</div>' +
-      '</div>';
-    msgs.appendChild(welcome);
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-  await new Promise(function(r){setTimeout(r,800)});
-
-  // Start with morning briefing, then show efficiency and collector status
-  await rpRunUseCase('morning_briefing');
-  await new Promise(function(r){setTimeout(r,600)});
-  await rpRunUseCase('efficiency');
-  await new Promise(function(r){setTimeout(r,600)});
-  await rpRunUseCase('collector_status');
-}
+/* ── Demo sequence defined above in simulation engine ── */
 
 /* ── Manual input ── */
 window.rpAgentSendInput = async function() {
@@ -18547,7 +18807,6 @@ window.rpAgentSendInput = async function() {
 
   var reply = await rpCallClaudeAgent(text, null);
   rpRemoveTyping();
-  if(reply === null){ rpAgentBusy=false; if(btn)btn.disabled=false; return; }
   var msgEl = rpAppendAgentMsg('', true);
   if (msgEl) {
     await new Promise(function(resolve){rpStreamText(msgEl, reply, resolve);});
