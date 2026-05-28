@@ -461,6 +461,7 @@ body.select-mode .card-checkbox{display:inline-flex;}
   cursor:pointer;box-shadow:var(--shadow);transition:all .12s;
 }
 .bell-btn:hover{background:var(--bg);color:var(--text);}
+.bell-btn.bell-active{background:var(--blue-soft);border-color:var(--blue-border);color:var(--blue-text);}
 .bell-badge{
   position:absolute;top:-4px;right:-4px;
   min-width:16px;height:16px;padding:0 4px;border-radius:100px;
@@ -468,38 +469,82 @@ body.select-mode .card-checkbox{display:inline-flex;}
   display:flex;align-items:center;justify-content:center;
   border:2px solid var(--surface);font-family:var(--font);
 }
-.bell-panel{
-  display:none;position:absolute;top:calc(100% + 6px);right:0;
-  width:340px;max-height:420px;overflow-y:auto;
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);
-  box-shadow:var(--shadow-md);z-index:300;
+.bell-overlay{
+  position:fixed;inset:0;z-index:9700;background:rgba(15,23,42,0);
+  opacity:0;pointer-events:none;transition:opacity .22s ease,background .22s ease;
 }
-.bell-panel.open{display:block;}
-.bell-hdr{
-  padding:12px 14px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;background:var(--surface);z-index:1;
+.bell-overlay.open{opacity:1;pointer-events:auto;background:rgba(15,23,42,.24);}
+.bell-drawer{
+  position:fixed;top:0;right:0;bottom:0;z-index:9701;
+  width:min(400px,94vw);background:var(--surface);border-left:1px solid var(--border);
+  box-shadow:-8px 0 30px rgba(26,31,54,.16);
+  display:flex;flex-direction:column;transform:translateX(100%);
+  transition:transform .28s cubic-bezier(.32,.72,0,1);overflow:hidden;
 }
-.bell-title{font-size:14px;font-weight:800;color:var(--text);}
-.bell-clear{background:transparent;border:none;color:var(--accent);font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font);}
-.notif-item{
-  display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);
-  cursor:pointer;transition:background .12s;
-}
-.notif-item:hover{background:var(--bg);}
-.notif-item:last-child{border-bottom:none;}
-.notif-icon{
-  width:24px;height:24px;border-radius:6px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:12.5px;
-}
-.notif-icon.crit{background:var(--red-soft);color:var(--red-text);}
-.notif-icon.warn{background:var(--amber-soft);color:var(--amber-text);}
-.notif-icon.info{background:var(--blue-soft);color:var(--blue-text);}
-.notif-body{flex:1;min-width:0;}
-.notif-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:1px;}
-.notif-sub{font-size:12px;color:var(--text3);font-weight:500;line-height:1.35;}
-.notif-time{font-size:11px;color:var(--text3);font-weight:600;margin-top:2px;font-family:var(--mono);}
-.notif-empty{padding:24px;text-align:center;color:var(--text3);font-size:13.5px;}
+.bell-drawer.open{transform:translateX(0);}
+.bell-drawer-head{padding:14px 16px 0;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.bell-drawer-head-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.bell-drawer-title-row{display:flex;align-items:center;gap:8px;min-width:0;}
+.bell-drawer-title{font-size:15px;font-weight:800;color:var(--text);}
+.bell-drawer-total{font-size:10px;font-weight:800;padding:2px 7px;border-radius:8px;background:var(--bg);color:var(--text3);border:1px solid var(--border);}
+.bell-drawer-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.bell-mark-all{font-size:11.5px;color:var(--accent);cursor:pointer;background:transparent;border:none;font-family:var(--font);font-weight:800;padding:5px 8px;border-radius:var(--r);}
+.bell-mark-all:hover{background:var(--blue-soft);}
+.bell-drawer-close{width:28px;height:28px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);}
+.bell-drawer-close:hover{background:var(--bg);color:var(--text);}
+.bell-drawer-tabs{display:flex;gap:2px;padding:0 2px;margin-bottom:-1px;overflow-x:auto;}
+.bell-dtab{font-size:12px;font-weight:700;padding:9px 10px;cursor:pointer;color:var(--text3);border:0;border-bottom:2px solid transparent;background:transparent;font-family:var(--font);display:flex;align-items:center;gap:5px;white-space:nowrap;}
+.bell-dtab:hover{color:var(--text2);}
+.bell-dtab.active{color:var(--text);border-bottom-color:var(--accent);}
+.bell-tc{font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:6px;min-width:15px;text-align:center;background:var(--bg);color:var(--text3);}
+.bell-tc-d{background:var(--red-soft);color:var(--red-text);}
+.bell-tc-w{background:var(--amber-soft);color:var(--amber-text);}
+.bell-filter{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);overflow-x:auto;background:var(--bg);flex-shrink:0;}
+.bell-filter::-webkit-scrollbar,.bell-drawer-tabs::-webkit-scrollbar{display:none;}
+.bell-fchip{font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:var(--font);font-weight:700;white-space:nowrap;}
+.bell-fchip:hover{border-color:var(--border2);color:var(--text);}
+.bell-fchip.on{background:var(--text);color:#fff;border-color:var(--text);}
+.bell-list{flex:1;overflow-y:auto;padding:8px 10px;}
+.bell-list::-webkit-scrollbar{width:4px;}
+.bell-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.bell-dg{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:10px 6px 5px;}
+.bell-ni{display:flex;gap:9px;padding:10px 8px;border-radius:var(--r);border:1px solid transparent;margin-bottom:4px;cursor:pointer;transition:all .13s;}
+.bell-ni:hover{background:var(--bg);border-color:var(--border);}
+.bell-ni-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px;background:var(--blue-text);}
+.bell-ni-dot.d{background:var(--red-text);}
+.bell-ni-dot.w{background:var(--amber-text);}
+.bell-ni-dot.i{background:var(--blue-text);}
+.bell-ni-body{flex:1;min-width:0;}
+.bell-ni-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.bell-ni-title{font-size:12.5px;font-weight:800;color:var(--text);line-height:1.3;}
+.bell-ni-time{font-size:10.5px;color:var(--text3);white-space:nowrap;flex-shrink:0;font-family:var(--mono);font-weight:700;}
+.bell-ni-desc{font-size:11.5px;color:var(--text2);line-height:1.4;margin-top:2px;}
+.bell-ni-loc{display:flex;align-items:center;gap:4px;margin-top:6px;font-size:10.5px;color:var(--text3);font-weight:700;}
+.bell-ni-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:800;padding:2px 6px;border-radius:7px;margin-top:7px;margin-right:4px;}
+.bell-ni-tag.d{background:var(--red-soft);color:var(--red-text);}
+.bell-ni-tag.w{background:var(--amber-soft);color:var(--amber-text);}
+.bell-ni-tag.i{background:var(--blue-soft);color:var(--blue-text);}
+.bell-ni-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;}
+.bell-act-btn{font-size:10.5px;font-weight:800;padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .12s;}
+.bell-act-btn:hover{background:var(--bg);color:var(--text);}
+.bell-act-btn.approve,.bell-act-btn.prepare,.bell-act-btn.checkin{background:var(--green-soft);color:var(--green-text);border-color:var(--green-border);}
+.bell-act-btn.approve:hover,.bell-act-btn.prepare:hover,.bell-act-btn.checkin:hover{background:#dff3e6;}
+.bell-act-btn.reject{background:var(--red-soft);color:var(--red-text);border-color:var(--red-border);}
+.bell-act-btn.reject:hover{background:#ffe2e0;}
+.bell-act-btn.review,.bell-act-btn.investigate{background:var(--amber-soft);color:var(--amber-text);border-color:var(--amber-border);}
+.bell-act-result{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;margin-top:8px;}
+.bell-act-result.approved{background:var(--green-soft);color:var(--green-text);border:1px solid var(--green-border);}
+.bell-act-result.rejected{background:var(--red-soft);color:var(--red-text);border:1px solid var(--red-border);}
+.bell-ni-detail{margin-top:9px;padding:9px;border-top:1px solid var(--border);background:var(--bg);border-radius:0 0 var(--r) var(--r);}
+.bell-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px;}
+.bell-detail-cell{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:7px 8px;min-width:0;}
+.bell-detail-label{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:2px;}
+.bell-detail-value{font-size:11px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bell-detail-note{font-size:11px;color:var(--text2);line-height:1.45;margin-bottom:7px;}
+.bell-empty{padding:36px 18px;text-align:center;color:var(--text3);font-size:13px;font-weight:600;}
+.bell-drawer-footer{border-top:1px solid var(--border);padding:10px 14px;background:var(--surface);flex-shrink:0;}
+.bell-view-all{width:100%;border:1px solid var(--border);background:var(--surface);border-radius:var(--r);font-family:var(--font);font-weight:800;color:var(--text2);font-size:12px;padding:8px 10px;cursor:pointer;}
+.bell-view-all:hover{background:var(--bg);color:var(--text);}
 
 /* ── DRILL-DOWN PANEL ── */
 .drill-backdrop{position:fixed;inset:0;background:rgba(26,31,54,.25);z-index:450;display:none;}
@@ -2292,7 +2337,7 @@ input, select, textarea {
   font-size: 16px !important;
 }
 /* Smooth scroll on all containers */
-.main, .page-view, .wf-page, .lp-table-wrap, .bell-panel,
+.main, .page-view, .wf-page, .lp-table-wrap, .bell-list,
 #rp-agent-messages, #rp-activity-feed, .sidebar {
   -webkit-overflow-scrolling: touch;
 }
@@ -2325,11 +2370,8 @@ input, select, textarea {
     font-size: 13px !important;
   }
 
-  /* 5. Bell panel: constrain width */
-  .bell-panel {
-    width: min(340px, 90vw) !important;
-    right: -8px !important;
-  }
+  /* 5. Bell drawer: keep comfortable touch width */
+  .bell-drawer { width: min(400px, 94vw) !important; }
 
   /* 6. Topbar user text: hide on tablet to save space */
   #topbar-user-text { display: none !important; }
@@ -2532,8 +2574,8 @@ input, select, textarea {
   /* ── Cash Load page ── */
   #page-cashload { padding: 10px 10px 74px !important; }
 
-  /* ── Bell panel: narrower on phone ── */
-  .bell-panel { width: calc(100vw - 16px) !important; right: -60px !important; }
+  /* ── Bell drawer: full phone width with small edge reveal ── */
+  .bell-drawer { width: calc(100vw - 12px) !important; }
 
   .lp-header {
     align-items: stretch !important;
@@ -3323,6 +3365,157 @@ input, select, textarea {
 #page-routeplanner .collectors-rail { font-size: 15px !important; }
 #page-routeplanner .planning-strip  { font-size: 15px !important; }
 
+
+/* ── View-mode: Next/Back nav buttons always adjacent ── */
+.footer-actions { gap: 8px; }
+
+/* ── View-mode: disabled action buttons look faded ── */
+.footer-actions button[disabled][data-action] {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+/* ── View-mode banner ── */
+#wf-view-mode-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+#wf-view-mode-banner svg { flex-shrink: 0; }
+#wf-view-mode-banner.visible { display: flex; }
+
+/* ── Save Changes button ── */
+.btn-view-save {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px;
+  border-radius: var(--r);
+  border: 1px solid #15803D;
+  background: #15803D;
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all .12s;
+  white-space: nowrap;
+}
+.btn-view-save:hover { background: #14532D; border-color: #14532D; }
+
+/* ── LIVE DASHBOARD SIMULATION ── */
+@keyframes cardFlash   { 0%{box-shadow:0 0 0 0 rgba(26,171,109,0);} 30%{box-shadow:0 0 0 6px rgba(26,171,109,.35);} 100%{box-shadow:0 0 0 0 rgba(26,171,109,0);} }
+@keyframes critFlash   { 0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,0);} 50%{box-shadow:0 0 0 8px rgba(229,57,53,.22);} }
+@keyframes statBump    { 0%,100%{transform:scale(1);} 40%{transform:scale(1.18);} }
+@keyframes liveTickIn  { from{transform:translateX(18px);opacity:0;} to{transform:translateX(0);opacity:1;} }
+@keyframes tickerSlide { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes feedSlide   { from{opacity:0;transform:translateY(-6px);} to{opacity:1;transform:translateY(0);} }
+@keyframes livePulse   { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(.85);} }
+@keyframes syncSpin    { to{transform:rotate(360deg);} }
+@keyframes billUp      { 0%{color:inherit;transform:translateY(0);} 30%{color:#0f6e56;transform:translateY(-3px);} 100%{color:inherit;transform:translateY(0);} }
+@keyframes billDown    { 0%{color:inherit;transform:translateY(0);} 30%{color:#e53935;transform:translateY(3px);}  100%{color:inherit;transform:translateY(0);} }
+.cass-bills.bill-up    { animation: billUp   .55s ease; }
+.cass-bills.bill-down  { animation: billDown .55s ease; }
+
+.card.live-flash { animation: cardFlash .9s ease-out !important; }
+.card.crit.live-pulse { animation: critFlash 2s ease-in-out infinite; }
+.stat-bump { animation: statBump .4s ease-out; }
+
+/* Live command bar */
+#live-bar {
+  display:flex; align-items:center; gap:14px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); padding:7px 14px;
+  margin-bottom:10px; box-shadow:var(--shadow);
+  font-size:12.5px; font-weight:600;
+}
+#live-bar .live-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  background:#dcfce7; color:#15803D;
+  border:1px solid #86efac; border-radius:100px;
+  padding:2px 9px; font-size:11.5px; font-weight:800;
+  letter-spacing:.04em;
+}
+#live-bar .live-dot-sm {
+  width:6px; height:6px; border-radius:50%;
+  background:#15803D; animation:livePulse 1.6s ease-in-out infinite;
+  flex-shrink:0;
+}
+#live-bar .lb-divider { color:var(--border2); }
+#live-bar .lb-sync { display:flex; align-items:center; gap:5px; color:var(--text3); }
+#live-bar .lb-sync-icon { animation:syncSpin 2s linear infinite; opacity:.5; }
+#live-bar .lb-events-badge {
+  margin-left:auto; background:var(--accent-s); color:var(--accent);
+  border:1px solid rgba(192,57,43,.15); border-radius:100px;
+  padding:2px 10px; font-size:11.5px; font-weight:700;
+}
+
+/* Ticker strip */
+#live-ticker-wrap {
+  overflow:hidden; display:flex; align-items:center;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-xl); height:34px; margin-bottom:10px;
+  box-shadow:var(--shadow); position:relative;
+}
+#live-ticker-wrap .ticker-label {
+  display:flex; align-items:center; gap:5px;
+  padding:0 12px; background:var(--text); color:#fff;
+  font-size:11px; font-weight:800; letter-spacing:.12em;
+  height:100%; flex-shrink:0; border-radius:var(--r-xl) 0 0 var(--r-xl);
+  white-space:nowrap;
+}
+#live-ticker-wrap .ticker-label .td { width:5px; height:5px; border-radius:50%; background:#4ade80; animation:livePulse 1.4s ease-in-out infinite; }
+.ticker-track { flex:1; overflow:hidden; height:100%; position:relative; }
+.ticker-inner { display:flex; align-items:center; height:100%; white-space:nowrap; will-change:transform; }
+.ticker-inner.running { animation: tickerSlide 28s linear infinite; }
+.ticker-event {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:0 20px; font-size:12.5px; font-weight:600; height:100%;
+  border-right:1px solid var(--border); flex-shrink:0;
+}
+.ticker-event.t-alert { color:var(--red-text); }
+.ticker-event.t-warn  { color:var(--amber-text); }
+.ticker-event.t-ok    { color:var(--green-text); }
+.ticker-event.t-info  { color:var(--blue-text); }
+
+/* Live activity feed panel */
+#live-feed-panel {
+  position:fixed; right:0; top:var(--topbar-h); bottom:0;
+  width:290px; background:var(--surface);
+  border-left:1px solid var(--border);
+  display:flex; flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .25s ease;
+  z-index:190; box-shadow:-4px 0 18px rgba(26,31,54,.08);
+}
+#live-feed-panel.open { transform:translateX(0); }
+#live-feed-panel .lfp-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 14px; border-bottom:1px solid var(--border);
+  font-size:13px; font-weight:800; flex-shrink:0;
+}
+#live-feed-panel .lfp-list { flex:1; overflow-y:auto; }
+.lf-entry { animation:feedSlide .25s ease; }
+.lf-entry:hover { background:var(--surface2); }
+
+/* Feed toggle button */
+#live-feed-toggle {
+  display:inline-flex; align-items:center; gap:5px;
+  cursor:pointer; padding:2px 9px;
+  border-radius:100px; font-size:11.5px; font-weight:700;
+  background:var(--surface2); color:var(--text2);
+  border:1px solid var(--border);
+  transition:background .12s;
+}
+#live-feed-toggle:hover { background:var(--border); }
 </style>
 
 <style id="wf-styles">
@@ -3465,6 +3658,16 @@ input, select, textarea {
 /* Upload zone */
 .wf-page .upload-zone { border:1.5px dashed rgba(0,0,0,.2);border-radius:10px;padding:20px;text-align:center; }
 .wf-page .upload-zone-formats { font-size:12.5px;color:#888;margin-top:6px; }
+.wf-page .upload-zone.has-files { border-color:#1aab6d;background:#f7fcfa; }
+.wf-page .upload-file-list { margin-top:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;text-align:left; }
+.wf-page .upload-file-item { display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid rgba(0,0,0,.1);border-radius:8px;background:#fff;min-width:0; }
+.wf-page .upload-file-thumb { width:34px;height:34px;border-radius:6px;background:#f0f0ec;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;color:#888;font-size:10px;font-weight:800;text-transform:uppercase; }
+.wf-page .upload-file-thumb img { width:100%;height:100%;object-fit:cover;display:block; }
+.wf-page .upload-file-meta { min-width:0;flex:1; }
+.wf-page .upload-file-name { font-size:12.5px;font-weight:800;color:#1a2332;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2; }
+.wf-page .upload-file-size { font-size:11.5px;color:#888;margin-top:1px; }
+.wf-page .upload-file-remove { width:24px;height:24px;border-radius:5px;border:1px solid rgba(0,0,0,.12);background:#fff;color:#888;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;line-height:1; }
+.wf-page .upload-file-remove:hover { background:#fcebeb;color:#c62828;border-color:#ffcdd2; }
 /* Total load pill */
 .wf-page .total-load-pill { font-size:13.5px;font-weight:600;color:#5f5e5a; }
 .wf-page .total-load-pill .amt { color:#0c447c;font-weight:700;margin-left:6px; }
@@ -3730,6 +3933,8 @@ input, select, textarea {
 /* error toast */
 .wf-error-toast { position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#a32d2d;color:white;padding:12px 20px;border-radius:8px;font-size:14.5px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:900;transition:transform .25s ease-out,opacity .25s;opacity:0;pointer-events:none;max-width:480px;text-align:center; }
 .wf-error-toast.show { transform:translateX(-50%) translateY(0);opacity:1; }
+.wf-error-toast.success { background:#0f6e56; }
+.wf-error-toast.warn { background:#854f0b; }
 /* Flag modal */
 .wf-page .flag-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:850;align-items:center;justify-content:center; }
 .wf-page .flag-modal.show { display:flex; }
@@ -3886,6 +4091,80 @@ input, select, textarea {
 .wf-page .tl-detail.warn    { background:#fdf6e3;color:#854f0b;border-left-color:#f59300; }
 .wf-page .tl-detail.success { background:#eaf5ee;color:#0f6e56;border-left-color:#1aab6d; }
 .wf-page .tl-detail.danger  { background:#fcebeb;color:#a32d2d;border-left-color:#c62828; }
+
+/* Step 1 load slips print modal */
+#print-modal.show{display:flex;}
+#print-modal .modal{width:min(940px,96vw);max-height:92vh;padding:0;overflow:hidden;border-radius:14px;}
+#print-modal .modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--border);background:var(--surface);}
+#print-modal .modal-title{margin:0;font-size:16px;font-weight:800;}
+#print-modal .modal-close{border:0;background:transparent;color:var(--text2);font-size:24px;line-height:1;cursor:pointer;padding:2px 6px;border-radius:6px;}
+#print-modal .modal-close:hover{background:var(--bg);color:var(--text);}
+#print-modal .modal-body{padding:22px;background:#e8ecf0;overflow:auto;max-height:calc(92vh - 116px);}
+#print-modal .modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:13px 18px;border-top:1px solid var(--border);background:var(--surface);}
+#print-modal .print-slip-help{text-align:center;margin-bottom:18px;font-size:13px;color:var(--text2);font-weight:600;}
+#print-modal .slips-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;align-items:flex-start;}
+#print-modal .slip{background:#fff;border-radius:14px;width:260px;box-shadow:0 3px 18px rgba(0,0,0,.11),0 1px 4px rgba(0,0,0,.07);overflow:hidden;font-size:12px;flex-shrink:0;font-family:'Nunito',sans-serif;}
+#print-modal .slip-head{display:flex;align-items:center;gap:10px;padding:12px 14px 10px;border-bottom:1px solid #f0f0f0;}
+#print-modal .slip-logo{width:34px;height:34px;background:linear-gradient(135deg,#15803D,#14532D);border-radius:8px;display:grid;place-items:center;flex-shrink:0;box-shadow:0 1px 3px rgba(20,83,45,.3),inset 0 -1.5px 0 rgba(0,0,0,.18);}
+#print-modal .slip-head-info{flex:1;min-width:0;}
+#print-modal .slip-store{font-size:13px;font-weight:800;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;}
+#print-modal .slip-nrt{font-size:10px;color:#aaa;margin-top:1px;line-height:1.25;}
+#print-modal .slip-badge{font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px;flex-shrink:0;letter-spacing:.3px;}
+#print-modal .badge-collector{background:#1a2332;color:#fff;}
+#print-modal .badge-box{background:#f0f0f0;color:#555;border:1px solid #ddd;}
+#print-modal .slip-meta{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #f0f0f0;}
+#print-modal .slip-meta-2{grid-template-columns:1fr 1fr;}
+#print-modal .meta-cell{padding:7px 10px;border-right:1px solid #f0f0f0;text-align:center;}
+#print-modal .meta-cell:last-child{border-right:0;}
+#print-modal .meta-lbl{font-size:8px;color:#bbb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;font-weight:700;}
+#print-modal .meta-val{font-size:12px;font-weight:800;color:#111;line-height:1.2;}
+#print-modal .sec-title{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#bbb;padding:10px 14px 4px;}
+#print-modal .cass-row{display:flex;align-items:flex-start;gap:10px;padding:8px 14px;border-bottom:1px solid #f7f7f7;}
+#print-modal .cass-row:last-of-type{border-bottom:0;}
+#print-modal .cass-badge{width:26px;height:26px;border-radius:6px;background:#1a2332;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+#print-modal .cass-badge.rc{background:#d92b1f;font-size:9px;}
+#print-modal .cass-body{flex:1;}
+#print-modal .cass-count{font-size:15px;font-weight:800;color:#111;line-height:1;margin-bottom:6px;}
+#print-modal .cass-count.grey{font-size:11px;font-weight:600;color:#888;margin-bottom:6px;}
+#print-modal .cass-count.action{font-size:12px;font-weight:600;color:#333;margin-bottom:0;line-height:1.25;}
+#print-modal .tag-row{display:flex;gap:6px;align-items:flex-end;}
+#print-modal .tag-box{flex:1;display:flex;flex-direction:column;gap:3px;}
+#print-modal .tag-lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#c0c0c0;}
+#print-modal .tag-current{background:#f5f5f5;border:1px solid #e8e8e8;border-radius:5px;padding:4px 7px;font-size:10.5px;font-weight:700;color:#333;line-height:1.2;}
+#print-modal .tag-input{background:#fffbf0;border:1.5px dashed #e0b030;border-radius:5px;padding:4px 7px;font-size:10.5px;color:#111;font-family:inherit;outline:none;width:100%;height:auto;}
+#print-modal .tag-input::placeholder{color:#d4b87a;font-style:italic;font-size:9.5px;}
+#print-modal .tag-sep{width:1px;background:#ebebeb;height:28px;flex-shrink:0;margin-bottom:1px;}
+#print-modal .coin-row{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #f7f7f7;}
+#print-modal .coin-left{display:flex;align-items:center;gap:8px;}
+#print-modal .coin-badge{width:26px;height:26px;border-radius:6px;background:#1a2332;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#print-modal .coin-badge.p{background:#b87333;}
+#print-modal .coin-badge.q{background:#888;}
+#print-modal .coin-name{font-size:12px;font-weight:700;color:#222;}
+#print-modal .coin-action{font-size:9.5px;font-weight:800;padding:3px 10px;border-radius:5px;}
+#print-modal .coin-load{color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;}
+#print-modal .coin-fillmax{color:#15803d;background:#dcfce7;border:1px solid #86efac;}
+#print-modal .task-row{padding:5px 14px 5px 26px;font-size:11px;color:#444;position:relative;border-bottom:1px solid #fafafa;line-height:1.4;}
+#print-modal .task-row::before{content:'•';position:absolute;left:14px;color:#ccc;font-size:13px;line-height:1.2;}
+#print-modal .barcode-area{padding:12px 14px 10px;border-top:1px solid #f0f0f0;text-align:center;}
+#print-modal .barcode-bars{display:flex;align-items:flex-end;justify-content:center;gap:1.5px;height:40px;margin-bottom:5px;}
+#print-modal .barcode-bars .b{background:#111;border-radius:1px;}
+#print-modal .load-id-label{font-size:10px;color:#888;letter-spacing:1px;}
+#print-modal .box-store-name{font-size:18px;font-weight:900;color:#111;line-height:1.2;padding:14px 16px 4px;letter-spacing:-.3px;}
+#print-modal .box-nrt{font-size:11px;color:#aaa;padding:0 16px 14px;line-height:1.4;border-bottom:1px solid #f0f0f0;}
+#print-modal .slip-footer{padding:8px 14px;border-top:1px solid #f0f0f0;font-size:9px;color:#aaa;text-align:center;letter-spacing:.3px;}
+
+@media print{
+  @page{margin:8mm;size:A4 landscape;}
+  body{background:#fff!important;overflow:visible!important;}
+  body *{visibility:hidden!important;}
+  #print-modal,#print-modal *{visibility:visible!important;}
+  #print-modal{display:block!important;position:absolute!important;inset:0!important;background:#fff!important;z-index:99999!important;}
+  #print-modal .modal{box-shadow:none!important;border-radius:0!important;width:auto!important;max-width:none!important;max-height:none!important;overflow:visible!important;padding:0!important;background:#fff!important;}
+  #print-modal .modal-header,#print-modal .modal-footer,#print-modal .print-slip-help{display:none!important;}
+  #print-modal .modal-body{padding:0!important;background:#fff!important;max-height:none!important;overflow:visible!important;}
+  #print-modal .slips-row{gap:10px!important;flex-wrap:nowrap!important;align-items:flex-start!important;justify-content:center!important;}
+  #print-modal .slip{box-shadow:none!important;border:.5px solid #ddd!important;page-break-inside:avoid!important;}
+}
 </style>
 </head>
 <body>
@@ -4010,13 +4289,6 @@ input, select, textarea {
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2a4 4 0 0 0-4 4v3l-1.5 2h11L12 9V6a4 4 0 0 0-4-4zM6 13a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="bell-badge" id="bell-badge" style="display:none;">0</span>
       </button>
-      <div class="bell-panel" id="bell-panel">
-        <div class="bell-hdr">
-          <span class="bell-title">Notifications</span>
-          <button class="bell-clear" onclick="clearAllNotifs()">Clear all</button>
-        </div>
-        <div id="bell-list"></div>
-      </div>
     </div>
     <div id="topbar-user-text" style="text-align:right;line-height:1.3;">
       <div style="font-size:14px;font-weight:700;color:var(--text);">Scott Jones</div>
@@ -4027,8 +4299,78 @@ input, select, textarea {
   </div>
 </header>
 
+<div class="bell-overlay" id="bell-overlay" onclick="closeBellPanel()"></div>
+<aside class="bell-drawer" id="bell-drawer" aria-hidden="true" aria-label="Notifications">
+  <div class="bell-drawer-head">
+    <div class="bell-drawer-head-top">
+      <div class="bell-drawer-title-row">
+        <span class="bell-drawer-title">Notifications</span>
+        <span class="bell-drawer-total" id="bell-drawer-total">0</span>
+      </div>
+      <div class="bell-drawer-actions">
+        <button class="bell-mark-all" onclick="clearAllNotifs()">Mark all read</button>
+        <button class="bell-drawer-close" onclick="closeBellPanel()" title="Close notifications">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="bell-drawer-tabs">
+      <button class="bell-dtab active" data-bell-tab="all" onclick="switchBellTab('all',this)">All <span class="bell-tc" id="bell-tc-all">0</span></button>
+      <button class="bell-dtab" data-bell-tab="alerts" onclick="switchBellTab('alerts',this)">Alerts <span class="bell-tc bell-tc-d" id="bell-tc-alerts">0</span></button>
+      <button class="bell-dtab" data-bell-tab="cashload" onclick="switchBellTab('cashload',this)">Cash Load <span class="bell-tc bell-tc-w" id="bell-tc-cashload">0</span></button>
+    </div>
+  </div>
+  <div class="bell-filter">
+    <button class="bell-fchip on" data-bell-filter="all" onclick="setBellFilter('all',this)">All</button>
+    <button class="bell-fchip" data-bell-filter="unread" onclick="setBellFilter('unread',this)">Unread</button>
+    <button class="bell-fchip" data-bell-filter="action" onclick="setBellFilter('action',this)">Action needed</button>
+    <button class="bell-fchip" data-bell-filter="critical" onclick="setBellFilter('critical',this)">Critical</button>
+  </div>
+  <div class="bell-list" id="bell-list"></div>
+  <div class="bell-drawer-footer">
+    <button class="bell-view-all" onclick="openAllNotificationsPage()">View all notifications →</button>
+  </div>
+</aside>
+
 <!-- MAIN -->
 <main class="main">
+
+
+  <!-- ── LIVE COMMAND BAR ── -->
+  <div id="live-bar">
+    <span class="live-badge"><span class="live-dot-sm"></span>LIVE</span>
+    <span class="lb-divider">·</span>
+    <span class="lb-sync">
+      <svg class="lb-sync-icon" width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1-3.46" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M1 1v4h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Last sync: <span id="live-last-sync" style="color:var(--text2);margin-left:2px;">Just now</span>
+    </span>
+    <span class="lb-divider">·</span>
+    <span style="color:var(--text2);">Updates today: <span id="live-updates-today" style="color:var(--text);font-weight:800;">0</span></span>
+    <span class="lb-divider">·</span>
+    <span style="color:var(--text2);">Active alerts: <span id="live-alerts-count" style="color:var(--red-text);font-weight:800;">0</span></span>
+    <button id="live-feed-toggle" onclick="toggleLiveFeed()">
+      <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Activity Feed
+      <span id="live-feed-unread" style="display:none;background:var(--accent);color:#fff;border-radius:100px;padding:1px 5px;font-size:10px;margin-left:2px;">0</span>
+    </button>
+    <button id="live-refresh-btn" onclick="liveManualRefresh()" title="Refresh now" style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;padding:2px 9px;border-radius:100px;font-size:11.5px;font-weight:700;background:var(--blue-soft);color:var(--blue-text);border:1px solid var(--blue-border);transition:background .12s;">
+      <svg id="live-refresh-icon" width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1-3.46" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M1 1v4h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- ── LIVE TICKER ── -->
+  <div id="live-ticker-wrap">
+    <div class="ticker-label">
+      <div class="td"></div>
+      EVENTS
+    </div>
+    <div class="ticker-track">
+      <div class="ticker-inner" id="live-ticker-inner">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
 
   <!-- STATS -->
   <div class="stats-strip">
@@ -4152,6 +4494,24 @@ input, select, textarea {
   <!-- SECTIONS (dynamic, populated by renderAll) -->
   <div id="sections-host"></div>
 </main>
+
+<div class="page-view" id="page-notifications">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;">
+    <div>
+      <div style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.02em;">Notifications</div>
+      <div style="font-size:13px;color:var(--text3);font-weight:600;margin-top:3px;">Actionable alerts, workflow flags, and cash-load updates</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+      <button class="bell-fchip on" data-all-notif-filter="all" onclick="setAllNotificationsFilter('all',this)">All</button>
+      <button class="bell-fchip" data-all-notif-filter="action" onclick="setAllNotificationsFilter('action',this)">Action needed</button>
+      <button class="bell-fchip" data-all-notif-filter="critical" onclick="setAllNotificationsFilter('critical',this)">Critical</button>
+      <button class="bell-fchip" data-all-notif-filter="alerts" onclick="setAllNotificationsFilter('alerts',this)">Alerts</button>
+      <button class="bell-fchip" data-all-notif-filter="cashload" onclick="setAllNotificationsFilter('cashload',this)">Cash Load</button>
+    </div>
+  </div>
+  <div id="bell-all-summary" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px;"></div>
+  <div class="bell-list" id="bell-all-list" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);max-height:none;overflow:visible;padding:10px;"></div>
+</div>
 
 <!-- ══ ACCOUNTS LIST PAGE ══ -->
 <div class="page-view" id="page-accounts">
@@ -4500,13 +4860,12 @@ input, select, textarea {
     </div>
   </div>
 
-  <!-- Toolbar — consistent with routes/markets pattern -->
+  <!-- Toolbar -->
   <div class="lp-header" style="margin-bottom:12px;">
-    <div class="lp-toolbar" style="flex:1;">
-      <div class="lp-search-wrap">
-        <svg class="lp-search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <input class="lp-search" type="text" placeholder="Search loads, events, BV cans…">
-      </div>
+    <div style="flex:1;"></div>
+    <div class="lp-search-wrap" style="margin-right:8px;">
+      <svg class="lp-search-icon" width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input class="lp-search" type="text" placeholder="Search loads, events…">
     </div>
     <button onclick="openLoadWorkflow('acct-overview', _ovAccountData)" class="btn btn-primary" style="border-radius:100px;padding:7px 18px;">Create load</button>
   </div>
@@ -4668,10 +5027,16 @@ input, select, textarea {
         <th style="padding:7px 12px;text-align:right;font-size:11.5px;font-weight:700;color:var(--text3);text-transform:uppercase;">Days Since Last Load</th>
       </tr></thead>
       <tbody id="prev-loads-tbody">
-        <tr data-load-status="predicted" style="border-top:1px solid var(--border);background:var(--amber-soft);">
+        <tr data-load-status="predicted" style="border-top:1px solid var(--border);background:var(--amber-soft);cursor:pointer;" onclick="openLoadWorkflow('acct-overview', _ovAccountData)" title="Click to start this load">
           <td style="padding:8px 12px;"><span style="background:#6c5ce7;color:#fff;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:100px;">Predicted</span></td>
           <td style="padding:8px 12px;color:var(--amber-text);font-weight:700;">Apr 20, 2026</td>
-          <td style="padding:8px 12px;color:var(--text3);">—</td>
+          <td style="padding:8px 12px;">
+            <button onclick="event.stopPropagation();openLoadWorkflow('acct-overview', _ovAccountData)"
+              style="display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:100px;border:1px solid #6c5ce7;background:rgba(108,92,231,.08);color:#6c5ce7;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">
+              <svg width="9" height="9" viewBox="0 0 16 16" fill="none"><path d="M5 3l8 5-8 5V3z" fill="currentColor"/></svg>
+              Start Load
+            </button>
+          </td>
           <td style="padding:8px 12px;text-align:right;font-weight:800;color:var(--amber-text);">$29,930</td>
           <td style="padding:8px 12px;text-align:right;">—</td>
           <td style="padding:8px 12px;text-align:right;">—</td>
@@ -4680,7 +5045,7 @@ input, select, textarea {
         <tr data-load-status="completed" style="border-top:1px solid var(--border);">
           <td style="padding:8px 12px;"><span style="background:var(--green);color:#fff;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:100px;">Completed</span></td>
           <td style="padding:8px 12px;">Apr 08, 2026</td>
-          <td style="padding:8px 12px;color:var(--blue-text);font-weight:600;">L0-2049</td>
+          <td style="padding:8px 12px;"><span onclick="openLoadWorkflow('view-completed', _ovAccountData)" style="color:var(--blue-text);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;" title="View completed load L0-2049">L0-2049</span></td>
           <td style="padding:8px 12px;text-align:right;">$1,008,256</td>
           <td style="padding:8px 12px;text-align:right;">$29,530</td>
           <td style="padding:8px 12px;text-align:right;">13</td>
@@ -4689,7 +5054,7 @@ input, select, textarea {
         <tr data-load-status="completed" style="border-top:1px solid var(--border);">
           <td style="padding:8px 12px;"><span style="background:var(--green);color:#fff;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:100px;">Completed</span></td>
           <td style="padding:8px 12px;">Mar 25, 2026</td>
-          <td style="padding:8px 12px;color:var(--blue-text);font-weight:600;">L0-2031</td>
+          <td style="padding:8px 12px;"><span onclick="openLoadWorkflow('view-completed', _ovAccountData)" style="color:var(--blue-text);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;" title="View completed load L0-2031">L0-2031</span></td>
           <td style="padding:8px 12px;text-align:right;">$1,042,600</td>
           <td style="padding:8px 12px;text-align:right;">$27,600</td>
           <td style="padding:8px 12px;text-align:right;">14</td>
@@ -4698,7 +5063,7 @@ input, select, textarea {
         <tr data-load-status="completed" style="border-top:1px solid var(--border);">
           <td style="padding:8px 12px;"><span style="background:var(--green);color:#fff;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:100px;">Completed</span></td>
           <td style="padding:8px 12px;">Mar 11, 2026</td>
-          <td style="padding:8px 12px;color:var(--blue-text);font-weight:600;">L0-2019</td>
+          <td style="padding:8px 12px;"><span onclick="openLoadWorkflow('view-completed', _ovAccountData)" style="color:var(--blue-text);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;" title="View completed load L0-2019">L0-2019</span></td>
           <td style="padding:8px 12px;text-align:right;">$1,120,400</td>
           <td style="padding:8px 12px;text-align:right;">$31,200</td>
           <td style="padding:8px 12px;text-align:right;">14</td>
@@ -4707,7 +5072,7 @@ input, select, textarea {
         <tr data-load-status="completed" style="border-top:1px solid var(--border);">
           <td style="padding:8px 12px;"><span style="background:var(--green);color:#fff;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:100px;">Completed</span></td>
           <td style="padding:8px 12px;">Feb 25, 2026</td>
-          <td style="padding:8px 12px;color:var(--blue-text);font-weight:600;">L0-1998</td>
+          <td style="padding:8px 12px;"><span onclick="openLoadWorkflow('view-completed', _ovAccountData)" style="color:var(--blue-text);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;" title="View completed load L0-1998">L0-1998</span></td>
           <td style="padding:8px 12px;text-align:right;">$884,200</td>
           <td style="padding:8px 12px;text-align:right;">$25,100</td>
           <td style="padding:8px 12px;text-align:right;">14</td>
@@ -5197,6 +5562,11 @@ input, select, textarea {
 
 <!-- ══ LOAD WORKFLOW PAGE (Admin) ══ -->
 <div class="wf-page" id="page-load-workflow">
+  <!-- View-mode banner — shown when reviewing a completed load -->
+  <div id="wf-view-mode-banner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>Viewing completed load — use <strong>Next / Back</strong> to navigate steps. Action buttons are disabled. Any edits will surface a <strong>Save Changes</strong> button.</span>
+  </div>
   <div class="topbar">
   <div class="brand">
     <div class="brand-logo" style="background:#15803D;font-size:8px;letter-spacing:.01em;font-weight:800;color:#fff;">C&S</div>
@@ -5388,8 +5758,17 @@ input, select, textarea {
 
           <div class="upload-zone">
             <div style="font-size: 13px; font-weight: 500;">Upload Documents</div>
-            <button class="btn btn-primary" style="padding: 8px 22px; margin-top: 10px;">Browse</button>
-            <div class="upload-zone-formats">Import docx, xlsx, pptx, pdf, png, jpeg file only.</div>
+            <input
+              id="step1-upload-input"
+              type="file"
+              multiple
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.rtf,.odt,.ods,.odp"
+              style="display:none;"
+              onchange="handleStep1Uploads(this.files)"
+            />
+            <button class="btn btn-primary" type="button" onclick="browseStep1Uploads()" style="padding: 8px 22px; margin-top: 10px;">Browse</button>
+            <div class="upload-zone-formats">Import images or documents: PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, and OpenDocument files.</div>
+            <div class="upload-file-list" id="step1-upload-list"></div>
           </div>
 
         </div>
@@ -5582,10 +5961,10 @@ input, select, textarea {
       <div class="footer-actions">
         <button class="demo-btn" onclick="demoClearStep1()" title="Clear required fields to test validation">Clear required</button>
         <button class="demo-btn" onclick="demoPrefillStep1()" title="Prefill required fields with sample data">Prefill required</button>
-        <button class="btn">Back</button>
-        <button class="btn">Preview</button>
-        <button class="btn">Save As Draft</button>
-        <button class="btn" onclick="openPrintSlip()">Print Slip</button>
+        <button class="btn" id="wf-back-1" onclick="closeLoadWorkflow()">Back</button>
+        <button class="btn btn-primary" id="wf-next-1" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
+        <button class="btn" id="wf-save-draft-1" onclick="saveLoadDraft()">Save As Draft</button>
+        <button class="btn" id="wf-print-1" onclick="openPrintSlip()">Print Slip</button>
         <button class="btn btn-primary" id="approve-btn" onclick="approveLoad()">Approve →</button>
       </div>
 
@@ -5846,7 +6225,8 @@ input, select, textarea {
       </div>
 
       <div class="footer-actions">
-        <button class="btn" onclick="goToStep(1)">Back</button>
+        <button class="btn" id="wf-back-2" onclick="goToStep(1)">Back</button>
+        <button class="btn btn-primary" id="wf-next-2" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
         <button class="btn btn-primary" id="publish-btn" onclick="publishAndPrint()">Publish &amp; Check Out ✓</button>
       </div>
 
@@ -5857,7 +6237,7 @@ input, select, textarea {
 
       <div class="page-header">
         <div class="page-title">
-          <button class="back-btn">‹</button>
+          <button class="back-btn" onclick="goToStep(2)">‹</button>
           <h1>Load Status</h1>
         </div>
         <div class="meta-right">
@@ -6033,7 +6413,8 @@ input, select, textarea {
       </div>
 
       <div class="footer-actions">
-        <button class="btn" onclick="goToStep(2)">Back</button>
+        <button class="btn" id="wf-back-3" onclick="goToStep(2)">Back</button>
+        <button class="btn btn-primary" id="wf-next-3" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
         <button class="btn btn-primary" id="proceed-checkin-btn" onclick="goToStep(4)" disabled>Proceed to check-in →</button>
       </div>
 
@@ -6239,7 +6620,8 @@ input, select, textarea {
       </div>
 
       <div class="footer-actions">
-        <button class="btn" onclick="goToStep(3)">Back</button>
+        <button class="btn" id="wf-back-4" onclick="goToStep(3)">Back</button>
+        <button class="btn btn-primary" id="wf-next-4" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
         <button class="btn btn-danger" id="flag-load-btn" onclick="flagLoadForReview()" disabled style="background: var(--bg-danger); color: var(--text-danger); border-color: var(--text-danger);">⚑ Needs Check — Flag Load</button>
         <button class="btn btn-success" id="mark-done-btn" onclick="markAsDone()" disabled>Mark as Done ✓</button>
       </div>
@@ -6408,7 +6790,7 @@ input, select, textarea {
 
       <!-- Footer -->
       <div class="footer-actions">
-        <button class="btn" onclick="goToStep(4)">← Back</button>
+        <button class="btn" id="wf-back-5" onclick="goToStep(4)">← Back</button>
         <div style="display:flex;gap:8px;align-items:center;">
           <span id="s5-pending-hint" style="font-size:13px;color:#aaa;">Fill all rows to enable submit</span>
           <button class="btn" id="submit-balancing-btn" onclick="submitBalancing()" disabled
@@ -6416,6 +6798,14 @@ input, select, textarea {
             Submit &amp; Complete ✓
           </button>
         </div>
+        <button class="btn" id="wf-close-btn" onclick="closeLoadWorkflow()" style="display:none;">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Close
+        </button>
+        <button class="btn btn-view-save" id="wf-view-save-btn" onclick="saveViewChanges()" style="display:none;background:#15803D;color:#fff;border-color:#15803D;">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Save Changes
+        </button>
       </div>
 
     </div>
@@ -6436,161 +6826,274 @@ input, select, textarea {
       <button class="modal-close" onclick="closePrintModal()">×</button>
     </div>
     <div class="modal-body">
-      <div style="text-align: center; margin-bottom: 18px; font-size: 13px; color: var(--text-secondary);">
-        Two slips will print: a Box Slip (stays with the cassette box) and a Collector Slip (for Ron).
-      </div>
+      <div class="print-slip-help">Load Slips - LD-2048 · Current Account · 11/21/25</div>
       <div class="slips-row">
 
-        <!-- Box Slip -->
-        <div class="slip-paper">
-          <div class="slip-tab">BOX SLIP</div>
+        <!-- Accounts Slip -->
+        <div class="slip">
           <div class="slip-head">
-            <div class="slip-logo" style="font-size:10.5px;letter-spacing:.05em;">LC&#x1F340;</div>
-            <div class="slip-head-mid">
-              <div class="slip-store-name">Test 2 Inc.</div>
-              <div class="slip-store-meta">NRT ID: 12289 · 221 West Bend Ave, Collinsville</div>
+            <div class="slip-logo" title="Lucky Charm Gaming"><svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><circle cx="12" cy="8" r="3.6"/><circle cx="8" cy="12" r="3.6"/><circle cx="16" cy="12" r="3.6"/><circle cx="12" cy="16" r="3.6"/></g><circle cx="12" cy="12" r="1.4" fill="#15803D"/><path d="M 12.5 16 Q 11.5 19.5 13.8 22" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="slip-head-info">
+              <div class="slip-store">Current Account</div>
+              <div class="slip-nrt">NRT ID: 12289 · 221<br>West Bend Ave, Collinsville</div>
             </div>
-            <div class="slip-pill">Box</div>
+            <div class="slip-badge badge-collector">Collector</div>
           </div>
-          <div class="slip-grid">
-            <div class="slip-grid-cell">
-              <div class="lbl">Date</div>
-              <div class="val">11/21/25</div>
+
+          <div class="slip-meta">
+            <div class="meta-cell">
+              <div class="meta-lbl">Collector</div>
+              <div class="meta-val" style="font-size:11px;">Ron</div>
             </div>
-            <div class="slip-grid-cell">
-              <div class="lbl"># Cans</div>
-              <div class="val">11</div>
+            <div class="meta-cell">
+              <div class="meta-lbl">Date</div>
+              <div class="meta-val" style="font-size:10px;">11/21/25</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-lbl"># Cans</div>
+              <div class="meta-val">11</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-lbl">Freq</div>
+              <div class="meta-val">4</div>
             </div>
           </div>
-          <div class="slip-section-title">Load Details</div>
-          <div class="slip-row">
-            <span class="slip-tag">#1</span>
-            <span class="num">1900</span>
+
+          <div class="sec-title">Cassettes</div>
+          <div class="cass-row">
+            <div class="cass-badge">#1</div>
+            <div class="cass-body">
+              <div class="cass-count">1800</div>
+              <div class="tag-row">
+                <div class="tag-box">
+                  <div class="tag-lbl">Current Tag</div>
+                  <div class="tag-current">170860</div>
+                </div>
+                <div class="tag-sep"></div>
+                <div class="tag-box">
+                  <div class="tag-lbl">New Tag</div>
+                  <input class="tag-input" type="text" placeholder="Scan / enter..." />
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">#2</span>
-            <span class="num">1800</span>
+          <div class="cass-row">
+            <div class="cass-badge">#2</div>
+            <div class="cass-body">
+              <div class="cass-count">1800</div>
+              <div class="tag-row">
+                <div class="tag-box">
+                  <div class="tag-lbl">Current Tag</div>
+                  <div class="tag-current">170860</div>
+                </div>
+                <div class="tag-sep"></div>
+                <div class="tag-box">
+                  <div class="tag-lbl">New Tag</div>
+                  <input class="tag-input" type="text" placeholder="Scan / enter..." />
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">#3</span>
-            <span class="num">0</span>
+          <div class="cass-row">
+            <div class="cass-badge">#3</div>
+            <div class="cass-body">
+              <div class="cass-count">1200</div>
+              <div class="tag-row">
+                <div class="tag-box">
+                  <div class="tag-lbl">Current Tag</div>
+                  <div class="tag-current">170860</div>
+                </div>
+                <div class="tag-sep"></div>
+                <div class="tag-box">
+                  <div class="tag-lbl">New Tag</div>
+                  <input class="tag-input" type="text" placeholder="Scan / enter..." />
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">#4</span>
-            <span class="num">400</span>
+          <div class="cass-row">
+            <div class="cass-badge rc">RC</div>
+            <div class="cass-body">
+              <div class="cass-count grey">Reject Cassette</div>
+              <div class="tag-row">
+                <div class="tag-box">
+                  <div class="tag-lbl">Current Tag</div>
+                  <div class="tag-current">170860</div>
+                </div>
+                <div class="tag-sep"></div>
+                <div class="tag-box">
+                  <div class="tag-lbl">New Tag</div>
+                  <input class="tag-input" type="text" placeholder="Scan / enter..." />
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">RC</span>
-            <span class="text">Reject Cassette</span>
+
+          <div class="sec-title">Coin Dispenser</div>
+          <div class="coin-row">
+            <div class="coin-left">
+              <div class="coin-badge">N</div>
+              <div class="coin-name">Nickels</div>
+            </div>
+            <span class="coin-action coin-load">Load</span>
           </div>
-          <div class="slip-divider"></div>
-          <div class="slip-section-title">Coin Dispenser</div>
-          <div class="slip-row">
-            <span class="slip-tag">0.01$</span>
-            <span class="num">0</span>
+
+          <div class="sec-title">Tasks</div>
+          <div class="task-row">Fill &amp; Scan Cassettes #1, #2, #4</div>
+          <div class="task-row">Scan &amp; Assign Reject Cassettes</div>
+          <div class="task-row">Load Nickels</div>
+          <div class="task-row">Scan &amp; Assign BV cans</div>
+          <div class="task-row" style="margin-bottom:4px;">Publish and Checkout</div>
+
+          <div class="slip-footer">Lucky Charm Gaming · LD-2048 · 11/21/25</div>
+        </div>
+
+        <!-- Box Slip -->
+        <div class="slip">
+          <div class="slip-head">
+            <div class="slip-logo" title="Lucky Charm Gaming"><svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><circle cx="12" cy="8" r="3.6"/><circle cx="8" cy="12" r="3.6"/><circle cx="16" cy="12" r="3.6"/><circle cx="12" cy="16" r="3.6"/></g><circle cx="12" cy="12" r="1.4" fill="#15803D"/><path d="M 12.5 16 Q 11.5 19.5 13.8 22" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="slip-head-info">
+              <div class="slip-store">Current Account</div>
+              <div class="slip-nrt">NRT ID: 12289 · 221</div>
+            </div>
+            <div class="slip-badge badge-box">Box</div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">0.05$</span>
-            <span class="num">800</span>
+
+          <div class="box-store-name">Current Account</div>
+          <div class="box-nrt">NRT ID: 12289 · 221 West Bend Ave, Collinsville</div>
+
+          <div class="slip-meta slip-meta-2">
+            <div class="meta-cell">
+              <div class="meta-lbl">Date</div>
+              <div class="meta-val" style="font-size:13px;">11/21/25</div>
+            </div>
+            <div class="meta-cell">
+              <div class="meta-lbl"># Cans</div>
+              <div class="meta-val" style="font-size:13px;">11</div>
+            </div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">0.25$</span>
-            <span class="num">0</span>
+
+          <div class="sec-title">Load Details</div>
+          <div class="cass-row">
+            <div class="cass-badge">#1</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
           </div>
-          <div class="slip-barcode">
-            <div class="slip-barcode-bars"></div>
-            <div class="slip-barcode-id">LD-2046</div>
+          <div class="cass-row">
+            <div class="cass-badge">#2</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
           </div>
+          <div class="cass-row">
+            <div class="cass-badge">#4</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
+          </div>
+          <div class="cass-row">
+            <div class="cass-badge rc">RC</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
+          </div>
+
+          <div class="sec-title">Coin Dispenser</div>
+          <div class="coin-row">
+            <div class="coin-left">
+              <div class="coin-badge">N</div>
+              <div class="coin-name">Nickels</div>
+            </div>
+            <span class="coin-action coin-load">Load</span>
+          </div>
+
+          <div class="barcode-area">
+            <div class="barcode-bars" id="load-slip-barcode"></div>
+            <div class="load-id-label">LD-2048</div>
+          </div>
+
+          <div class="slip-footer">Lucky Charm Gaming · LD-2048 · 11/21/25</div>
         </div>
 
         <!-- Collector Slip -->
-        <div class="slip-paper">
-          <div class="slip-tab">COLLECTOR SLIP</div>
+        <div class="slip">
           <div class="slip-head">
-            <div class="slip-logo" style="font-size:10.5px;letter-spacing:.05em;">LC&#x1F340;</div>
-            <div class="slip-head-mid">
-              <div class="slip-store-name">Test 2 Inc.</div>
-              <div class="slip-store-meta">NRT ID: 12289 · 221 West Bend Ave, Collinsville</div>
+            <div class="slip-logo" title="Lucky Charm Gaming"><svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g fill="white"><circle cx="12" cy="8" r="3.6"/><circle cx="8" cy="12" r="3.6"/><circle cx="16" cy="12" r="3.6"/><circle cx="12" cy="16" r="3.6"/></g><circle cx="12" cy="12" r="1.4" fill="#15803D"/><path d="M 12.5 16 Q 11.5 19.5 13.8 22" stroke="white" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="slip-head-info">
+              <div class="slip-store">Current Account</div>
+              <div class="slip-nrt">NRT ID: 12289 · 221<br>West Bend Ave, Collinsville</div>
             </div>
-            <div class="slip-pill">Collector</div>
+            <div class="slip-badge badge-collector">Collector</div>
           </div>
-          <div class="slip-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
-            <div class="slip-grid-cell">
-              <div class="lbl">Collector</div>
-              <div class="val" style="font-size: 11px;">Ron</div>
+
+          <div class="slip-meta">
+            <div class="meta-cell">
+              <div class="meta-lbl">Collector</div>
+              <div class="meta-val" style="font-size:11px;">Ron</div>
             </div>
-            <div class="slip-grid-cell">
-              <div class="lbl">Date</div>
-              <div class="val" style="font-size: 11px;">11/21/25</div>
+            <div class="meta-cell">
+              <div class="meta-lbl">Date</div>
+              <div class="meta-val" style="font-size:10px;">11/21/25</div>
             </div>
-            <div class="slip-grid-cell">
-              <div class="lbl"># Cans</div>
-              <div class="val" style="font-size: 11px;">11</div>
+            <div class="meta-cell">
+              <div class="meta-lbl"># Cans</div>
+              <div class="meta-val">11</div>
             </div>
-            <div class="slip-grid-cell">
-              <div class="lbl">Freq</div>
-              <div class="val" style="font-size: 11px;">4</div>
+            <div class="meta-cell">
+              <div class="meta-lbl">Freq</div>
+              <div class="meta-val">4</div>
             </div>
           </div>
-          <div class="slip-section-title">Cassettes</div>
-          <div class="slip-row">
-            <span class="slip-tag">#1</span>
-            <span class="text">Replace &amp; install new</span>
+
+          <div class="sec-title">Cassettes</div>
+          <div class="cass-row">
+            <div class="cass-badge">#1</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">#2</span>
-            <span class="text">Replace &amp; install new</span>
+          <div class="cass-row">
+            <div class="cass-badge">#2</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">#3</span>
-            <span class="text">No Refill Needed</span>
+          <div class="cass-row">
+            <div class="cass-badge">#4</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">#4</span>
-            <span class="text">Replace &amp; install new</span>
+          <div class="cass-row">
+            <div class="cass-badge rc">RC</div>
+            <div class="cass-body"><div class="cass-count action">Replace &amp; install new</div></div>
           </div>
-          <div class="slip-row">
-            <span class="slip-tag">RC</span>
-            <span class="text">Replace Reject Cassette</span>
-          </div>
-          <div class="slip-divider"></div>
-          <div class="slip-section-title">Coin Dispenser</div>
-          <div class="slip-row with-action">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="slip-tag">H1</span>
-              <span class="text">Hopper 1</span>
+
+          <div class="sec-title">Coin Dispenser</div>
+          <div class="coin-row">
+            <div class="coin-left">
+              <div class="coin-badge p">P</div>
+              <div class="coin-name">Pennies</div>
             </div>
-            <span class="slip-action-pill fill">Fill to full</span>
+            <span class="coin-action coin-fillmax">Fill to max</span>
           </div>
-          <div class="slip-row with-action">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="slip-tag">H2</span>
-              <span class="text">Hopper 2</span>
+          <div class="coin-row">
+            <div class="coin-left">
+              <div class="coin-badge">N</div>
+              <div class="coin-name">Nickels</div>
             </div>
-            <span class="slip-action-pill assign">Assign new</span>
+            <span class="coin-action coin-load">Load</span>
           </div>
-          <div class="slip-row with-action">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span class="slip-tag">H3</span>
-              <span class="text">Hopper 3</span>
+          <div class="coin-row">
+            <div class="coin-left">
+              <div class="coin-badge q">Q</div>
+              <div class="coin-name">Quarters</div>
             </div>
-            <span class="slip-action-pill fill">Fill to full</span>
+            <span class="coin-action coin-load">Load</span>
           </div>
-          <div class="slip-divider"></div>
-          <div class="slip-section-title">Tasks</div>
-          <div class="slip-task">Pull &amp; replace BV cans</div>
-          <div class="slip-task">Replace cassettes #1, #2, #4</div>
-          <div class="slip-task">Fill hoppers H1 &amp; H3 to full</div>
-          <div class="slip-task">Assign new hopper H2</div>
-          <div class="slip-task">Replace reject bin</div>
-          <div class="slip-task">Mark Execute in app</div>
+
+          <div class="sec-title">Tasks</div>
+          <div class="task-row">Replace Cassettes #1, #2, #4</div>
+          <div class="task-row">Replace reject cassettes</div>
+          <div class="task-row">Fill to Max Pennies, Quarters &amp; Load Nickels</div>
+          <div class="task-row">Pull &amp; replace BV cans</div>
+          <div class="task-row" style="margin-bottom:4px;">Mark Executed in app</div>
+
+          <div class="slip-footer">Lucky Charm Gaming · LD-2048 · 11/21/25</div>
         </div>
 
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closePrintModal()">Close</button>
-      <button class="btn btn-primary" onclick="window.print()">🖨 Print Slip</button>
+      <button class="btn btn-primary" onclick="window.print()">Print Slips</button>
     </div>
   </div>
 </div>
@@ -6905,7 +7408,7 @@ input, select, textarea {
 
     refreshCheckoutStatus();
 
-    showErrorToast('Scans prefilled. You can now check out the assets.');
+    showSuccessToast('Scans prefilled. You can now check out the assets.');
     pulseButton('publish-btn');
   }
 
@@ -7163,8 +7666,262 @@ input, select, textarea {
   var currentStep = 1;
   var maxStepReached = 1;
 
+  // ── View / completed-load mode ────────────────────────────────────────
+  // wfLoadCompleted: set to true when submitBalancing() finishes.
+  // wfViewMode:      set to true when a completed load is re-opened for review.
+  // In view-mode the Next/Back nav is enabled; all action buttons are disabled.
+  // Edits in view-mode surface a Save Changes button.
+  var wfLoadCompleted = false;
+  var wfViewMode = false;
+  var wfViewDirty = false;
+
+  /** Called by submitBalancing() after successful completion */
+  function markLoadCompleted() {
+    wfLoadCompleted = true;
+    wfViewMode = false;
+    wfViewDirty = false;
+  }
+
+  /** Enter read-only / review mode (called from openLoadWorkflow for completed loads) */
+  function enterViewMode() {
+    wfViewMode = true;
+    wfViewDirty = false;
+    applyViewMode();
+    var banner = document.getElementById('wf-view-mode-banner');
+    if (banner) banner.classList.add('visible');
+    // Pre-fill all steps with completed load data, then show Close button
+    setTimeout(function() {
+      prefillCompletedLoad();
+    }, 80);
+  }
+
+  /** Apply / refresh view-mode button states across all visible footer-actions */
+  function applyViewMode() {
+    var ACTION_IDS = [
+      'approve-btn','wf-save-draft-1','wf-print-1',
+      'publish-btn',
+      'proceed-checkin-btn',
+      'flag-load-btn','mark-done-btn',
+      'submit-balancing-btn'
+    ];
+    // Disable all action buttons
+    ACTION_IDS.forEach(function(id) {
+      var b = document.getElementById(id);
+      if (!b) return;
+      b.disabled = true;
+      b.style.opacity = '0.35';
+      b.style.cursor = 'not-allowed';
+      b.title = 'View only — load is complete';
+    });
+    // Enable Next / Back for all steps
+    for (var i = 1; i <= 5; i++) {
+      var nb = document.getElementById('wf-next-' + i);
+      var bb = document.getElementById('wf-back-' + i);
+      if (nb) { nb.disabled = false; nb.style.opacity = ''; nb.style.cursor = ''; }
+      if (bb) { bb.disabled = false; bb.style.opacity = ''; bb.style.cursor = ''; }
+    }
+    // Allow all steps to be navigated
+    maxStepReached = 5;
+    // Wire change detection on all inputs/selects/textareas inside the workflow
+    var wfPage = document.getElementById('page-load-workflow');
+    if (wfPage) {
+      wfPage.querySelectorAll('input,select,textarea').forEach(function(el) {
+        el.addEventListener('input', onViewModeChange);
+        el.addEventListener('change', onViewModeChange);
+      });
+    }
+  }
+
+  function refreshStep5Footer() {
+    var closeBtn = document.getElementById('wf-close-btn');
+    var saveBtn  = document.getElementById('wf-view-save-btn');
+    if (!closeBtn || !saveBtn) return;
+    if (wfViewMode && !wfViewDirty) {
+      closeBtn.style.display = 'inline-flex';
+      saveBtn.style.display  = 'none';
+    } else if (wfViewMode && wfViewDirty) {
+      closeBtn.style.display = 'none';
+      saveBtn.style.display  = 'inline-flex';
+    } else {
+      closeBtn.style.display = 'none';
+      saveBtn.style.display  = 'none';
+    }
+  }
+
+  function onViewModeChange() {
+    if (!wfViewMode) return;
+    wfViewDirty = true;
+    refreshStep5Footer();
+  }
+
+  function saveViewChanges() {
+    wfViewDirty = false;
+    showSuccessToast('Changes saved to load record.');
+    setTimeout(function() { closeLoadWorkflow(); }, 800);
+  }
+
+  /**
+   * Pre-fill every step with realistic completed-load data so the operator
+   * can click Next → Next → Next through a completed load without any blanks.
+   * Temporarily suppresses dirty tracking so nothing is marked changed.
+   */
+  function prefillCompletedLoad() {
+    var _was = wfViewMode;
+    wfViewMode = false; // suppress dirty tracking during prefill
+
+    try {
+
+      // ── STEP 1: ensure Prepared by is selected ──
+      var pb1 = document.getElementById('create-prepared-by');
+      if (pb1 && !pb1.value) {
+        for (var oi = 0; oi < pb1.options.length; oi++) {
+          if (pb1.options[oi].value) { pb1.selectedIndex = oi; break; }
+        }
+      }
+
+      // ── STEP 2: vehicle plate ──
+      var plate = document.getElementById('vehicle-plate');
+      if (plate && !plate.value) plate.value = 'ABC-1234';
+
+      // ── STEP 2: preparer record (needed by performCheckout) ──
+      if (!preparerRecord) {
+        preparerRecord = { name: 'James Doyle', initials: 'JD', timestamp: 'May 22 · 08:30 AM' };
+        // Mirror to step 2 & 3 person cards
+        var s3init = document.getElementById('step3-preparer-initials');
+        var s3name = document.getElementById('step3-preparer-name');
+        var s3meta = document.getElementById('step3-preparer-meta');
+        if (s3init) s3init.textContent = 'JD';
+        if (s3name) s3name.textContent = 'James Doyle';
+        if (s3meta) s3meta.textContent = 'Prepared May 22 · 08:30 AM';
+        var s2Approver = document.getElementById('step2-approver-initials');
+        var s2AppName  = document.getElementById('step2-approver-name');
+        var s2AppMeta  = document.getElementById('step2-approver-meta');
+        if (s2Approver) { s2Approver.textContent = 'JD'; s2Approver.className = 'avatar-sm success'; }
+        if (s2AppName)  s2AppName.textContent = 'James Doyle';
+        if (s2AppMeta)  s2AppMeta.textContent = 'Approved May 22 · 08:30 AM';
+        var s3Approver = document.getElementById('step3-approver-initials');
+        var s3AppName  = document.getElementById('step3-approver-name');
+        var s3AppMeta  = document.getElementById('step3-approver-meta');
+        if (s3Approver) { s3Approver.textContent = 'JD'; s3Approver.className = 'avatar-sm success'; }
+        if (s3AppName)  s3AppName.textContent = 'James Doyle';
+        if (s3AppMeta)  s3AppMeta.textContent = 'Approved May 22 · 08:30 AM';
+      }
+
+      // ── STEP 2: auto-fill cassette scan fields then checkout ──
+      if (typeof autoFillScans === 'function') autoFillScans();
+      if (!checkoutCompleted) {
+        // Try normal checkout path first
+        if (typeof performCheckout === 'function') {
+          performCheckout();
+        }
+        // Fallback: manually mark checkout done
+        if (!checkoutCompleted) {
+          checkoutCompleted = true;
+          var pill = document.getElementById('checkout-status-pill');
+          if (pill) { pill.textContent = 'Checked Out ✓'; pill.style.background = 'var(--bg-success)'; pill.style.color = 'var(--text-success)'; }
+          var pubBtn = document.getElementById('publish-btn');
+          if (pubBtn) { pubBtn.textContent = '✓ Assets Checked Out'; pubBtn.disabled = true; }
+          var hint = document.getElementById('checkout-hint');
+          if (hint) hint.innerHTML = '<span class="checkout-success">✓ Checked out · Assets delivered to NRT UNIT 12345 · Carried by Ron Nakamura.</span>';
+        }
+      }
+
+      // ── STEP 3: show Load Complete status banner ──
+      var simBtn = document.getElementById('sim-complete-btn');
+      if (simBtn && simBtn.style.display !== 'none') {
+        if (typeof simulateCollectorComplete === 'function') simulateCollectorComplete();
+      }
+
+      // ── STEP 4: receiving operator ──
+      if (!currentOperator) {
+        var opSel = document.getElementById('operator-select');
+        if (opSel) {
+          opSel.value = 'James Doyle';
+          if (typeof onOperatorSelect === 'function') onOperatorSelect();
+        }
+      }
+
+      // ── STEP 4: simulate all assets verified ──
+      if (typeof demoAllVerified === 'function' && currentOperator) {
+        demoAllVerified();
+      }
+
+      // ── STEP 4: show completed check-in banner (without navigating) ──
+      if (!document.getElementById('prefill-s4-done')) {
+        var siteSel   = document.getElementById('checkin-to');
+        var siteLabel = siteSel ? siteSel.options[siteSel.selectedIndex].text : 'Main Cash Room — Vault A';
+        var s4Banner  = document.createElement('div');
+        s4Banner.id   = 'prefill-s4-done';
+        s4Banner.style.cssText = 'background:var(--bg-success);color:var(--text-success);border:1px solid var(--text-success);border-radius:var(--radius-md);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;font-size:14.5px;font-weight:500;';
+        s4Banner.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+          + '<span>&#10003; Load LD-2046 verified &amp; checked into <strong>' + siteLabel + '</strong>. All 15 assets matched previous-load records. Workflow complete.</span>';
+        var s4FirstCard = document.querySelector('#step-4-content .verify-banner');
+        if (s4FirstCard) s4FirstCard.parentNode.insertBefore(s4Banner, s4FirstCard);
+        // Show mark-done button in completed state (view mode will keep it disabled)
+        var doneBtn = document.getElementById('mark-done-btn');
+        if (doneBtn) {
+          doneBtn.textContent = '✓ Checked In & Done';
+          doneBtn.style.background    = 'var(--bg-success)';
+          doneBtn.style.color         = 'var(--text-success)';
+          doneBtn.style.borderColor   = 'var(--text-success)';
+        }
+        if (siteSel) siteSel.disabled = true;
+      }
+
+      // ── STEP 5: pre-fill balancing rows ──
+      if (typeof s5DemoMatched === 'function') s5DemoMatched();
+      if (typeof S5_ROWS !== 'undefined' && typeof updateBalanceRow === 'function') {
+        S5_ROWS.forEach(function(r) {
+          var rem = document.getElementById(r.id + '-rem');
+          if (rem) updateBalanceRow(rem);
+        });
+      }
+
+      // ── STEP 5: stats strip ──
+      var statOk   = document.getElementById('s5-stat-ok');
+      var statWarn = document.getElementById('s5-stat-warn');
+      var statFlag = document.getElementById('s5-stat-flag');
+      if (statOk)   statOk.textContent   = '3';
+      if (statWarn) statWarn.textContent = '0';
+      if (statFlag) statFlag.textContent = '0';
+
+      // ── STEP 5: auditor notes ──
+      var notes = document.getElementById('s5-notes');
+      if (notes && !notes.value.trim()) {
+        notes.value = 'All cassettes verified and balanced. No discrepancies found during count room audit. Cassette #1 count verified twice — minor reject tally confirmed correct.';
+      }
+
+      // ── STEP 5: pending hint → done ──
+      var pendHint = document.getElementById('s5-pending-hint');
+      if (pendHint) { pendHint.textContent = 'Load balanced · All rows verified ✓'; pendHint.style.color = '#0f6e56'; }
+
+    } catch(e) {
+      console.warn('prefillCompletedLoad error:', e);
+    }
+
+    // Restore view-mode (no dirty flag)
+    wfViewMode = _was;
+    wfViewDirty = false;
+    // Re-lock all action buttons — prefill helpers (simulateCollectorComplete,
+    // s5DemoMatched, etc.) may have re-enabled them as a side-effect.
+    applyViewMode();
+    refreshStep5Footer(); // show Close button
+  }
+
+  function syncStep2CheckoutButton() {
+    var btn = document.getElementById('publish-btn');
+    if (!btn) return;
+    if (wfViewMode) return; // view mode — leave button locked by applyViewMode
+    if (checkoutCompleted) {
+      btn.textContent = 'Proceed to Load Status →';
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = 'pointer';
+    }
+  }
+
   function goToStep(n) {
-    if (n > maxStepReached) return; // can't skip ahead
+    if (!wfViewMode && n > maxStepReached) return; // can't skip ahead (not in view mode)
     currentStep = n;
 
     // hide all step content
@@ -7174,6 +7931,8 @@ input, select, textarea {
     }
     var target = document.getElementById('step-' + n + '-content');
     if (target) target.style.display = 'block';
+
+    if (n === 2) syncStep2CheckoutButton();
 
     // Step 4: auto-select the logged-in user as receiving operator
     if (n === 4 && !currentOperator) {
@@ -7297,11 +8056,88 @@ input, select, textarea {
     var toast = document.getElementById('wf-error-toast') || document.getElementById('error-toast');
     if (!toast) return;
     toast.textContent = msg;
+    toast.classList.remove('success', 'warn');
     toast.classList.add('show');
     clearTimeout(toast._t);
     toast._t = setTimeout(function() {
       toast.classList.remove('show');
     }, 4000);
+  }
+
+  function showSuccessToast(msg) {
+    var toast = document.getElementById('wf-error-toast') || document.getElementById('error-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.remove('warn');
+    toast.classList.add('success', 'show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function() {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  function workflowNext() {
+    // In view mode — just navigate forward, no validation
+    if (wfViewMode) {
+      if (currentStep < 5) {
+        goToStep(currentStep + 1);
+      }
+      return;
+    }
+
+    if (currentStep === 1) {
+      approveLoad();
+      return;
+    }
+
+    if (currentStep === 2) {
+      if (!checkoutCompleted) performCheckout();
+      if (!checkoutCompleted) {
+        pulseButton('publish-btn');
+        return;
+      }
+      advanceMaxStep(3);
+      goToStep(3);
+      return;
+    }
+
+    if (currentStep === 3) {
+      var proceedBtn = document.getElementById('proceed-checkin-btn');
+      if (proceedBtn && proceedBtn.disabled) {
+        showErrorToast('Complete the load status first before moving to Verify & Check In.');
+        pulseButton('proceed-checkin-btn');
+        return;
+      }
+      advanceMaxStep(4);
+      goToStep(4);
+      return;
+    }
+
+    if (currentStep === 4) {
+      if (typeof refreshVerifyStats === 'function') refreshVerifyStats();
+      var doneBtn = document.getElementById('mark-done-btn');
+      if (doneBtn && doneBtn.disabled) {
+        showErrorToast(doneBtn.title || 'Finish scanning and resolve any flagged items before moving to Balancing.');
+        pulseButton('mark-done-btn');
+        return;
+      }
+      markAsDone();
+      return;
+    }
+
+    if (currentStep === 5) {
+      var submitBtn = document.getElementById('submit-balancing-btn');
+      if (submitBtn && submitBtn.disabled) {
+        var err = document.getElementById('s5-error');
+        var msg = document.getElementById('s5-error-msg');
+        if (err) err.style.display = 'flex';
+        if (msg) msg.textContent = 'Please fill Actual Remaining and Actual Rejected for all active cassettes before finishing.';
+        showErrorToast('Please fill all required balancing fields before finishing.');
+        pulseButton('submit-balancing-btn');
+        return;
+      }
+      submitBalancing();
+    }
   }
 
   // Demo helper — clear required fields so validation can be tested
@@ -7333,7 +8169,7 @@ input, select, textarea {
       el.classList.remove('field-error');
     });
     hideErrorSummary('step1-error-summary');
-    showErrorToast('Required fields prefilled with sample data. You can now click Approve.');
+    showSuccessToast('Required fields prefilled with sample data. You can now click Approve.');
     pulseButton('approve-btn');
   }
 
@@ -7623,9 +8459,24 @@ input, select, textarea {
     goToStep(3);
   }
 
+  function renderLoadSlipBarcode() {
+    var el = document.getElementById('load-slip-barcode');
+    if (!el || el.dataset.rendered === 'true') return;
+    var widths = [2,1,3,1,2,1,1,2,3,1,2,1,1,3,2,1,1,2,1,3,2,1,2,1,1,2,3,1,1,2,1,2,3,1,1,2,1,1,2,3,1,2,1,1,3];
+    widths.forEach(function(w, i) {
+      var b = document.createElement('div');
+      b.className = 'b';
+      b.style.width = w + 'px';
+      b.style.height = (i % 3 === 0 ? 40 : i % 2 === 0 ? 34 : 28) + 'px';
+      el.appendChild(b);
+    });
+    el.dataset.rendered = 'true';
+  }
+
   function openPrintSlip() {
+    syncPrintSlipAccount();
+    renderLoadSlipBarcode();
     document.getElementById('print-modal').classList.add('show');
-    setTimeout(function() { window.print(); }, 400);
   }
 
   function closePrintModal() {
@@ -8284,6 +9135,7 @@ input, select, textarea {
       action: 'Load <strong>flagged for supervisor review</strong>',
       detail: flagged + ' item(s) flagged' + (notes ? ' · Notes: ' + notes : '')
     });
+    if (typeof addWorkflowFlagNotification === 'function') addWorkflowFlagNotification('assets', flagged + ' item(s) flagged' + (notes ? ' · Notes: ' + notes : ''));
     alert('Load LD-2046 flagged for supervisor review.\n\n' + flagged + ' item(s) flagged' + (notes ? '\nNotes: ' + notes : ''));
   }
 
@@ -8383,7 +9235,8 @@ input, select, textarea {
     var ok = 0, warn = 0, flag = 0, pending = 0;
     S5_ROWS.forEach(function(r) {
       var remInput = document.getElementById(r.id + '-rem');
-      if (!remInput || remInput.value === '') { pending++; return; }
+      var rejInput = document.getElementById(r.id + '-rej');
+      if (!remInput || remInput.value === '' || !rejInput || rejInput.value === '') { pending++; return; }
       var variance = Math.abs(r.nrt - parseInt(remInput.value, 10));
       if (isNaN(variance)) { pending++; return; }
       if (variance === 0)    ok++;
@@ -8395,19 +9248,20 @@ input, select, textarea {
     document.getElementById('s5-stat-warn').textContent  = warn;
     document.getElementById('s5-stat-flag').textContent  = flag;
 
-    // Submit button: enabled when all rows are filled
+    // Submit button: enabled when all rows are filled — never in view/completed mode
     var allFilled = (pending === 0);
     var submitBtn = document.getElementById('submit-balancing-btn');
     var hint      = document.getElementById('s5-pending-hint');
     if (submitBtn) {
-      submitBtn.disabled = !allFilled;
-      submitBtn.style.opacity  = allFilled ? '1'   : '.45';
-      submitBtn.style.cursor   = allFilled ? 'pointer' : 'not-allowed';
+      var enableIt = allFilled && !wfViewMode;
+      submitBtn.disabled = !enableIt;
+      submitBtn.style.opacity = enableIt ? '1' : '.45';
+      submitBtn.style.cursor  = enableIt ? 'pointer' : 'not-allowed';
     }
-    if (hint) {
+    if (hint && !wfViewMode) {
       hint.textContent = allFilled
         ? (flag > 0 ? 'Mismatches detected — you can still submit or flag' : 'All rows filled — ready to submit')
-        : (pending + ' row' + (pending > 1 ? 's' : '') + ' still pending');
+        : (pending + ' row' + (pending > 1 ? 's' : '') + ' still missing Actual Remaining or Actual Rejected');
       hint.style.color = flag > 0 ? '#c62828' : (allFilled ? '#0f6e56' : '#aaa');
     }
 
@@ -8450,6 +9304,7 @@ input, select, textarea {
       actor: (typeof CURRENT_USER !== 'undefined' ? CURRENT_USER.name : 'Auditor') + ' · Cash Room · Step 5',
       detail: flagged.join(' · ') + (notesVal ? ' · Notes: ' + notesVal : '')
     });
+    if (typeof addWorkflowFlagNotification === 'function') addWorkflowFlagNotification('balance', flagged.join(' · ') + (notesVal ? ' · Notes: ' + notesVal : ''));
     var banner = document.getElementById('s5-mismatch-banner');
     if (banner) { banner.style.background = '#fdf6e3'; banner.style.borderColor = '#ffe082'; }
     var msg = document.getElementById('s5-mismatch-msg');
@@ -8464,21 +9319,21 @@ input, select, textarea {
     Object.keys(matched).forEach(function(rowId) {
       var rem = document.getElementById(rowId + '-rem');
       var rej = document.getElementById(rowId + '-rej');
+      // Set rej BEFORE calling updateBalanceRow so s5RefreshSummary sees both filled
+      if (rej) rej.value = matched[rowId][1];
       if (rem) { rem.value = matched[rowId][0]; updateBalanceRow(rem); }
-      if (rej)   rej.value = matched[rowId][1];
     });
     var hint = document.getElementById('s5-pending-hint');
     if (hint) { hint.textContent = 'Demo: all rows balanced ✓'; hint.style.color = '#0f6e56'; }
   }
 
   function s5DemoVariance() {
-    // Cassette #1 has a variance of -15, Cassette #2 balanced, Cassette #4 ok
     var data = { 's5r-c1': [985, 2], 's5r-c2': [390, 12], 's5r-c4': [0, 1] };
     Object.keys(data).forEach(function(rowId) {
       var rem = document.getElementById(rowId + '-rem');
       var rej = document.getElementById(rowId + '-rej');
+      if (rej) rej.value = data[rowId][1];
       if (rem) { rem.value = data[rowId][0]; updateBalanceRow(rem); }
-      if (rej)   rej.value = data[rowId][1];
     });
     var hint = document.getElementById('s5-pending-hint');
     if (hint) { hint.textContent = 'Demo: Cassette #1 has a –15 bill mismatch'; hint.style.color = '#c62828'; }
@@ -8504,14 +9359,15 @@ input, select, textarea {
 
     // Check all filled
     var allFilled = S5_ROWS.every(function(r) {
-      var inp = document.getElementById(r.id + '-rem');
-      return inp && inp.value !== '';
+      var rem = document.getElementById(r.id + '-rem');
+      var rej = document.getElementById(r.id + '-rej');
+      return rem && rem.value !== '' && rej && rej.value !== '';
     });
     if (!allFilled) {
       var err = document.getElementById('s5-error');
       var msg = document.getElementById('s5-error-msg');
       if (err) err.style.display = 'flex';
-      if (msg) msg.textContent = 'Please fill Actual Remaining for all active cassettes before submitting.';
+      if (msg) msg.textContent = 'Please fill Actual Remaining and Actual Rejected for all active cassettes before submitting.';
       return;
     }
 
@@ -8536,6 +9392,9 @@ input, select, textarea {
       actor: (typeof CURRENT_USER !== 'undefined' ? CURRENT_USER.name : 'Auditor') + ' · Cash Room · Step 5',
       detail: detail
     });
+
+    // Mark load as fully completed — enable Next/Back for future view
+    markLoadCompleted();
 
     // Lock all inputs
     S5_ROWS.forEach(function(r) {
@@ -11264,6 +12123,7 @@ function rmDownloadCSV(){
         <button class="tab t-warning"  data-cl-filter="warning"    onclick="clSetFilter('warning',this)">Warning <span class="tab-count" id="cl-tc-warning">0</span></button>
         <button class="tab t-operational" data-cl-filter="operational" onclick="clSetFilter('operational',this)">Operational <span class="tab-count" id="cl-tc-operational">0</span></button>
         <button class="tab t-offline"  data-cl-filter="offline"    onclick="clSetFilter('offline',this)">Offline <span class="tab-count" id="cl-tc-offline">0</span></button>
+        <button class="tab" data-cl-filter="completed" onclick="clSetFilter('completed',this)" style="color:#15803D;"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" style="margin-right:3px;vertical-align:-1px;"><path d="M2 9l4 4 8-8" stroke="#15803D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Completed <span class="tab-count" id="cl-tc-completed" style="background:#dcfce7;color:#15803D;">0</span></button>
       </div>
       <!-- Filter button -->
       <div style="position:relative;">
@@ -11379,7 +12239,7 @@ var clQuery = '', clPage = 1, clPerPage = 20;
 var clSortKey = 'status', clSortDir = 1;
 var clStatusFilter = 'all';
 
-var CL_STATUS_ORDER = {critical:0, warning:1, operational:2, offline:3};
+var CL_STATUS_ORDER = {Draft:0, 'Load Created':1, critical:2, warning:3, operational:4, offline:5, Completed:6};
 
 function clInit() {
   clUpdateTabCounts();
@@ -11389,7 +12249,7 @@ window._clInit = clInit;
 
 function clGetAccounts() {
   if (typeof ALL_ACCOUNTS === 'undefined') return [];
-  return ALL_ACCOUNTS.filter(function(a){ return a.scheduled === true; });
+  return ALL_ACCOUNTS.filter(function(a){ return a.scheduled === true || a.loadStatus === 'completed'; });
 }
 
 function clGetFiltered() {
@@ -11400,7 +12260,7 @@ function clGetFiltered() {
     var mQ = !q || a.nrt.toLowerCase().includes(q) || a.name.toLowerCase().includes(q)
               || corp.toLowerCase().includes(q) || a.route.toLowerCase().includes(q)
               || a.region.toLowerCase().includes(q) || a.driver.toLowerCase().includes(q);
-    var mS = clStatusFilter === 'all' || a.status === clStatusFilter;
+    var mS = clStatusFilter === 'all' || (clStatusFilter === 'completed' ? a.loadStatus === 'completed' : (a.status === clStatusFilter && a.loadStatus !== 'completed'));
     // Advanced filters
     var mR  = !clFpRoute  || a.route  === clFpRoute;
     var mRg = !clFpRegion || a.region === clFpRegion;
@@ -11417,7 +12277,7 @@ function clGetFiltered() {
     var k = clSortKey;
     var av, bv;
     if (k === 'collectDate') { av = a.collectDate ? a.collectDate.getTime() : 0; bv = b.collectDate ? b.collectDate.getTime() : 0; return (av - bv) * clSortDir; }
-    if (k === 'status')      { av = CL_STATUS_ORDER[a.status] !== undefined ? CL_STATUS_ORDER[a.status] : 9; bv = CL_STATUS_ORDER[b.status] !== undefined ? CL_STATUS_ORDER[b.status] : 9; return (av - bv) * clSortDir; }
+    if (k === 'status')      { av = CL_STATUS_ORDER[a.loadStatus || 'Load Created'] !== undefined ? CL_STATUS_ORDER[a.loadStatus || 'Load Created'] : 9; bv = CL_STATUS_ORDER[b.loadStatus || 'Load Created'] !== undefined ? CL_STATUS_ORDER[b.loadStatus || 'Load Created'] : 9; return (av - bv) * clSortDir; }
     if (k === 'loadAmount')  { av = clEstAmt(a); bv = clEstAmt(b); return (av - bv) * clSortDir; }
     if (k === 'frequency')   { return (a.frequency - b.frequency) * clSortDir; }
     av = String(a[k] || '').toLowerCase(); bv = String(b[k] || '').toLowerCase();
@@ -11437,6 +12297,10 @@ function clEstAmt(a) {
 }
 
 function clStatusBadge(status) {
+  if (status === 'Completed' || status === 'completed')
+    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:12.5px;font-weight:800;background:#dcfce7;color:#15803D;border:1px solid #86efac;"><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M2 9l4 4 8-8" stroke="#15803D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Completed</span>';
+  if (status === 'Draft')       return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:12.5px;font-weight:800;background:#fff8e1;color:#e65100;border:1px solid #ffe082;"><span style="width:5px;height:5px;border-radius:50%;background:#f59300;flex-shrink:0;"></span>Draft</span>';
+  if (status === 'Load Created') return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:12.5px;font-weight:800;background:var(--blue-soft);color:var(--blue-text);border:1px solid var(--blue-border);"><span style="width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;"></span>Load Created</span>';
   if (status === 'critical')    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:12.5px;font-weight:700;background:var(--red-soft);color:var(--red-text);border:1px solid var(--red-border);"><span style="width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;"></span>Critical</span>';
   if (status === 'warning')     return '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:12.5px;font-weight:700;background:var(--amber-soft);color:var(--amber-text);border:1px solid var(--amber-border);"><span style="width:5px;height:5px;border-radius:50%;background:var(--amber);flex-shrink:0;"></span>Warning</span>';
   if (status === 'operational') return '<span class="status-badge active"><span class="s-dot"></span>Operational</span>';
@@ -11470,14 +12334,16 @@ function clRenderTable() {
     var estAmt = clEstAmt(a);
     var lastLoad = a.lastLoads && a.lastLoads.length ? a.lastLoads[0] : null;
     var loadType = lastLoad ? lastLoad.type : 'Manual Load';
+    var loadStatus = a.loadStatus === 'completed' ? 'Completed' : (a.loadStatus || 'Load Created');
     var loadTypeStyle = LOAD_TYPE_COLORS[loadType] || LOAD_TYPE_COLORS['Manual Load'];
     var collectStr = clFmtDate(a.collectDate);
     var aid = a.id.replace(/'/g, '');
     return '<tr>'
-      + '<td><button onclick="clOpenWorkflow(\'' + aid + '\')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;border:1px solid var(--accent);background:var(--accent-s);color:var(--accent);font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font);">'
-        + '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M4 2h8l2 2v10H2V2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 6h4M6 9h4M6 12h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
-        + 'View Load</button></td>'
-      + '<td>' + clStatusBadge(a.status) + '</td>'
+      + '<td>' + (a.loadStatus === 'completed'
+        ? '<button onclick="clOpenWorkflow(\'' + aid + '\')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;border:1px solid #86efac;background:#dcfce7;color:#15803D;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font);"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="#15803D" stroke-width="1.5"/><circle cx="8" cy="8" r="2" fill="#15803D"/></svg>View Completed</button>'
+        : '<button onclick="clOpenWorkflow(\'' + aid + '\')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;border:1px solid var(--accent);background:var(--accent-s);color:var(--accent);font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font);"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M4 2h8l2 2v10H2V2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 6h4M6 9h4M6 12h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>View Load</button>'
+        ) + '</td>'
+      + '<td>' + clStatusBadge(loadStatus) + '</td>'
       + '<td style="font-family:var(--mono);font-size:13.5px;color:var(--text2);">' + a.nrt + '</td>'
       + '<td style="font-weight:700;color:var(--text);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + corp + '">' + corp + '</td>'
       + '<td style="color:var(--text2);font-size:13.5px;">' + a.route + '</td>'
@@ -11604,9 +12470,12 @@ document.addEventListener('click', function(e) {
 
 function clUpdateTabCounts() {
   var all = clGetAccounts();
-  var counts = {all:all.length, critical:0, warning:0, operational:0, offline:0};
-  all.forEach(function(a){ if (counts[a.status] !== undefined) counts[a.status]++; });
-  ['all','critical','warning','operational','offline'].forEach(function(k){
+  var counts = {all:all.length, critical:0, warning:0, operational:0, offline:0, completed:0};
+  all.forEach(function(a){
+    if (a.loadStatus === 'completed') { counts.completed++; }
+    else if (counts[a.status] !== undefined) counts[a.status]++;
+  });
+  ['all','critical','warning','operational','offline','completed'].forEach(function(k){
     var el = document.getElementById('cl-tc-'+k); if (el) el.textContent = counts[k];
   });
 }
@@ -11614,7 +12483,13 @@ function clUpdateTabCounts() {
 function clOpenWorkflow(accountId) {
   // Resolve the account and store it as the workflow context
   var acct = ALL_ACCOUNTS.find(function(a){ return a.id === accountId; });
-  if (acct) _wfAccount = { id: acct.id, nrt: acct.nrt, name: acct.name };
+  if (!acct) return;
+  // Completed loads open in read-only view mode
+  if (acct.loadStatus === 'completed') {
+    openLoadWorkflow('view-completed-cashload', { id: acct.id, nrt: acct.nrt, name: acct.name });
+    return;
+  }
+  _wfAccount = { id: acct.id, nrt: acct.nrt, name: acct.name, loadStatus: acct.loadStatus || 'Load Created' };
   _wfFromPage = 'cashload-list';
   document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.wf-page').forEach(function(p){ p.classList.remove('active'); });
@@ -11961,6 +12836,26 @@ for(let i=25;i<60;i++) ALL_ACCOUNTS.push(genAccount(i,'warning'));
 for(let i=60;i<360;i++) ALL_ACCOUNTS.push(genAccount(i,'operational'));
 for(let i=360;i<375;i++) ALL_ACCOUNTS.push(genAccount(i,'offline')); // 15 offline NRTs
 ALL_ACCOUNTS.sort((a,b)=>a.nrtNum-b.nrtNum);
+
+// ── Seed 4 completed loads so the operator can test "View Load" ──
+(function(){
+  var completedSeeds = [
+    { name:"Tipsy Crow",          nrt:"NRT-84210", id:"acct-comp-1", loadId:"LD-2046", completedDate:"May 22, 2026" },
+    { name:"My Bar National Zone", nrt:"NRT-13432", id:"acct-comp-2", loadId:"LD-2031", completedDate:"May 15, 2026" },
+    { name:"Lucky Palms Gaming",  nrt:"NRT-90112", id:"acct-comp-3", loadId:"LD-2019", completedDate:"May 08, 2026" },
+    { name:"East End Tavern",     nrt:"NRT-44780", id:"acct-comp-4", loadId:"LD-1998", completedDate:"May 01, 2026" },
+  ];
+  completedSeeds.forEach(function(s, idx){
+    ALL_ACCOUNTS.push({
+      id: s.id, name: s.name, nrt: s.nrt, addr:'601 N. Main St.', address:'601 N. Main St.',
+      status:'operational', region:'Central', route:'BH 1', nrtNum: 99900+idx,
+      frequency:14, collect:'May 28, 2026', scheduled:false,
+      loadStatus:'completed', loadId: s.loadId, completedDate: s.completedDate,
+      cassettes:[ {label:'$1',fill:0.8}, {label:'$5',fill:0.6}, {label:'$10',fill:0.5},
+                  {label:'$20',fill:0.7}, {label:'$50',fill:0.3} ]
+    });
+  });
+})();
 // Assign exactly 70 scheduled (Load Created) accounts:
 // 48 operational, 12 warning, 7 critical, 3 offline — operational has the largest chunk
 (function(){
@@ -12520,27 +13415,156 @@ function onGroupByChange(v){ groupBy=v; renderAll(); }
 function buildNotifications(){
   // Generated from current account state. In production this comes from server-side events.
   const out=[];
+  const acctAt=function(i){return ALL_ACCOUNTS[i] || ALL_ACCOUNTS[0] || {};};
+  const tagAcct=acctAt(41), tagAcct2=acctAt(12), tagAcct3=acctAt(26), assetAcct=acctAt(17), balAcct=acctAt(30), loadAcct=acctAt(18), approvedAcct=acctAt(31), execAcct=acctAt(9), wfFlagAcct=acctAt(32), wfFlagAcct2=acctAt(36);
+  out.push(
+    {
+      id:'tagcut', severity:'crit', icon:'✂', category:'alerts', actionNeeded:true, actionable:true, priority:1, minutesAgo:12,
+      title:'Tag cut request', sub:`Collector James R. submitted a tag cut request for ${tagAcct.name || 'Eastgate Plaza'} at 09:41 AM. Admin approval is required.`,
+      accountId:tagAcct.id, locName:tagAcct.name || 'Eastgate Plaza', locNrt:tagAcct.nrt || 'NRT-042',
+      detailType:'tagcut',
+      detail:[
+        {l:'Cassette',v:'#1 · $20'}, {l:'Asset SN',v:'7221023398'}, {l:'Tag #',v:'170860'}
+      ],
+      note:'"Tag cut at the machine — lock malfunction. Photos attached." James R. · Today 09:41 · iOS',
+      actions:['approve','reject','view-workflow']
+    },
+    {
+      id:'tagcut-2', severity:'crit', icon:'✂', category:'alerts', actionNeeded:true, actionable:true, priority:1, minutesAgo:16,
+      title:'Tag cut approval needed', sub:`Collector Maria V. submitted a tag cut request for ${tagAcct2.name || 'Central Plaza'}. Supervisor approval is required.`,
+      accountId:tagAcct2.id, locName:tagAcct2.name || 'Central Plaza', locNrt:tagAcct2.nrt || 'NRT-057',
+      detailType:'tagcut',
+      detail:[
+        {l:'Cassette',v:'#2 · $50'}, {l:'Asset SN',v:'8812047731'}, {l:'Tag #',v:'174220'}
+      ],
+      note:'"Seal split during pull. Re-tag requested before transport." Maria V. · Today 09:37 · iOS',
+      actions:['approve','reject','view-workflow']
+    },
+    {
+      id:'tagcut-3', severity:'crit', icon:'✂', category:'alerts', actionNeeded:true, actionable:true, priority:1, minutesAgo:21,
+      title:'Tag cut approval needed', sub:`Collector Ron Nakamura submitted a tag cut request for ${tagAcct3.name || 'Park Plaza'}. Admin decision required.`,
+      accountId:tagAcct3.id, locName:tagAcct3.name || 'Park Plaza', locNrt:tagAcct3.nrt || 'NRT-064',
+      detailType:'tagcut',
+      detail:[
+        {l:'Cassette',v:'#4 · $100'}, {l:'Asset SN',v:'9924100664'}, {l:'Tag #',v:'178901'}
+      ],
+      note:'"Lock housing jammed. Tag cut completed under camera." Ron Nakamura · Today 09:32 · iOS',
+      actions:['approve','reject','view-workflow']
+    },
+    {
+      id:'workflow-flag-assets', severity:'crit', icon:'⚑', category:'alerts', actionNeeded:true, actionable:true, priority:2, minutesAgo:25,
+      title:'Workflow flag raised', sub:`Step 4 verification flagged 2 mismatched assets for ${wfFlagAcct.name || 'Summit Hotel'}. Supervisor review required.`,
+      accountId:wfFlagAcct.id, locName:wfFlagAcct.name || 'Summit Hotel', locNrt:wfFlagAcct.nrt || 'NRT-083',
+      detailType:'workflow-flag',
+      detail:[
+        {l:'Workflow Step',v:'Verify & Check-in'}, {l:'Flagged Items',v:'2 assets'}, {l:'Load ID',v:'LD-2046'},
+        {l:'Expected',v:'J925045003'}, {l:'Scanned',v:'Unknown tag'}, {l:'Status',v:'Supervisor review'}
+      ],
+      note:'Raised from workflow after mismatched returned asset scan. Load cannot be marked done until reviewed.',
+      actions:['close-dispute','view-workflow']
+    },
+    {
+      id:'workflow-flag-balance', severity:'warn', icon:'⚑', category:'alerts', actionNeeded:true, actionable:true, priority:2, minutesAgo:28,
+      title:'Balancing flag raised', sub:`Step 5 balancing variance exceeded threshold at ${wfFlagAcct2.name || 'Bay Terminal'}. Review before completion.`,
+      accountId:wfFlagAcct2.id, locName:wfFlagAcct2.name || 'Bay Terminal', locNrt:wfFlagAcct2.nrt || 'NRT-091',
+      detailType:'workflow-flag',
+      detail:[
+        {l:'Workflow Step',v:'Balancing'}, {l:'Variance',v:'$640'}, {l:'Threshold',v:'5%'},
+        {l:'Cassette',v:'#3 · $50'}, {l:'Status',v:'Flag raised'}, {l:'Reviewer',v:'Supervisor'}
+      ],
+      note:'Raised from workflow variance review. Supervisor should close or continue investigation.',
+      actions:['close-dispute','view-workflow']
+    },
+    {
+      id:'assetmis', severity:'crit', icon:'!', category:'alerts', actionNeeded:true, actionable:true, priority:3, minutesAgo:60,
+      title:'Asset mismatch', sub:`Sara Mitchell flagged 2 assets for load LD-2031 at ${assetAcct.name || 'Northpark Center'}. Admin review is required.`,
+      accountId:assetAcct.id, locName:assetAcct.name || 'Northpark Center', locNrt:assetAcct.nrt || 'NRT-018',
+      detailType:'assetmis',
+      detail:[
+        {l:'Asset Type',v:'BV Can 2'}, {l:'Expected SN',v:'1701992331'}, {l:'Returned SN',v:'9999999999'},
+        {l:'Asset Type',v:'Cassette'}, {l:'Expected SN',v:'J925045003'}, {l:'Returned SN',v:'—'}
+      ],
+      note:'Matched assets were checked in. Flagged items require admin review before the load can be fully closed.',
+      actions:['close-dispute','view-workflow']
+    },
+    {
+      id:'baldisc', severity:'crit', icon:'$', category:'alerts', actionNeeded:true, actionable:true, priority:3, minutesAgo:120,
+      title:'Balance discrepancy', sub:`Cassette #1 mismatch found during balancing for load LD-2046 at ${balAcct.name || 'Riverside ATM'}.`,
+      accountId:balAcct.id, locName:balAcct.name || 'Riverside ATM', locNrt:balAcct.nrt || 'NRT-031',
+      detailType:'baldisc',
+      detail:[
+        {l:'Loaded',v:'1,900'}, {l:'Dispensed',v:'1,423'}, {l:'Expected Rem.',v:'476'},
+        {l:'Actual Rem.',v:'320'}, {l:'Difference',v:'-156 bills'}, {l:'Amount',v:'$3,120'}
+      ],
+      note:'Load is paused until an admin closes the discrepancy or reviews the workflow evidence.',
+      actions:['close-dispute','view-workflow']
+    },
+    {
+      id:'loadnp', severity:'warn', icon:'⏱', category:'cashload', actionNeeded:true, actionable:true, priority:4, minutesAgo:5,
+      title:'Load not prepared', sub:`Only 1 day left before service disruption at ${loadAcct.name || 'Harbor Point'}. Prepare immediately.`,
+      accountId:loadAcct.id, locName:loadAcct.name || 'Harbor Point', locNrt:loadAcct.nrt || 'NRT-019',
+      detailType:'loadnp',
+      detail:[{l:'Days left',v:'1 day'}, {l:'Status',v:'Not prepared'}, {l:'Assigned',v:'Accounts team'}],
+      note:'Cash load preparation has not been initiated. The workflow will open at Step 1.',
+      actions:['prepare','view-workflow']
+    },
+    {
+      id:'loadapproved', severity:'info', icon:'✓', category:'cashload', actionNeeded:false, actionable:true, priority:5, minutesAgo:12,
+      title:'Cash load approved', sub:`Load CL-2206 approved for ${approvedAcct.name || 'Riverside ATM'}. Accounts team notified to prepare.`,
+      accountId:approvedAcct.id, locName:approvedAcct.name || 'Riverside ATM', locNrt:approvedAcct.nrt || 'NRT-031',
+      detailType:'loadapproved',
+      detail:[{l:'Load ID',v:'CL-2206'}, {l:'Approved by',v:'Admin'}, {l:'Next step',v:'Prepare load'}],
+      note:'Open the workflow to continue preparation.',
+      actions:['prepare','view-workflow']
+    },
+    {
+      id:'loadexec', severity:'info', icon:'▶', category:'cashload', actionNeeded:true, actionable:true, priority:4, minutesAgo:34,
+      title:'Cash load executed', sub:`Load CL-2198 executed at ${execAcct.name || 'Route 3 ATM'}. Proceed to Verify & Check-in.`,
+      accountId:execAcct.id, locName:execAcct.name || 'Route 3 ATM', locNrt:execAcct.nrt || 'NRT-110',
+      detailType:'loadexec',
+      detail:[{l:'Load ID',v:'CL-2198'}, {l:'Executed by',v:'Collector'}, {l:'Next step',v:'Verify & check-in'}],
+      note:'The workflow will open at the verify and check-in step.',
+      actions:['checkin','view-workflow']
+    }
+  );
   ALL_ACCOUNTS.forEach(a=>{
+    if(a.scheduled){
+      const loadStatus=a.loadStatus || 'Load Created';
+      out.push({
+        severity:loadStatus==='Draft'?'warn':'info',
+        icon:loadStatus==='Draft'?'D':'✓',
+        title:loadStatus==='Draft'?`Cash load draft: ${a.name}`:`Cash load ready: ${a.name}`,
+        sub:`${a.nrt} · ${loadStatus}`,
+        accountId:a.id,
+        minutesAgo:Math.floor(Math.random()*180)+4,
+        category:'cashload',
+        actionNeeded:loadStatus==='Draft'
+      });
+    }
     if(a.status==='offline'){
-      out.push({severity:'crit',icon:'⌀',title:`Device offline: ${a.name}`,sub:`${a.nrt} · last sync ${fmtOfflineFor(a.lastSyncMinutesAgo)} ago`,accountId:a.id,minutesAgo:Math.min(a.lastSyncMinutesAgo,Math.floor(Math.random()*120)+5)});
+      out.push({severity:'crit',icon:'⌀',title:`Device offline: ${a.name}`,sub:`${a.nrt} · last sync ${fmtOfflineFor(a.lastSyncMinutesAgo)} ago`,accountId:a.id,minutesAgo:Math.min(a.lastSyncMinutesAgo,Math.floor(Math.random()*120)+5),category:'alerts',actionNeeded:true});
       return; // don't double-flag offline devices for cassette/trend
     }
     a.cassettes.forEach((c,i)=>{
       if(c.trendPct>=0.30){
-        out.push({severity:'warn',icon:'↑',title:`Dispense spike: ${a.name}`,sub:`${c.l} (${c.denom}) up ${Math.round(c.trendPct*100)}% vs 13-wk avg`,accountId:a.id,minutesAgo:Math.floor(Math.random()*240)+10});
+        out.push({severity:'warn',icon:'↑',title:`Dispense spike: ${a.name}`,sub:`${c.l} (${c.denom}) up ${Math.round(c.trendPct*100)}% vs 13-wk avg`,accountId:a.id,minutesAgo:Math.floor(Math.random()*240)+10,category:'alerts',actionNeeded:true});
       }
     });
     if(a.status==='critical'){
       const lowCass=a.cassettes.filter(c=>cassLevel(c)==='crit');
       if(lowCass.length){
-        out.push({severity:'crit',icon:'!',title:`Critical level: ${a.name}`,sub:`${lowCass.length} cassette${lowCass.length>1?'s':''} below 15%`,accountId:a.id,minutesAgo:Math.floor(Math.random()*60)+1});
+        out.push({severity:'crit',icon:'!',title:`Critical level: ${a.name}`,sub:`${lowCass.length} cassette${lowCass.length>1?'s':''} below 15%`,accountId:a.id,minutesAgo:Math.floor(Math.random()*60)+1,category:'alerts',actionNeeded:true});
       }
     }
   });
-  return out.sort((a,b)=>a.minutesAgo-b.minutesAgo).slice(0,40);
+  return out.sort(notifSort).slice(0,60);
 }
 let NOTIFS=buildNotifications();
 let dismissedNotifIds=new Set();
+let bellTab='all';
+let bellFilter='all';
+let bellExpandedIdx=null;
+let allNotificationsFilter='all';
 
 function fmtAgo(m){
   if(m<1)return'just now';
@@ -12549,29 +13573,313 @@ function fmtAgo(m){
   return`${Math.floor(m/1440)}d ago`;
 }
 function activeNotifs(){return NOTIFS.filter((_,i)=>!dismissedNotifIds.has(i));}
+function notifSort(a,b){
+  const ap=a.actionable||hasActionableControls(a), bp=b.actionable||hasActionableControls(b);
+  if(ap!==bp)return ap?-1:1;
+  const pa=a.priority||50, pb=b.priority||50;
+  if(pa!==pb)return pa-pb;
+  const at=/tag cut/i.test(a.title||''), bt=/tag cut/i.test(b.title||'');
+  if(at!==bt)return at?-1:1;
+  return (a.minutesAgo||0)-(b.minutesAgo||0);
+}
+function notifCategory(n){
+  if(n.category)return n.category;
+  return /cash|load/i.test(`${n.title||''} ${n.sub||''}`)?'cashload':'alerts';
+}
+function hasActionableControls(n){
+  return !!(n&&n.actions&&n.actions.some(function(a){return ['approve','reject','close-dispute','prepare','checkin','investigate'].includes(a);}));
+}
+function notifSeverityClass(n){
+  if(n.severity==='crit')return'd';
+  if(n.severity==='warn')return'w';
+  return'i';
+}
+function bellActionLabel(action){
+  return {
+    approve:'Approve',
+    reject:'Reject',
+    'close-dispute':'Close Dispute',
+    prepare:'Prepare load →',
+    checkin:'Verify & check-in →',
+    'view-workflow':'View workflow →',
+    investigate:'Investigate'
+  }[action] || action;
+}
+function bellActionClass(action){
+  if(action==='approve')return'approve';
+  if(action==='reject')return'reject';
+  if(action==='prepare')return'prepare';
+  if(action==='checkin')return'checkin';
+  if(action==='close-dispute'||action==='investigate')return'review';
+  return'';
+}
+function bellNotifActionsHtml(n,realIdx){
+  if(!n.actions||!n.actions.length)return'';
+  if(n.resolvedAction){
+    const ok=!/reject/i.test(n.resolvedAction);
+    return `<span class="bell-act-result ${ok?'approved':'rejected'}">${escapeHtml(n.resolvedAction)}</span>`;
+  }
+  return `<div class="bell-ni-actions">${n.actions.map(action=>`<button class="bell-act-btn ${bellActionClass(action)}" onclick="bellHandleAction(event,${realIdx},'${action}')">${escapeHtml(bellActionLabel(action))}</button>`).join('')}</div>`;
+}
+function bellNotifDetailHtml(n,realIdx){
+  if(bellExpandedIdx!==realIdx)return'';
+  const detail=n.detail&&n.detail.length?n.detail:[
+    {l:'Category',v:notifCategory(n)==='cashload'?'Cash Load':'Alert'},
+    {l:'Status',v:n.actionNeeded?'Action needed':'Unread'},
+    {l:'Time',v:fmtAgo(n.minutesAgo||0)}
+  ];
+  const cells=detail.map(item=>`<div class="bell-detail-cell"><div class="bell-detail-label">${escapeHtml(item.l)}</div><div class="bell-detail-value" title="${escapeHtml(item.v)}">${escapeHtml(item.v)}</div></div>`).join('');
+  return `<div class="bell-ni-detail">
+    <div class="bell-detail-grid">${cells}</div>
+    <div class="bell-detail-note">${escapeHtml(n.note||n.sub||'')}</div>
+    ${bellNotifActionsHtml(n,realIdx)}
+  </div>`;
+}
+function bellNotificationRowHtml(n,realIdx,clickFn){
+  const acct=ALL_ACCOUNTS.find(a=>a.id===n.accountId);
+  const sev=notifSeverityClass(n);
+  const sevLabel=n.severity==='crit'?'Critical':n.severity==='warn'?'Action needed':'Info';
+  const catLabel=notifCategory(n)==='cashload'?'Cash Load':'Alert';
+  const loc=acct?`${acct.route} · ${acct.region}`:(n.locName||'Route Ops');
+  return`<div class="bell-ni" onclick="${clickFn}(event,'${n.accountId||''}',${realIdx})">
+    <span class="bell-ni-dot ${sev}"></span>
+    <div class="bell-ni-body">
+      <div class="bell-ni-top">
+        <div class="bell-ni-title">${escapeHtml(n.title)}</div>
+        <div class="bell-ni-time">${fmtAgo(n.minutesAgo)}</div>
+      </div>
+      <div class="bell-ni-desc">${escapeHtml(n.sub)}</div>
+      <div class="bell-ni-loc">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 14s4-3.8 4-7A4 4 0 1 0 4 7c0 3.2 4 7 4 7z" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="7" r="1.4" fill="currentColor"/></svg>
+        <span>${escapeHtml(loc)}</span>
+      </div>
+      <span class="bell-ni-tag ${sev}">${escapeHtml(sevLabel)}</span>
+      <span class="bell-ni-tag i">${escapeHtml(catLabel)}</span>
+      ${bellExpandedIdx===realIdx?'':bellNotifActionsHtml(n,realIdx)}
+      ${bellNotifDetailHtml(n,realIdx)}
+    </div>
+  </div>`;
+}
+function bellFilteredNotifs(){
+  return activeNotifs().filter(n=>{
+    const cat=notifCategory(n);
+    if(bellTab!=='all' && cat!==bellTab)return false;
+    if(bellFilter==='action')return hasActionableControls(n);
+    if(bellFilter==='critical')return n.severity==='crit';
+    return true;
+  }).sort(notifSort);
+}
 function renderBell(){
   const list=activeNotifs();
   const badge=document.getElementById('bell-badge');
   if(list.length>0){badge.style.display='';badge.textContent=list.length>99?'99+':list.length;}
   else{badge.style.display='none';}
+  const total=document.getElementById('bell-drawer-total');
+  if(total)total.textContent=list.length;
+  const counts={
+    all:list.length,
+    alerts:list.filter(n=>notifCategory(n)==='alerts').length,
+    cashload:list.filter(n=>notifCategory(n)==='cashload').length
+  };
+  ['all','alerts','cashload'].forEach(k=>{
+    const el=document.getElementById(`bell-tc-${k}`);
+    if(el)el.textContent=counts[k]>99?'99+':counts[k];
+  });
   const container=document.getElementById('bell-list');
-  if(list.length===0){
-    container.innerHTML=`<div class="notif-empty">No alerts. All clear.</div>`;return;
+  if(!container)return;
+  const visible=bellFilteredNotifs();
+  if(visible.length===0){
+    container.innerHTML=`<div class="bell-empty">No notifications for this view.</div>`;return;
   }
-  container.innerHTML=list.map((n,i)=>{
+  container.innerHTML=`<div class="bell-dg">Today — ${visible.length} unresolved</div>`+visible.map((n,i)=>{
     const realIdx=NOTIFS.indexOf(n);
-    return`<div class="notif-item" onclick="openDrill('${n.accountId}');closeBellPanel();">
-      <div class="notif-icon ${n.severity}">${n.icon}</div>
-      <div class="notif-body">
-        <div class="notif-title">${n.title}</div>
-        <div class="notif-sub">${n.sub}</div>
-        <div class="notif-time">${fmtAgo(n.minutesAgo)}</div>
-      </div>
-    </div>`;
+    return bellNotificationRowHtml(n,realIdx,'openBellNotification');
   }).join('');
 }
-function toggleBellPanel(){document.getElementById('bell-panel').classList.toggle('open');}
-function closeBellPanel(){document.getElementById('bell-panel').classList.remove('open');}
+function openBellNotification(e,accountId,idx){
+  if(e)e.stopPropagation();
+  const n=NOTIFS[idx];
+  if(n&&(n.actions||n.detail)){
+    bellExpandedIdx=bellExpandedIdx===idx?null:idx;
+    renderBell();
+    return;
+  }
+  bellExpandedIdx=bellExpandedIdx===idx?null:idx;
+  renderBell();
+}
+function bellWorkflowAccount(n){
+  if(!n)return null;
+  var acct=null;
+  if(n.accountId&&typeof ALL_ACCOUNTS!=='undefined')acct=ALL_ACCOUNTS.find(function(a){return a.id===n.accountId;});
+  if(!acct&&typeof ALL_ACCOUNTS!=='undefined')acct=ALL_ACCOUNTS[0];
+  if(!acct)return null;
+  acct.scheduled=true;
+  if(!acct.loadStatus)acct.loadStatus='Load Created';
+  return {id:acct.id,nrt:acct.nrt,name:acct.name,loadStatus:acct.loadStatus};
+}
+function bellOpenWorkflow(n,step){
+  var acct=bellWorkflowAccount(n);
+  closeBellPanel();
+  if(typeof openLoadWorkflow==='function'&&acct){
+    var acctStatus = (acct && acct.loadStatus) ? acct.loadStatus : '';
+    openLoadWorkflow(acctStatus === 'completed' ? 'view-completed-cashload' : 'cashload-list', acct);
+    if(step&&typeof goToStep==='function'){
+      setTimeout(function(){ goToStep(step); },80);
+    }
+  }else if(n&&n.accountId&&typeof openDrill==='function'){
+    openDrill(n.accountId);
+  }
+}
+function addWorkflowFlagNotification(kind,detail){
+  var acct=typeof getCurrentWorkflowAccount==='function'?getCurrentWorkflowAccount():null;
+  if(!acct&&typeof ALL_ACCOUNTS!=='undefined')acct=ALL_ACCOUNTS[0];
+  var id='workflow-flag-'+Date.now();
+  NOTIFS.unshift({
+    id:id,
+    severity:kind==='balance'?'warn':'crit',
+    icon:'⚑',
+    category:'alerts',
+    actionNeeded:true,
+    actionable:true,
+    priority:2,
+    minutesAgo:0,
+    title:kind==='balance'?'Balancing flag raised':'Workflow flag raised',
+    sub:(detail||'A workflow flag was raised for supervisor review.')+' '+(acct&&acct.name?'Account: '+acct.name+'.':''),
+    accountId:acct&&acct.id,
+    locName:acct&&acct.name,
+    locNrt:acct&&acct.nrt,
+    detailType:'workflow-flag',
+    detail:[
+      {l:'Workflow Step',v:kind==='balance'?'Balancing':'Verify & Check-in'},
+      {l:'Status',v:'Supervisor review'},
+      {l:'Raised',v:'Just now'}
+    ],
+    note:detail||'Raised from workflow and routed to alerts for supervisor action.',
+    actions:['close-dispute','view-workflow']
+  });
+  NOTIFS.sort(notifSort);
+  renderBell();
+  renderAllNotificationsPage();
+}
+function bellHandleAction(e,idx,action){
+  if(e)e.stopPropagation();
+  var n=NOTIFS[idx];
+  if(!n)return;
+  if(action==='view-workflow'){
+    bellOpenWorkflow(n,null);
+    return;
+  }
+  if(action==='prepare'){
+    bellOpenWorkflow(n,1);
+    return;
+  }
+  if(action==='checkin'){
+    bellOpenWorkflow(n,4);
+    return;
+  }
+  if(action==='approve'||action==='reject'||action==='close-dispute'||action==='investigate'){
+    var result = action==='approve'
+      ? 'Approved — collector notified'
+      : action==='reject'
+        ? 'Rejected — collector notified'
+        : action==='close-dispute'
+          ? 'Dispute closed by admin'
+          : 'Investigation opened';
+    n.resolvedAction=result;
+    n.actionNeeded=false;
+    n.severity=action==='reject'?'crit':'info';
+    n.actions=['view-workflow'];
+    bellExpandedIdx=idx;
+    renderBell();
+    renderAllNotificationsPage();
+    if(typeof showToast==='function')showToast({type:action==='reject'?'warn':'success',message:result,duration:2500});
+  }
+}
+function toggleBellPanel(){
+  const drawer=document.getElementById('bell-drawer');
+  if(drawer&&drawer.classList.contains('open'))closeBellPanel();
+  else openBellPanel();
+}
+function openBellPanel(){
+  renderBell();
+  document.getElementById('bell-overlay')?.classList.add('open');
+  document.getElementById('bell-drawer')?.classList.add('open');
+  document.getElementById('bell-drawer')?.setAttribute('aria-hidden','false');
+  document.getElementById('bell-btn')?.classList.add('bell-active');
+}
+function closeBellPanel(){
+  document.getElementById('bell-overlay')?.classList.remove('open');
+  document.getElementById('bell-drawer')?.classList.remove('open');
+  document.getElementById('bell-drawer')?.setAttribute('aria-hidden','true');
+  document.getElementById('bell-btn')?.classList.remove('bell-active');
+}
+function switchBellTab(tab,btn){
+  bellTab=tab;
+  document.querySelectorAll('.bell-dtab').forEach(b=>b.classList.toggle('active',b.dataset.bellTab===tab));
+  if(btn)btn.classList.add('active');
+  renderBell();
+}
+function setBellFilter(filter,btn){
+  bellFilter=filter;
+  document.querySelectorAll('[data-bell-filter]').forEach(b=>b.classList.toggle('on',b.dataset.bellFilter===filter));
+  if(btn)btn.classList.add('on');
+  renderBell();
+}
+function allNotificationsFiltered(){
+  return activeNotifs().filter(function(n){
+    if(allNotificationsFilter==='action')return hasActionableControls(n);
+    if(allNotificationsFilter==='critical')return n.severity==='crit';
+    if(allNotificationsFilter==='alerts')return notifCategory(n)==='alerts';
+    if(allNotificationsFilter==='cashload')return notifCategory(n)==='cashload';
+    return true;
+  }).sort(notifSort);
+}
+function openAllNotification(e,accountId,idx){
+  if(e)e.stopPropagation();
+  bellExpandedIdx=bellExpandedIdx===idx?null:idx;
+  renderAllNotificationsPage();
+}
+function setAllNotificationsFilter(filter,btn){
+  allNotificationsFilter=filter;
+  document.querySelectorAll('[data-all-notif-filter]').forEach(function(b){b.classList.toggle('on',b.dataset.allNotifFilter===filter);});
+  if(btn)btn.classList.add('on');
+  renderAllNotificationsPage();
+}
+function renderAllNotificationsPage(){
+  const page=document.getElementById('page-notifications');
+  if(!page||!page.classList.contains('active'))return;
+  const list=activeNotifs();
+  const summary=document.getElementById('bell-all-summary');
+  if(summary){
+    const actionable=list.filter(hasActionableControls).length;
+    const alerts=list.filter(n=>notifCategory(n)==='alerts').length;
+    const cash=list.filter(n=>notifCategory(n)==='cashload').length;
+    summary.innerHTML=[
+      ['Action needed',actionable,'var(--red-soft)','var(--red-text)'],
+      ['Alerts',alerts,'var(--amber-soft)','var(--amber-text)'],
+      ['Cash Load',cash,'var(--blue-soft)','var(--blue-text)']
+    ].map(function(x){return '<div style="background:'+x[2]+';border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;"><div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:'+x[3]+';">'+x[0]+'</div><div style="font-size:26px;font-weight:800;color:var(--text);margin-top:2px;">'+x[1]+'</div></div>';}).join('');
+  }
+  const container=document.getElementById('bell-all-list');
+  if(!container)return;
+  const visible=allNotificationsFiltered();
+  container.innerHTML=visible.length
+    ? `<div class="bell-dg">${visible.length} notification${visible.length!==1?'s':''}</div>`+visible.map(function(n){return bellNotificationRowHtml(n,NOTIFS.indexOf(n),'openAllNotification');}).join('')
+    : '<div class="bell-empty">No notifications for this view.</div>';
+}
+function openAllNotificationsPage(){
+  closeBellPanel();
+  const main=document.querySelector('.main');
+  if(main)main.style.display='none';
+  document.querySelectorAll('.page-view').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.wf-page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  const page=document.getElementById('page-notifications');
+  if(page){page.classList.add('active');page.scrollTop=0;}
+  const titleEl=document.querySelector('.topbar-title');
+  if(titleEl)titleEl.textContent='Notifications';
+  renderAllNotificationsPage();
+}
 function clearAllNotifs(){
   const n=activeNotifs().length;
   NOTIFS.forEach((_,i)=>dismissedNotifIds.add(i));
@@ -12580,7 +13888,14 @@ function clearAllNotifs(){
     showToast({type:'info',message:`Cleared ${n} notification${n!==1?'s':''}.`,duration:2500});
   }
 }
-document.addEventListener('click',e=>{const w=document.querySelector('.bell-wrap');if(w&&!w.contains(e.target))closeBellPanel();});
+document.addEventListener('click',e=>{
+  const drawer=document.getElementById('bell-drawer');
+  const w=document.querySelector('.bell-wrap');
+  const path=typeof e.composedPath==='function'?e.composedPath():[];
+  const clickedDrawer=drawer&&(drawer.contains(e.target)||path.includes(drawer));
+  const clickedBell=w&&(w.contains(e.target)||path.includes(w));
+  if(drawer&&drawer.classList.contains('open')&&!clickedDrawer&&!clickedBell)closeBellPanel();
+});
 
 // ── PAGINATION ──
 function makePagination(section,totalItems,currentPage,containerId){
@@ -12918,6 +14233,7 @@ const PAGE_TITLES = {
   usermaster: "User Master",
   rolemaster: "Role Master",
   cashload:   "Cash Load",
+  notifications: "Notifications",
   documents:  "Documents",
   compliance: "State Compliance Report",
   slotfloor:  "Slot Floor Operations",
@@ -13016,24 +14332,40 @@ function prevLoadsRender() {
   var slice = rows.slice(start, start + prevLoadsPerPage);
 
   // Render rows
-  tbody.innerHTML = slice.map(function(r) {
+    tbody.innerHTML = slice.map(function(r) {
     var isComp = r.status === 'completed';
+    var isPred = r.status === 'predicted';
     var badge = r.badge || '<span style="background:var(--green);color:#fff;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:100px;">Completed</span>';
     var rowStyle = r.bg ? 'border-top:1px solid var(--border);background:'+r.bg+';' : 'border-top:1px solid var(--border);';
-    var dateCls  = r.dateCls || '';
-    var dayCls   = r.dayCls  || '';
-    var idHtml   = isComp
-      ? '<span style="color:var(--blue-text);font-weight:600;">'+r.id+'</span>'
-      : '<span style="color:var(--text3);">'+r.id+'</span>';
-    return '<tr style="'+rowStyle+'">'
-      +'<td style="padding:8px 12px;">'+badge+'</td>'
-      +'<td style="padding:8px 12px;'+dateCls+'">'+r.date+'</td>'
-      +'<td style="padding:8px 12px;">'+idHtml+'</td>'
-      +'<td style="padding:8px 12px;text-align:right;font-weight:'+(r.bg?'800':'400')+';'+(r.bg?'color:var(--amber-text);':'')+'">'+r.est+'</td>'
-      +'<td style="padding:8px 12px;text-align:right;">'+r.newVal+'</td>'
-      +'<td style="padding:8px 12px;text-align:right;">'+r.reject+'</td>'
-      +'<td style="padding:8px 12px;text-align:right;'+dayCls+'">'+r.days+'</td>'
-      +'</tr>';
+    var dateCls = r.dateCls || '';
+    var dayCls  = r.dayCls  || '';
+    var idHtml;
+    if (isComp) {
+      idHtml = '<span onclick="openLoadWorkflow(\'view-completed-acctoverview\',_ovAccountData)"'
+        + ' style="color:var(--blue-text);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:2px;"'
+        + ' title="View ' + r.id + '">' + r.id + '</span>';
+    } else if (isPred) {
+      idHtml = '<button onclick="event.stopPropagation();openLoadWorkflow(\'acct-overview\',_ovAccountData)"'
+        + ' style="display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:100px;'
+        + 'border:1px solid #6c5ce7;background:rgba(108,92,231,.1);color:#6c5ce7;'
+        + 'font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">'
+        + '<svg width="9" height="9" viewBox="0 0 16 16" fill="none"><path d="M5 3l8 5-8 5V3z" fill="currentColor"/></svg>'
+        + 'Start Load</button>';
+    } else {
+      idHtml = '<span style="color:var(--text3);">' + r.id + '</span>';
+    }
+    var rowAttrs = isPred
+      ? 'onclick="openLoadWorkflow(\'acct-overview\',_ovAccountData)" style="' + rowStyle + 'cursor:pointer;"'
+      : 'style="' + rowStyle + '"';
+    return '<tr ' + rowAttrs + '>'
+      + '<td style="padding:8px 12px;">' + badge + '</td>'
+      + '<td style="padding:8px 12px;' + dateCls + '">' + r.date + '</td>'
+      + '<td style="padding:8px 12px;">' + idHtml + '</td>'
+      + '<td style="padding:8px 12px;text-align:right;font-weight:' + (r.bg?'800':'400') + ';' + (r.bg?'color:var(--amber-text);':'') + '">' + r.est + '</td>'
+      + '<td style="padding:8px 12px;text-align:right;">' + r.newVal + '</td>'
+      + '<td style="padding:8px 12px;text-align:right;">' + r.reject + '</td>'
+      + '<td style="padding:8px 12px;text-align:right;' + dayCls + '">' + r.days + '</td>'
+      + '</tr>';
   }).join('');
 
   // Info text
@@ -13762,7 +15094,31 @@ function cancelLoadWorkflow() {
   document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
 
-  if (_wfFromPage === 'acct-overview') {
+  if (_wfFromPage === 'view-completed') {
+    // Opened from dashboard card — return to dashboard
+    var main0 = document.querySelector('.main');
+    if (main0) main0.style.display = '';
+    var navEl0 = document.querySelector('[data-page="dashboard"]');
+    if (navEl0) navEl0.classList.add('active');
+    var titleEl0 = document.querySelector('.topbar-title');
+    if (titleEl0) titleEl0.textContent = "Today's Overview";
+  } else if (_wfFromPage === 'view-completed-acctoverview') {
+    // Back to account overview
+    var pvAO = document.getElementById('page-acct-overview');
+    if (pvAO) { pvAO.classList.add('active'); pvAO.scrollTop = 0; }
+    var navAO = document.querySelector('[data-page="accounts"]');
+    if (navAO) navAO.classList.add('active');
+    var ttAO = document.querySelector('.topbar-title');
+    if (ttAO) ttAO.textContent = 'Account Overview';
+  } else if (_wfFromPage === 'view-completed-cashload') {
+    // Opened from Cash Load list — return there
+    var pvCLV = document.getElementById('page-cashload');
+    if (pvCLV) { pvCLV.classList.add('active'); pvCLV.scrollTop = 0; }
+    var navElCLV = document.querySelector('[data-page="cashload"]');
+    if (navElCLV) navElCLV.classList.add('active');
+    var titleElCLV = document.querySelector('.topbar-title');
+    if (titleElCLV) titleElCLV.textContent = 'Cash Load';
+  } else if (_wfFromPage === 'acct-overview') {
     // Back to account overview
     var pv = document.getElementById('page-acct-overview');
     if (pv) { pv.classList.add('active'); pv.scrollTop = 0; }
@@ -13802,6 +15158,15 @@ function cancelLoadWorkflow() {
 function openLoadWorkflow(fromPage, accountData) {
   _wfFromPage = fromPage || 'dashboard';
   if (accountData) _wfAccount = accountData;
+  // Reset view/dirty state on every open
+  if (typeof wfViewMode !== 'undefined') {
+    wfViewMode = false;
+    wfViewDirty = false;
+  }
+  var banner = document.getElementById('wf-view-mode-banner');
+  if (banner) banner.classList.remove('visible');
+  var saveBtn = document.getElementById('wf-view-save-btn');
+  if (saveBtn) saveBtn.style.display = 'none';
   document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.wf-page').forEach(function(p){ p.classList.remove('active'); });
   var main = document.querySelector('.main');
@@ -13820,6 +15185,23 @@ function openLoadWorkflow(fromPage, accountData) {
   }
   // Populate account context in all workflow step headers
   _wfApplyAccountContext();
+
+  var _isViewCompleted = (fromPage === 'view-completed' || fromPage === 'view-completed-cashload' || fromPage === 'view-completed-acctoverview');
+
+  if (_isViewCompleted && typeof enterViewMode === 'function') {
+    // Completed load review — enter read-only mode at step 1
+    setTimeout(function() {
+      enterViewMode();
+      if (typeof goToStep === 'function') goToStep(1);
+    }, 100);
+  } else {
+    // Fresh create/edit flow — always reset to step 1
+    if (typeof maxStepReached !== 'undefined') maxStepReached = 1;
+    if (typeof wfLoadCompleted !== 'undefined') wfLoadCompleted = false;
+    var closeBtnWf = document.getElementById('wf-close-btn');
+    if (closeBtnWf) closeBtnWf.style.display = 'none';
+    if (typeof goToStep === 'function') goToStep(1);
+  }
 }
 
 // Update all .meta-zone / .meta-unit elements inside the workflow page
@@ -13863,10 +15245,223 @@ function _wfApplyAccountContext() {
 }
 
 function closeLoadWorkflow() {
+  cancelLoadWorkflow();
+}
+
+function syncPrintSlipAccount() {
+  var acct = _wfAccount || _ovAccountData || {};
+  if (acct.id && typeof ALL_ACCOUNTS !== 'undefined') {
+    var fullAcct = ALL_ACCOUNTS.find(function(a){ return a.id === acct.id; });
+    if (fullAcct) acct = Object.assign({}, fullAcct, acct);
+  }
+
+  var acctName = acct.name || 'My Bar National Zone INC';
+  var acctNrt = acct.nrt || 'NRT UNIT - 12345';
+  var address = acct.address || acct.addr || '221 West Bend Ave, Collinsville';
+  var collectorEl = document.getElementById('create-collector');
+  var collector = collectorEl && collectorEl.value ? collectorEl.value : 'Ron';
+  var nrtLine = acctNrt + (address ? ' · ' + address : '');
+  var loadId = 'LD-2048';
+
+  var help = document.querySelector('#print-modal .print-slip-help');
+  if (help) help.textContent = 'Load Slips - ' + loadId + ' · ' + acctName + ' · 11/21/25';
+
+  document.querySelectorAll('#print-modal .slip-store').forEach(function(el) {
+    el.textContent = acctName;
+  });
+  document.querySelectorAll('#print-modal .slip-nrt').forEach(function(el) {
+    el.textContent = nrtLine;
+  });
+
+  var boxName = document.querySelector('#print-modal .box-store-name');
+  if (boxName) boxName.textContent = acctName;
+  var boxNrt = document.querySelector('#print-modal .box-nrt');
+  if (boxNrt) boxNrt.textContent = nrtLine;
+
+  document.querySelectorAll('#print-modal .meta-cell').forEach(function(cell) {
+    var lbl = cell.querySelector('.meta-lbl');
+    var val = cell.querySelector('.meta-val');
+    if (lbl && val && lbl.textContent.trim().toLowerCase() === 'collector') {
+      val.textContent = collector;
+    }
+  });
+}
+
+function previewLoadSlip() {
+  openPrintSlip();
+}
+
+function getCurrentWorkflowAccount() {
+  var acct = _wfAccount || _ovAccountData || null;
+  if (acct && acct.id && typeof ALL_ACCOUNTS !== 'undefined') {
+    var fullAcct = ALL_ACCOUNTS.find(function(a){ return a.id === acct.id; });
+    if (fullAcct) return fullAcct;
+  }
+  return acct;
+}
+
+function saveLoadDraft() {
+  var acct = getCurrentWorkflowAccount();
+  if (!acct) {
+    if (typeof showToast === 'function') showToast({ type:'error', message:'No account selected for this draft.', duration:3000 });
+    return;
+  }
+
+  if (typeof ALL_ACCOUNTS !== 'undefined' && !ALL_ACCOUNTS.find(function(a){ return a.id === acct.id; })) {
+    acct = Object.assign({
+      id: acct.id || ('draft_' + Date.now()),
+      nrt: acct.nrt || 'NRT-DRAFT',
+      nrtNum: Date.now() % 100000,
+      name: acct.name || 'Draft Account',
+      status: 'operational',
+      route: (document.getElementById('create-route') || {}).value || 'BMI 1',
+      region: 'Lucky Charm Gaming',
+      driver: (document.getElementById('create-collector') || {}).value || 'Unassigned',
+      frequency: 14,
+      collectDate: new Date(),
+      cassettes: [
+        { bills: 0, cap: 600 }, { bills: 0, cap: 600 },
+        { bills: 0, cap: 400 }, { bills: 0, cap: 600 }
+      ],
+      lastLoads: []
+    }, acct);
+    ALL_ACCOUNTS.unshift(acct);
+  }
+
+  acct.scheduled = true;
+  acct.loadStatus = 'Draft';
+  acct.draftSavedAt = new Date();
+  acct.draftTitle = (document.getElementById('create-title') || {}).value || 'Cash load draft';
+  acct.draftLoadType = (document.getElementById('create-manual-type') || {}).value || 'Manual Load';
+  acct.route = (document.getElementById('create-route') || {}).value || acct.route || 'BMI 1';
+  acct.driver = (document.getElementById('create-collector') || {}).value || acct.driver || 'Unassigned';
+  acct.lastLoads = acct.lastLoads || [];
+  acct.lastLoads.unshift({
+    date: acct.draftSavedAt,
+    amount: typeof clEstAmt === 'function' ? clEstAmt(acct) : 0,
+    type: acct.draftLoadType,
+    status: 'Draft',
+    driver: acct.driver
+  });
+
   document.getElementById('page-load-workflow').classList.remove('active');
-  // Go back to account overview
-  var pv = document.getElementById('page-acct-overview');
+  document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
+  var main = document.querySelector('.main');
+  if (main) main.style.display = 'none';
+  var pv = document.getElementById('page-cashload');
   if (pv) { pv.classList.add('active'); pv.scrollTop = 0; }
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  var navEl = document.querySelector('[data-page="cashload"]');
+  if (navEl) navEl.classList.add('active');
+  var titleEl = document.querySelector('.topbar-title');
+  if (titleEl) titleEl.textContent = 'Cash Load';
+
+  clStatusFilter = 'all';
+  clQuery = '';
+  clPage = 1;
+  var search = document.getElementById('cl-search');
+  if (search) search.value = '';
+  document.querySelectorAll('#cl-tabs .tab').forEach(function(t){ t.classList.remove('active'); });
+  var allTab = document.querySelector('#cl-tabs [data-cl-filter="all"]');
+  if (allTab) allTab.classList.add('active');
+  if (typeof clUpdateTabCounts === 'function') clUpdateTabCounts();
+  if (typeof clRenderTable === 'function') clRenderTable();
+
+  if (typeof showToast === 'function') {
+    showToast({ type:'success', message:'Draft saved for ' + (acct.name || 'this account') + '.', duration:3000 });
+  }
+}
+
+var step1UploadFiles = [];
+var step1UploadUrls = [];
+
+function browseStep1Uploads() {
+  var input = document.getElementById('step1-upload-input');
+  if (input) input.click();
+}
+
+function formatStep1FileSize(bytes) {
+  if (!bytes && bytes !== 0) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function step1FileKind(file) {
+  var name = (file.name || '').toLowerCase();
+  var ext = name.indexOf('.') >= 0 ? name.split('.').pop() : 'file';
+  if (file.type && file.type.indexOf('image/') === 0) return 'image';
+  if (ext === 'pdf') return 'pdf';
+  if (['doc','docx'].includes(ext)) return 'doc';
+  if (['xls','xlsx','csv'].includes(ext)) return 'xls';
+  if (['ppt','pptx'].includes(ext)) return 'ppt';
+  return ext.slice(0, 4) || 'file';
+}
+
+function syncStep1UploadInput() {
+  var input = document.getElementById('step1-upload-input');
+  if (!input || typeof DataTransfer === 'undefined') return;
+  var dt = new DataTransfer();
+  step1UploadFiles.forEach(function(file) { dt.items.add(file); });
+  input.files = dt.files;
+}
+
+function renderStep1Uploads() {
+  var list = document.getElementById('step1-upload-list');
+  var zone = list ? list.closest('.upload-zone') : null;
+  if (!list) return;
+
+  step1UploadUrls.forEach(function(url) { URL.revokeObjectURL(url); });
+  step1UploadUrls = [];
+
+  if (!step1UploadFiles.length) {
+    list.innerHTML = '';
+    if (zone) zone.classList.remove('has-files');
+    return;
+  }
+
+  if (zone) zone.classList.add('has-files');
+  list.innerHTML = step1UploadFiles.map(function(file, index) {
+    var kind = step1FileKind(file);
+    var thumb;
+    if (kind === 'image') {
+      var url = URL.createObjectURL(file);
+      step1UploadUrls.push(url);
+      thumb = '<img src="' + url + '" alt="">';
+    } else {
+      thumb = kind;
+    }
+    return '<div class="upload-file-item">' +
+      '<div class="upload-file-thumb">' + thumb + '</div>' +
+      '<div class="upload-file-meta">' +
+        '<div class="upload-file-name" title="' + escapeHtml(file.name) + '">' + escapeHtml(file.name) + '</div>' +
+        '<div class="upload-file-size">' + escapeHtml(formatStep1FileSize(file.size)) + '</div>' +
+      '</div>' +
+      '<button type="button" class="upload-file-remove" onclick="removeStep1Upload(' + index + ')" title="Remove file">×</button>' +
+    '</div>';
+  }).join('');
+}
+
+function handleStep1Uploads(files) {
+  var incoming = Array.from(files || []);
+  if (!incoming.length) return;
+  incoming.forEach(function(file) {
+    var exists = step1UploadFiles.some(function(existing) {
+      return existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified;
+    });
+    if (!exists) step1UploadFiles.push(file);
+  });
+  syncStep1UploadInput();
+  renderStep1Uploads();
+  if (typeof showErrorToast === 'function') {
+    showSuccessToast(step1UploadFiles.length + ' file' + (step1UploadFiles.length === 1 ? '' : 's') + ' attached.');
+  }
+}
+
+function removeStep1Upload(index) {
+  step1UploadFiles.splice(index, 1);
+  syncStep1UploadInput();
+  renderStep1Uploads();
 }
 
 function initLoadWorkflow() {
@@ -14157,7 +15752,7 @@ function initLoadWorkflow() {
 
     refreshCheckoutStatus();
 
-    showErrorToast('Scans prefilled. You can now check out the assets.');
+    showSuccessToast('Scans prefilled. You can now check out the assets.');
     pulseButton('publish-btn');
   }
 
@@ -14170,6 +15765,36 @@ function initLoadWorkflow() {
       // Already published — just navigate to Step 3
       advanceMaxStep(3);
       goToStep(3);
+      return;
+    }
+
+    var problems = [];
+    var plateEl = document.getElementById('vehicle-plate');
+    var plateValue = plateEl ? plateEl.value.trim() : '';
+    if (!plateValue) {
+      problems.push('Vehicle plate — enter the plate of the vehicle carrying the load');
+      if (plateEl) plateEl.classList.add('field-error');
+    }
+
+    refreshCheckoutStatus();
+    var pendingRows = document.querySelectorAll('#checkout-tbody .checkout-status.pending');
+    if (pendingRows.length > 0) {
+      problems.push(pendingRows.length + ' asset(s) not yet scanned — see the asset list above');
+    }
+
+    if (problems.length > 0) {
+      showErrorToast('Cannot move next — ' + problems.length + ' issue' + (problems.length === 1 ? '' : 's') + ' to fix:\n• ' + problems.join('\n• '));
+      var hint = document.getElementById('checkout-hint');
+      if (hint) hint.innerHTML = '<span class="checkout-warning">⚠ ' + problems.join(' · ') + '</span>';
+      if (plateEl) {
+        var clearer = function() {
+          plateEl.classList.remove('field-error');
+          plateEl.removeEventListener('input', clearer);
+          plateEl.removeEventListener('change', clearer);
+        };
+        plateEl.addEventListener('input', clearer);
+        plateEl.addEventListener('change', clearer);
+      }
       return;
     }
 
@@ -14385,6 +16010,17 @@ function initLoadWorkflow() {
   var currentStep = 1;
   var maxStepReached = 1;
 
+  function syncStep2CheckoutButton() {
+    var btn = document.getElementById('publish-btn');
+    if (!btn) return;
+    if (checkoutCompleted) {
+      btn.textContent = 'Proceed to Load Status →';
+      btn.disabled = false;
+      btn.style.opacity = '';
+      btn.style.cursor = 'pointer';
+    }
+  }
+
   function goToStep(n) {
     if (n > maxStepReached) return; // can't skip ahead
     currentStep = n;
@@ -14396,6 +16032,8 @@ function initLoadWorkflow() {
     }
     var target = document.getElementById('step-' + n + '-content');
     if (target) target.style.display = 'block';
+
+    if (n === 2) syncStep2CheckoutButton();
 
     // Step 4: auto-select the logged-in user as receiving operator
     if (n === 4 && !currentOperator) {
@@ -14519,11 +16157,80 @@ function initLoadWorkflow() {
     var toast = document.getElementById('wf-error-toast-inner');
     if (!toast) return;
     toast.textContent = msg;
+    toast.classList.remove('success', 'warn');
     toast.classList.add('show');
     clearTimeout(toast._t);
     toast._t = setTimeout(function() {
       toast.classList.remove('show');
     }, 4000);
+  }
+
+  function showSuccessToast(msg) {
+    var toast = document.getElementById('wf-error-toast-inner');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.remove('warn');
+    toast.classList.add('success', 'show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function() {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  function workflowNext() {
+    if (currentStep === 1) {
+      approveLoad();
+      return;
+    }
+
+    if (currentStep === 2) {
+      if (!checkoutCompleted) performCheckout();
+      if (!checkoutCompleted) {
+        pulseButton('publish-btn');
+        return;
+      }
+      advanceMaxStep(3);
+      goToStep(3);
+      return;
+    }
+
+    if (currentStep === 3) {
+      var proceedBtn = document.getElementById('proceed-checkin-btn');
+      if (proceedBtn && proceedBtn.disabled) {
+        showErrorToast('Complete the load status first before moving to Verify & Check In.');
+        pulseButton('proceed-checkin-btn');
+        return;
+      }
+      advanceMaxStep(4);
+      goToStep(4);
+      return;
+    }
+
+    if (currentStep === 4) {
+      if (typeof refreshVerifyStats === 'function') refreshVerifyStats();
+      var doneBtn = document.getElementById('mark-done-btn');
+      if (doneBtn && doneBtn.disabled) {
+        showErrorToast(doneBtn.title || 'Finish scanning and resolve any flagged items before moving to Balancing.');
+        pulseButton('mark-done-btn');
+        return;
+      }
+      markAsDone();
+      return;
+    }
+
+    if (currentStep === 5) {
+      var submitBtn = document.getElementById('submit-balancing-btn');
+      if (submitBtn && submitBtn.disabled) {
+        var err = document.getElementById('s5-error');
+        var msg = document.getElementById('s5-error-msg');
+        if (err) err.style.display = 'flex';
+        if (msg) msg.textContent = 'Please fill Actual Remaining and Actual Rejected for all active cassettes before finishing.';
+        showErrorToast('Please fill all required balancing fields before finishing.');
+        pulseButton('submit-balancing-btn');
+        return;
+      }
+      submitBalancing();
+    }
   }
 
   // Demo helper — clear required fields so validation can be tested
@@ -14555,7 +16262,7 @@ function initLoadWorkflow() {
       el.classList.remove('field-error');
     });
     hideErrorSummary('step1-error-summary');
-    showErrorToast('Required fields prefilled with sample data. You can now click Approve.');
+    showSuccessToast('Required fields prefilled with sample data. You can now click Approve.');
     pulseButton('approve-btn');
   }
 
@@ -14846,8 +16553,9 @@ function initLoadWorkflow() {
   }
 
   function openPrintSlip() {
+    syncPrintSlipAccount();
+    renderLoadSlipBarcode();
     document.getElementById('print-modal').classList.add('show');
-    setTimeout(function() { window.print(); }, 400);
   }
 
   function closePrintModal() {
@@ -15506,6 +17214,7 @@ function initLoadWorkflow() {
       action: 'Load <strong>flagged for supervisor review</strong>',
       detail: flagged + ' item(s) flagged' + (notes ? ' · Notes: ' + notes : '')
     });
+    if (typeof addWorkflowFlagNotification === 'function') addWorkflowFlagNotification('assets', flagged + ' item(s) flagged' + (notes ? ' · Notes: ' + notes : ''));
     alert('Load LD-2046 flagged for supervisor review.\n\n' + flagged + ' item(s) flagged' + (notes ? '\nNotes: ' + notes : ''));
   }
 
@@ -16930,6 +18639,22 @@ tr:nth-child(even) td{background:#f5f7fa}
 </table>
 ${filtered.length>500?`<div class="footer">Showing first 500 of ${filtered.length.toLocaleString()} records. Use CSV export for full dataset.</div>`:''}
 <div class="footer">Lucky Charm Gaming IGB Portal &nbsp;|&nbsp; Confidential</div>
+
+
+<!-- ── LIVE ACTIVITY FEED PANEL ── -->
+<div id="live-feed-panel">
+  <div class="lfp-head">
+    <span style="display:flex;align-items:center;gap:7px;">
+      <span class="live-dot-sm" style="width:7px;height:7px;background:#15803D;border-radius:50%;animation:livePulse 1.6s ease-in-out infinite;"></span>
+      Live Activity
+    </span>
+    <button onclick="toggleLiveFeed()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--text3);" title="Close">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="lfp-list" id="live-feed-list"></div>
+</div>
+<div id="live-feed-overlay" onclick="toggleLiveFeed()" style="display:none;position:fixed;inset:0;z-index:189;background:rgba(0,0,0,.18);"></div>
 
 </body></html>`);
     win.document.close();
@@ -20846,6 +22571,381 @@ function mobNavTo(page, btn){
     if(window.innerWidth <= 1024) setTimeout(mobClose, 80);
   };
 })();
-</script>
-</body>
-</html>
+
+
+// ════════════════════════════════════════════════════════════════
+// LIVE DASHBOARD SIMULATION ENGINE
+// ════════════════════════════════════════════════════════════════
+(function initLiveDash() {
+  'use strict';
+
+  var SIM_INTERVAL    = 3200;   // ms between main ticks
+  var CASS_INTERVAL   = 1500;   // ms between cassette micro-ticks
+  var DRAIN_CHANCE    = 0.70;   // probability any cassette drains per micro-tick
+  var REFILL_CHANCE   = 0.12;   // probability an account gets a refill per main tick
+  var ESCALATE_CHANCE = 0.05;
+  var RECOVER_CHANCE  = 0.04;
+  var BURST_SIZE      = 8;      // cards updated per main tick
+  var CASS_BURST      = 10;     // cards with cassette micro-updates per cass tick
+  var TOTAL_ACCOUNTS  = 0;      // fixed — set once on init
+
+  var lastSyncTime = Date.now();
+  var updatesToday = 0;
+  var feedUnread   = 0;
+  var feedOpen     = false;
+  var tickerEvents = [];
+  var TICKER_MAX   = 24;
+  var refreshSpinning = false;
+
+  var TMPL = [
+    { t:'warn',  icon:'⚠', m:'Low cash — {name} · C#{n} at {pct}%' },
+    { t:'ok',    icon:'✓', m:'Sync OK · {name} ({nrt})' },
+    { t:'info',  icon:'↻', m:'Route {route} — dispatch to {name}' },
+    { t:'ok',    icon:'✓', m:'NRT {nrt} · {bills} bills counted' },
+    { t:'info',  icon:'📋', m:'Collection due in {days}d — {name}' },
+    { t:'ok',    icon:'✓', m:'Load LD-{ld} delivered to {name}' },
+    { t:'info',  icon:'💰', m:'{name} · cassette refilled to {pct}%' },
+    { t:'ok',    icon:'↑', m:'Replenished — {name} · C#{n} now at {pct}%' },
+  ];
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+  function buildMsg(tpl, a) {
+    var ci = rnd(0, a.cassettes.length - 1);
+    var c  = a.cassettes[ci];
+    return tpl.m
+      .replace('{name}',  a.name)  .replace('{nrt}',   a.nrt)
+      .replace('{n}',     ci + 1)  .replace('{pct}',   Math.round(c.bills/c.cap*100))
+      .replace('{route}', a.route || 'BH-1')
+      .replace('{bills}', c.bills) .replace('{days}',  rnd(1,5))
+      .replace('{amount}',(rnd(10,50)*100).toLocaleString())
+      .replace('{ld}',    rnd(2030,2060));
+  }
+
+  // ── Ticker ──
+  function pushTicker(type, icon, msg) {
+    tickerEvents.push({ type:type, icon:icon, msg:msg,
+      time: new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) });
+    if (tickerEvents.length > TICKER_MAX) tickerEvents.shift();
+    renderTicker();
+  }
+
+  function renderTicker() {
+    var inner = document.getElementById('live-ticker-inner');
+    if (!inner) return;
+    var items = tickerEvents.concat(tickerEvents);
+    inner.innerHTML = items.map(function(e) {
+      return '<span class="ticker-event t-' + e.type + '">'
+        + '<span style="font-size:12px;">' + e.icon + '</span>'
+        + '<span>' + e.msg + '</span>'
+        + '<span style="font-size:11px;opacity:.5;margin-left:4px;">' + e.time + '</span>'
+        + '</span>';
+    }).join('');
+    inner.classList.remove('running');
+    void inner.offsetWidth;
+    if (tickerEvents.length > 1) inner.classList.add('running');
+  }
+
+  // ── Feed panel ──
+  function addFeedEntry(type, icon, msg) {
+    var feed = document.getElementById('live-feed-list');
+    if (!feed) return;
+    var now   = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    var colors  = { ok:'#0f6e56', warn:'#e65100', alert:'#c62828', info:'#0d47a1' };
+    var bgs     = { ok:'#f0fdf4', warn:'#fffbeb', alert:'#fef2f2', info:'#eff6ff' };
+    var borders = { ok:'#bbf7d0', warn:'#fde68a', alert:'#fecaca', info:'#bfdbfe' };
+    var clr = colors[type]||colors.info, bg = bgs[type]||bgs.info, bd = borders[type]||borders.info;
+    var row = document.createElement('div');
+    row.className = 'lf-entry';
+    row.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:default;';
+    row.innerHTML =
+      '<span style="width:24px;height:24px;border-radius:50%;background:' + bg + ';border:1px solid ' + bd
+      + ';display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px;">' + icon + '</span>'
+      + '<div><div style="font-size:12.5px;font-weight:600;color:' + clr + ';line-height:1.35;">' + msg + '</div>'
+      + '<div style="font-size:11px;color:var(--text3);margin-top:2px;">' + now + '</div></div>';
+    feed.insertBefore(row, feed.firstChild);
+    while (feed.children.length > 40) feed.removeChild(feed.lastChild);
+    if (!feedOpen) {
+      feedUnread++;
+      var badge = document.getElementById('live-feed-unread');
+      if (badge) { badge.style.display = 'inline'; badge.textContent = feedUnread; }
+    }
+  }
+
+  // ── In-place cassette DOM update ──
+  // Updates bar height + bill count directly on the visible card, no full re-render needed.
+  function updateCardCassettes(a, changedIndices) {
+    var card = document.querySelector('.card[data-id="' + a.id + '"]');
+    if (!card) return;
+    var items = card.querySelectorAll('.cass-item');
+    a.cassettes.forEach(function(c, ci) {
+      var item = items[ci];
+      if (!item) return;
+      if (changedIndices && changedIndices.indexOf(ci) === -1) return;
+
+      var lvl  = cassLevel(c);
+      var pct  = Math.max(Math.round(c.bills / c.cap * 100), 3);
+
+      // Update container level class
+      item.className = 'cass-item ' + lvl;
+
+      // Bar fill
+      var fill = item.querySelector('.cass-bar-fill');
+      if (fill) { fill.style.height = pct + '%'; fill.className = 'cass-bar-fill bar-' + lvl; }
+
+      // Bill count with up/down animation
+      var billEl = item.querySelector('.cass-bills');
+      if (billEl) {
+        var prev = parseInt(billEl.textContent) || 0;
+        billEl.className = 'cass-bills bills-' + lvl;
+        billEl.textContent = c.bills;
+        if (c.bills > prev) {
+          billEl.classList.add('bill-up');
+          setTimeout(function() { billEl.classList.remove('bill-up'); }, 600);
+        } else if (c.bills < prev) {
+          billEl.classList.add('bill-down');
+          setTimeout(function() { billEl.classList.remove('bill-down'); }, 600);
+        }
+      }
+
+      // Days of cover
+      var daysEl = item.querySelector('.cass-days');
+      if (daysEl && typeof daysOfCover === 'function') {
+        var days = daysOfCover(c);
+        var dLvl = typeof daysLevel === 'function' ? daysLevel(days) : 'good';
+        daysEl.textContent = typeof daysFmt === 'function' ? daysFmt(days) : Math.round(days) + 'd';
+        daysEl.className   = 'cass-days days-' + dLvl;
+      }
+    });
+  }
+
+  // ── Card flash ──
+  function flashCard(id) {
+    var el = document.querySelector('.card[data-id="' + id + '"]');
+    if (!el) return;
+    el.classList.remove('live-flash');
+    void el.offsetWidth;
+    el.classList.add('live-flash');
+    setTimeout(function() { el.classList.remove('live-flash'); }, 1000);
+  }
+
+  // ── Stat bump ──
+  function bumpStat(id, val) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var prev = parseInt(el.textContent) || 0;
+    el.textContent = val;
+    if (prev !== val) {
+      el.classList.remove('stat-bump'); void el.offsetWidth;
+      el.classList.add('stat-bump');
+      setTimeout(function() { el.classList.remove('stat-bump'); }, 500);
+    }
+  }
+
+  function updateStats() {
+    if (typeof ALL_ACCOUNTS === 'undefined') return;
+    var cnt = { critical:0, warning:0, operational:0, offline:0 };
+    ALL_ACCOUNTS.forEach(function(a) { if (cnt[a.status] !== undefined) cnt[a.status]++; });
+    // Total is FIXED — never changes during simulation
+    var totalEl = document.getElementById('st-total');
+    if (totalEl && TOTAL_ACCOUNTS > 0) totalEl.textContent = TOTAL_ACCOUNTS;
+    bumpStat('st-critical',    cnt.critical);
+    bumpStat('st-warning',     cnt.warning);
+    bumpStat('st-operational', cnt.operational);
+    bumpStat('st-offline',     cnt.offline);
+    var alertEl = document.getElementById('live-alerts-count');
+    if (alertEl) alertEl.textContent = cnt.critical + cnt.warning;
+  }
+
+  function updateSyncLabel() {
+    var el = document.getElementById('live-last-sync');
+    if (!el) return;
+    var s = Math.round((Date.now() - lastSyncTime) / 1000);
+    el.textContent = s < 4 ? 'Just now' : s < 60 ? s + 's ago' : Math.floor(s/60) + 'm ago';
+  }
+
+  // ── Drain/refill cassettes ──
+  // Returns array of changed cassette indices
+  function mutateCassettes(a, forceRefill) {
+    var changed = [];
+    a.cassettes.forEach(function(c, ci) {
+      if (forceRefill) {
+        // Refill: restore to 70-100% of cap
+        var target = Math.round(c.cap * (0.70 + Math.random() * 0.30));
+        if (target !== c.bills) { c.bills = target; changed.push(ci); }
+      } else {
+        // Drain: remove 2-18 bills with some probability
+        if (Math.random() < DRAIN_CHANCE && c.bills > 5) {
+          c.bills = Math.max(0, c.bills - rnd(2, 18));
+          changed.push(ci);
+        }
+        // Occasional small bump up (partial micro-refill, e.g. cashier adds a few bills)
+        else if (Math.random() < 0.10 && c.bills < c.cap - 10) {
+          c.bills = Math.min(c.cap, c.bills + rnd(5, 25));
+          changed.push(ci);
+        }
+      }
+    });
+    return changed;
+  }
+
+  function recomputeStatus(a) {
+    if (a.scheduled || a.status === 'offline') return false;
+    var minPct = Math.min.apply(null, a.cassettes.map(function(c) { return c.bills / c.cap; }));
+    var ns = minPct < 0.12 ? 'critical' : minPct < 0.30 ? 'warning' : 'operational';
+    if (ns !== a.status) { a.status = ns; return true; }
+    return false;
+  }
+
+  // ── CASSETTE MICRO-TICK (fast, in-place, no full re-render) ──
+  function cassMicroTick() {
+    if (typeof ALL_ACCOUNTS === 'undefined') return;
+    var active = ALL_ACCOUNTS.filter(function(a) {
+      return a.status !== 'offline' && !a.scheduled && a.loadStatus !== 'completed';
+    });
+    var pool = active.slice(), targets = [];
+    while (targets.length < Math.min(CASS_BURST, pool.length)) {
+      targets.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    }
+    targets.forEach(function(a) {
+      var changed = mutateCassettes(a, false);
+      if (!changed.length) return;
+      updateCardCassettes(a, changed);
+      recomputeStatus(a); // silently updates status, full re-render on next main tick if needed
+    });
+  }
+
+  // ── MAIN TICK (events, feed, stats, status escalations) ──
+  function simTick() {
+    if (typeof ALL_ACCOUNTS === 'undefined') return;
+    lastSyncTime = Date.now();
+    var needFullRender = false;
+
+    var active = ALL_ACCOUNTS.filter(function(a) {
+      return a.status !== 'offline' && !a.scheduled && a.loadStatus !== 'completed';
+    });
+    var pool = active.slice(), targets = [];
+    while (targets.length < Math.min(BURST_SIZE, pool.length)) {
+      targets.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    }
+
+    targets.forEach(function(a) {
+      var isRefill  = Math.random() < REFILL_CHANCE;
+      var changed   = mutateCassettes(a, isRefill);
+      if (!changed.length) return;
+      updateCardCassettes(a, changed);
+      var statusChanged = recomputeStatus(a);
+      if (statusChanged) needFullRender = true;
+
+      // Build event message
+      var lowCass = a.cassettes.reduce(function(lo, c, i) {
+        return (c.bills/c.cap < lo.pct) ? { pct:c.bills/c.cap, idx:i } : lo;
+      }, { pct:1, idx:0 });
+      var tpl;
+      if (isRefill) {
+        var pctAfter = Math.round(a.cassettes[changed[0]].bills / a.cassettes[changed[0]].cap * 100);
+        tpl = { t:'ok', icon:'↑', m:'Refilled — ' + a.name + ' · C#' + (changed[0]+1) + ' → ' + pctAfter + '%' };
+      } else if (a.status === 'critical') {
+        tpl = { t:'alert', icon:'🔴', m:'CRITICAL — ' + a.name + ' needs immediate service' };
+      } else if (a.status === 'warning') {
+        tpl = { t:'warn',  icon:'⚠',  m:'Low cash · ' + a.name + ' · C#' + (lowCass.idx+1) + ' at ' + Math.round(lowCass.pct*100) + '%' };
+      } else {
+        tpl = { t: pick(['ok','info']), icon: pick(['✓','↻','📊','💵']),
+          m: buildMsg(pick(TMPL.filter(function(t){ return t.t!=='alert'&&t.t!=='warn'; })), a) };
+      }
+
+      pushTicker(tpl.t, tpl.icon, tpl.m);
+      addFeedEntry(tpl.t, tpl.icon, tpl.m);
+      flashCard(a.id);
+      updatesToday++;
+    });
+
+    // Recover offline unit
+    if (Math.random() < RECOVER_CHANCE) {
+      var offs = ALL_ACCOUNTS.filter(function(a) { return a.status === 'offline'; });
+      if (offs.length) {
+        var re = pick(offs);
+        re.status = 'operational'; re.lastSyncMinutesAgo = 0;
+        pushTicker('ok', '✓', 'Back online — ' + re.name);
+        addFeedEntry('ok', '✓', 'Back online — ' + re.name);
+        needFullRender = true;
+      }
+    }
+
+    // Escalate warning → critical
+    if (Math.random() < ESCALATE_CHANCE) {
+      var warns = ALL_ACCOUNTS.filter(function(a) { return a.status==='warning'&&!a.scheduled; });
+      if (warns.length) {
+        var esc = pick(warns); esc.status = 'critical';
+        pushTicker('alert', '🚨', 'Escalated CRITICAL — ' + esc.name);
+        addFeedEntry('alert', '🚨', 'Escalated to CRITICAL — ' + esc.name);
+        needFullRender = true;
+      }
+    }
+
+    // Update counters
+    var todayEl = document.getElementById('live-updates-today');
+    if (todayEl) todayEl.textContent = updatesToday;
+    updateStats();
+
+    if (needFullRender && typeof renderAll === 'function') renderAll();
+  }
+
+  // ── Manual refresh ──
+  window.liveManualRefresh = function() {
+    if (refreshSpinning) return;
+    refreshSpinning = true;
+    var icon = document.getElementById('live-refresh-icon');
+    var btn  = document.getElementById('live-refresh-btn');
+    if (icon) icon.style.animation = 'syncSpin .7s linear infinite';
+    if (btn)  btn.style.opacity = '.6';
+    // Run a big burst
+    var saved = BURST_SIZE; BURST_SIZE = 18;
+    simTick(); cassMicroTick(); cassMicroTick();
+    BURST_SIZE = saved;
+    setTimeout(function() {
+      refreshSpinning = false;
+      if (icon) icon.style.animation = '';
+      if (btn)  btn.style.opacity = '';
+    }, 700);
+  };
+
+  // ── Sync age display ──
+  setInterval(updateSyncLabel, 1000);
+
+  // ── Feed panel toggle ──
+  window.toggleLiveFeed = function() {
+    feedOpen = !feedOpen;
+    var panel   = document.getElementById('live-feed-panel');
+    var overlay = document.getElementById('live-feed-overlay');
+    var badge   = document.getElementById('live-feed-unread');
+    if (panel)   panel.classList.toggle('open', feedOpen);
+    if (overlay) overlay.style.display = feedOpen ? 'block' : 'none';
+    if (feedOpen) { feedUnread = 0; if (badge) badge.style.display = 'none'; }
+  };
+
+  // ── Seed initial ticker ──
+  var seeds = [
+    { t:'ok',   icon:'✓',  m:'System online — NRT network monitoring active' },
+    { t:'info', icon:'↻',  m:'Route BH-1 sync complete — 42 accounts' },
+    { t:'warn', icon:'⚠',  m:'NRT-84210 · C#2 at 18% · Low cash alert' },
+    { t:'ok',   icon:'✓',  m:'Load LD-2046 confirmed — Tipsy Crow' },
+    { t:'alert',icon:'🔴', m:'3 machines below 10% — immediate action' },
+    { t:'ok',   icon:'↑',  m:'Morning replenishment run completed' },
+    { t:'info', icon:'📊', m:'Daily opening sync — 375 units checked in' },
+  ];
+  seeds.forEach(function(e) { pushTicker(e.t, e.icon, e.m); addFeedEntry(e.t, e.icon, e.m); });
+
+  // ── Kick off ──
+  setTimeout(function() {
+    // Capture fixed total once
+    if (typeof ALL_ACCOUNTS !== 'undefined') TOTAL_ACCOUNTS = ALL_ACCOUNTS.length;
+    simTick();
+    setInterval(simTick,    SIM_INTERVAL);
+    setInterval(cassMicroTick, CASS_INTERVAL); // fast cassette ticks independent of main tick
+  }, 1800);
+
+})();
+
+</script></html>
