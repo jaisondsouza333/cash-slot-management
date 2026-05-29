@@ -4856,7 +4856,7 @@ input, select, textarea {
   <div class="stats-strip">
     <div class="stat-card s-total">
       <div class="stat-label">Total Accounts</div>
-      <div class="stat-val" id="st-total">375</div>
+      <div class="stat-val" id="st-total">380</div>
       <div class="stat-sub">Monitored units</div>
     </div>
     <div class="stat-card s-critical">
@@ -4889,7 +4889,7 @@ input, select, textarea {
   <!-- FILTER BAR -->
   <div class="filter-bar">
     <div class="tabs">
-      <button class="tab active"        onclick="setFilter('all',this)">All <span class="tab-count" id="tc-all">375</span></button>
+      <button class="tab active"        onclick="setFilter('all',this)">All <span class="tab-count" id="tc-all">380</span></button>
       <button class="tab t-critical"    onclick="setFilter('critical',this)">Critical <span class="tab-count" id="tc-critical">25</span></button>
       <button class="tab t-warning"     onclick="setFilter('warning',this)">Warning <span class="tab-count" id="tc-warning">35</span></button>
       <button class="tab t-operational" onclick="setFilter('operational',this)">Operational <span class="tab-count" id="tc-operational">300</span></button>
@@ -5092,6 +5092,13 @@ input, select, textarea {
       <span class="tbl-icon-btn" style="background:var(--bg);" title="List view"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
       <span class="tbl-icon-btn" title="Grid view"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/></svg></span>
       <span class="tbl-icon-btn" title="Card view"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+    </div>
+    <div id="acc-scope-banner" style="display:none;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px;margin-bottom:10px;background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:var(--r-lg);">
+      <span id="acc-scope-text" style="font-size:13.5px;font-weight:700;color:var(--blue-text);"></span>
+      <button onclick="accClearScope()" style="display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--blue-border);color:var(--blue-text);font-size:12.5px;font-weight:700;padding:4px 11px;border-radius:100px;cursor:pointer;font-family:var(--font);">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Clear
+      </button>
     </div>
     <div class="lp-table-wrap">
       <table class="lp-table" id="acc-table">
@@ -10858,6 +10865,12 @@ function asDownloadCSV() {
     </button>
   </div>
   <div id="rt-accts-list"></div>
+  <div id="rt-accts-foot" style="display:none;position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 12px;">
+    <button id="rt-accts-viewall" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--blue-soft);color:var(--blue-text);border:1px solid var(--blue-border);border-radius:var(--r-lg);font-size:13px;font-weight:700;padding:8px 10px;cursor:pointer;font-family:var(--font);">
+      View all accounts
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M5 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
 </div>
 
 <script>
@@ -11166,6 +11179,21 @@ function rtShowAcctsDd(e, btn) {
       +'<span style="font-size:11px;font-weight:700;text-transform:uppercase;color:'+sc+';">'+a.status+'</span>'
       +'</div>';
   }).join('') : '<div style="padding:14px;color:var(--text3);font-size:13.5px;">No accounts linked.</div>';
+  // Footer: "View all accounts" → accounts list scoped to this route
+  var foot = document.getElementById('rt-accts-foot');
+  var vab  = document.getElementById('rt-accts-viewall');
+  if (foot && vab) {
+    if (linked.length) {
+      foot.style.display = 'block';
+      vab.textContent = '';
+      vab.innerHTML = 'View all ' + linked.length + ' account' + (linked.length!==1?'s':'') +
+        ' <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M5 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      vab.onclick = function(){ rtCloseAcctsDd(); accViewLinkedAccounts('route', r.name); };
+    } else {
+      foot.style.display = 'none';
+      vab.onclick = null;
+    }
+  }
   var dd = document.getElementById('rt-accts-dd');
   dd.style.display = 'block';
   var rect = btn.getBoundingClientRect();
@@ -11361,6 +11389,12 @@ function rtDownloadCSV() {
     </button>
   </div>
   <div id="mk-accts-list"></div>
+  <div id="mk-accts-foot" style="display:none;position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 12px;">
+    <button id="mk-accts-viewall" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--blue-soft);color:var(--blue-text);border:1px solid var(--blue-border);border-radius:var(--r-lg);font-size:13px;font-weight:700;padding:8px 10px;cursor:pointer;font-family:var(--font);">
+      View all accounts
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M5 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
 </div>
 
 <script>
@@ -11647,6 +11681,20 @@ function mkShowAcctsDd(e, btn) {
           +'</div>';
       }).join('')
     : '<div style="padding:14px;color:var(--text3);font-size:13.5px;">No accounts in this market.</div>';
+  // Footer: "View all accounts" → accounts list scoped to this market
+  var mkFoot = document.getElementById('mk-accts-foot');
+  var mkVab  = document.getElementById('mk-accts-viewall');
+  if (mkFoot && mkVab) {
+    if (linked.length) {
+      mkFoot.style.display = 'block';
+      mkVab.innerHTML = 'View all ' + linked.length + ' account' + (linked.length!==1?'s':'') +
+        ' <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M5 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      mkVab.onclick = function(){ mkCloseAcctsDd(); accViewLinkedAccounts('market', m.name); };
+    } else {
+      mkFoot.style.display = 'none';
+      mkVab.onclick = null;
+    }
+  }
   var dd = document.getElementById('mk-accts-dd');
   dd.style.display = 'block';
   var rect = btn.getBoundingClientRect();
@@ -13335,7 +13383,7 @@ let ALL_ACCOUNTS=[];
 for(let i=0;i<25;i++) ALL_ACCOUNTS.push(genAccount(i,'critical'));
 for(let i=25;i<60;i++) ALL_ACCOUNTS.push(genAccount(i,'warning'));
 for(let i=60;i<360;i++) ALL_ACCOUNTS.push(genAccount(i,'operational'));
-for(let i=360;i<375;i++) ALL_ACCOUNTS.push(genAccount(i,'offline')); // 15 offline NRTs
+for(let i=360;i<376;i++) ALL_ACCOUNTS.push(genAccount(i,'offline')); // 16 offline NRTs (380 total with 4 completed-load seeds below)
 ALL_ACCOUNTS.sort((a,b)=>a.nrtNum-b.nrtNum);
 
 // ── Seed 4 completed loads so the operator can test "View Load" ──
@@ -14526,7 +14574,10 @@ function renderAll(){
   const statusCounts={critical:0,warning:0,operational:0,offline:0};
   filtered.forEach(a=>{if(statusCounts[a.status]!==undefined)statusCounts[a.status]++;});
   const total=filtered.length;
-  document.getElementById('st-total').textContent=total;
+  // "Total Accounts" is the fixed grand total of monitored units — it must NOT
+  // change during the simulation or when filtering. Only the status/tab counts
+  // below reflect the current (changing) breakdown.
+  document.getElementById('st-total').textContent = (typeof ALL_ACCOUNTS!=='undefined' ? ALL_ACCOUNTS.length : total);
   document.getElementById('st-critical').textContent=statusCounts.critical;
   document.getElementById('st-warning').textContent=statusCounts.warning;
   document.getElementById('st-operational').textContent=statusCounts.operational;
@@ -14536,9 +14587,13 @@ function renderAll(){
     (a.name.toLowerCase().includes(q)||a.id.toLowerCase().includes(q)||a.nrt.toLowerCase().includes(q))
     &&passesChipFilter(a)&&a.scheduled===true
   ).length;
+  // The "All" tab shows every account (regular sections + the Load Created
+  // section), so its count is all accounts matching the current search/chips —
+  // which, with no search/filter, equals the Total Accounts grand total.
+  const allCount=baseFiltered.length;
   ['all','critical','warning','operational','offline'].forEach(k=>{
     const el=document.getElementById('tc-'+k);
-    if(el)el.textContent=k==='all'?total:statusCounts[k];
+    if(el)el.textContent=k==='all'?allCount:statusCounts[k];
   });
   const lcEl=document.getElementById('tc-load-created');
   if(lcEl)lcEl.textContent=loadCreatedCount;
@@ -14768,7 +14823,13 @@ function navigateTo(page, navEl) {
     const pv = document.getElementById('page-' + page);
     if (pv) { pv.classList.add('active'); pv.scrollTop = 0; }
     // Populate accounts table from ALL_ACCOUNTS on first visit
-    if (page === 'accounts') setTimeout(function(){ accRenderTable(); prevLoadsRender(); }, 0);
+    if (page === 'accounts') setTimeout(function(){
+      var hasFilter = Object.values(accFilterState).some(function(v){ return !!v; });
+      if (hasFilter && typeof accRenderTableFiltered === 'function') accRenderTableFiltered();
+      else accRenderTable();
+      if (typeof accRenderScopeBanner === 'function') accRenderScopeBanner();
+      prevLoadsRender();
+    }, 0);
     if (page === 'routes'  && typeof window._rtInit === 'function') setTimeout(window._rtInit, 0);
     if (page === 'markets' && typeof window._mkInit === 'function') setTimeout(window._mkInit, 0);
     if (page === 'assets'      && typeof window._asInit === 'function') setTimeout(window._asInit, 0);
@@ -14910,7 +14971,7 @@ window.filterPrevLoads = function(status, btn) {
 
 // ── ACCOUNTS FILTER PANEL — apply with actual filtering ──
 var accFilterState = {
-  status: '', market: '', actype: '', freq: '', corpName: '', accId: '', viewAccounts: ''
+  status: '', market: '', actype: '', freq: '', corpName: '', accId: '', viewAccounts: '', route: ''
 };
 
 function accApplyFilter() {
@@ -14929,6 +14990,9 @@ function accApplyFilter() {
   accFilterState.corpName    = corpEl     ? corpEl.value.trim().toLowerCase() : '';
   accFilterState.accId       = accIdEl    ? accIdEl.value.trim().toLowerCase() : '';
   accFilterState.viewAccounts= vaEl       ? vaEl.value       : '';
+  // The panel has no route control, so applying it clears any route scope set
+  // via "View all accounts" (otherwise it would keep filtering invisibly).
+  accFilterState.route       = '';
 
   var activeCount = [
     accFilterState.status, accFilterState.market, accFilterState.actype,
@@ -14944,6 +15008,7 @@ function accApplyFilter() {
   accTablePage = 1;
   accRenderTableFiltered();
   closeAccFilter();
+  if (typeof accRenderScopeBanner === 'function') accRenderScopeBanner();
 }
 
 function accResetFilter() {
@@ -14956,16 +15021,79 @@ function accResetFilter() {
     var el = document.getElementById(id); if (el) el.value = '';
   });
 
-  accFilterState = { status:'', market:'', actype:'', freq:'', corpName:'', accId:'', viewAccounts:'' };
+  accFilterState = { status:'', market:'', actype:'', freq:'', corpName:'', accId:'', viewAccounts:'', route:'' };
 
   var badge = document.getElementById('acc-filter-badge');
   var btn   = document.getElementById('acc-filter-btn');
   if (badge) badge.style.display = 'none';
   if (btn)   btn.classList.remove('fp-active');
+  if (typeof accRenderScopeBanner === 'function') accRenderScopeBanner();
 
   accTablePage = 1;
   accRenderTable();
   closeAccFilter();
+}
+
+// ── "View all accounts" scope (from Routes / Markets linked-accounts dropdowns) ──
+// kind: 'route' filters by a.route===value; 'market' filters by a.region===value.
+function accViewLinkedAccounts(kind, value) {
+  // Start from a clean slate so the count matches the dropdown exactly.
+  accFilterState = { status:'', market:'', actype:'', freq:'', corpName:'', accId:'', viewAccounts:'', route:'' };
+  accTableQuery = '';
+  var searchEl = document.getElementById('acc-search-input');
+  if (searchEl) searchEl.value = '';
+
+  if (kind === 'route')  accFilterState.route  = value;
+  if (kind === 'market') {
+    accFilterState.market = value;
+    var mkSel = document.getElementById('flt-market');
+    if (mkSel) { var has=false; Array.prototype.forEach.call(mkSel.options,function(o){if(o.value===value||o.text===value)has=true;}); if(has) mkSel.value = value; }
+  }
+
+  // Reflect as an active filter on the button/badge.
+  var activeCount = Object.values(accFilterState).filter(Boolean).length;
+  var badge = document.getElementById('acc-filter-badge');
+  var fbtn  = document.getElementById('acc-filter-btn');
+  if (badge) { badge.style.display = activeCount ? '' : 'none'; badge.textContent = activeCount; }
+  if (fbtn)  fbtn.classList.toggle('fp-active', activeCount > 0);
+
+  accTablePage = 1;
+  navigateTo('accounts', document.querySelector('[data-page="accounts"]'));
+  // navigateTo renders on a 0ms timeout; run ours just after so it wins.
+  setTimeout(function(){
+    accRenderTableFiltered();
+    accRenderScopeBanner();
+  }, 10);
+}
+
+function accClearScope() {
+  accFilterState.route = '';
+  accFilterState.market = '';
+  var mkSel = document.getElementById('flt-market'); if (mkSel) mkSel.selectedIndex = 0;
+  var activeCount = Object.values(accFilterState).filter(Boolean).length;
+  var badge = document.getElementById('acc-filter-badge');
+  var fbtn  = document.getElementById('acc-filter-btn');
+  if (badge) { badge.style.display = activeCount ? '' : 'none'; badge.textContent = activeCount; }
+  if (fbtn)  fbtn.classList.toggle('fp-active', activeCount > 0);
+  accTablePage = 1;
+  if (activeCount) accRenderTableFiltered(); else accRenderTable();
+  accRenderScopeBanner();
+}
+
+// Shows the blue banner above the table when a route/market scope is active.
+function accRenderScopeBanner() {
+  var banner = document.getElementById('acc-scope-banner');
+  var txt    = document.getElementById('acc-scope-text');
+  if (!banner || !txt) return;
+  var scope = accFilterState.route
+    ? { label: 'Route', value: accFilterState.route, match: function(a){ return a.route === accFilterState.route; } }
+    : accFilterState.market
+    ? { label: 'Market', value: accFilterState.market, match: function(a){ return a.region === accFilterState.market; } }
+    : null;
+  if (!scope || typeof ALL_ACCOUNTS === 'undefined') { banner.style.display = 'none'; return; }
+  var n = ALL_ACCOUNTS.filter(scope.match).length;
+  txt.textContent = 'Showing ' + n + ' account' + (n!==1?'s':'') + ' linked to ' + scope.label + ' ' + scope.value;
+  banner.style.display = 'flex';
 }
 
 function accRenderTableFiltered() {
@@ -14987,6 +15115,8 @@ function accRenderTableFiltered() {
     if (fs.status === 'active'  && a.status === 'offline') return false;
     // Market / region
     if (fs.market && a.region !== fs.market) return false;
+    // Route (used by "View all accounts" from Routes feature)
+    if (fs.route && a.route !== fs.route) return false;
     // Account type
     if (fs.actype) {
       var atype = ACC_TYPES[a.nrtNum % ACC_TYPES.length];
@@ -15238,7 +15368,12 @@ function accGoPage(p) {
 function accSearch(q) {
   accTableQuery = q || '';
   accTablePage  = 1;
-  accRenderTable();
+  // If a scope/filter is active, search within it (so clearing the search
+  // returns to the scoped list rather than every account).
+  var hasFilter = Object.values(accFilterState).some(function(v){ return !!v; });
+  if (hasFilter && typeof accRenderTableFiltered === 'function') accRenderTableFiltered();
+  else accRenderTable();
+  if (typeof accRenderScopeBanner === 'function') accRenderScopeBanner();
 }
 
 // ── PER PAGE ──
@@ -23462,7 +23597,7 @@ function mobNavTo(page, btn){
     { t:'ok',   icon:'✓',  m:'Load LD-2046 confirmed — Tipsy Crow' },
     { t:'alert',icon:'🔴', m:'3 machines below 10% — immediate action' },
     { t:'ok',   icon:'↑',  m:'Morning replenishment run completed' },
-    { t:'info', icon:'📊', m:'Daily opening sync — 375 units checked in' },
+    { t:'info', icon:'📊', m:'Daily opening sync — 380 units checked in' },
   ];
   seeds.forEach(function(e) { pushTicker(e.t, e.icon, e.m); addFeedEntry(e.t, e.icon, e.m); });
 
