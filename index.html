@@ -3161,6 +3161,78 @@ input, select, textarea {
     min-height: 44px !important;
     font-size: 14px !important;
   }
+
+  /* Page-wide containment: cards, panels, inline tables and tab strips must not bleed. */
+  .page-view,
+  .page-view > *,
+  .page-view .card,
+  .page-view [class*="card"],
+  .page-view [style*="border-radius"],
+  .main,
+  .main > *,
+  .main .card,
+  .main [class*="card"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .page-view table:not(.lp-table):not(.doc-table):not(.verify-table):not(#s5-table),
+  .main table:not(.lp-table):not(.doc-table):not(.verify-table):not(#s5-table) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .page-view table:not(.lp-table):not(.doc-table):not(.verify-table):not(#s5-table) th,
+  .page-view table:not(.lp-table):not(.doc-table):not(.verify-table):not(#s5-table) td,
+  .main table:not(.lp-table):not(.doc-table):not(.verify-table):not(#s5-table) th,
+  .main table:not(.lp-table):not(.doc-table):not(.verify-table):not(#s5-table) td {
+    white-space: nowrap !important;
+  }
+
+  .tabs,
+  #cl-tabs,
+  #doc-filter-tabs,
+  #prev-loads-tabs,
+  .doc-filter-tabs,
+  .filter-bar .tabs {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar,
+  #cl-tabs::-webkit-scrollbar,
+  #doc-filter-tabs::-webkit-scrollbar,
+  #prev-loads-tabs::-webkit-scrollbar,
+  .doc-filter-tabs::-webkit-scrollbar,
+  .filter-bar .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs .tab,
+  #cl-tabs .tab,
+  #doc-filter-tabs .tab,
+  .doc-filter-tabs .tab {
+    flex: 0 0 auto !important;
+  }
+
+  #live-ticker-wrap,
+  #live-ticker-wrap .ticker-track {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    contain: paint;
+  }
+
+  #live-ticker-inner {
+    max-width: none !important;
+  }
 }
 
 /* ── Toast: must clear bottom nav ── */
