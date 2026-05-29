@@ -3345,27 +3345,27 @@ input, select, textarea {
   /* ────────────────────────────────────
      FILTER PANELS (floating dropdowns)
      ──────────────────────────────────── */
-  .filter-panel {
+  /* Every feature's filter panel opens as the same bottom sheet as Assets.
+     IDs are listed explicitly so inline width/position (and JS-set left/top
+     on the Cash-load & Documents panels) are all overridden uniformly. */
+  .filter-panel,
+  #filter-panel,
+  #acc-filter-panel,
+  #as-filter-panel,
+  #rt-filter-panel,
+  #mk-filter-panel,
+  #um-filter-panel,
+  #rm-filter-panel,
+  #cl-filter-panel,
+  #doc-filter-panel {
     position: fixed !important;
     top: auto !important;
     bottom: calc(60px + env(safe-area-inset-bottom,8px)) !important;
     left: 8px !important;
     right: 8px !important;
     width: auto !important;
-    z-index: 9300 !important;
-    border-radius: 12px !important;
-    max-height: 60vh !important;
-    overflow-y: auto !important;
-  }
-  /* Asset & user filter panels too */
-  #as-filter-panel,
-  #um-filter-panel,
-  #rm-filter-panel {
-    position: fixed !important;
-    top: auto !important;
-    bottom: calc(60px + env(safe-area-inset-bottom,8px)) !important;
-    left: 8px !important; right: 8px !important;
-    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
     z-index: 9300 !important;
     border-radius: 12px !important;
     max-height: 65vh !important;
@@ -3386,8 +3386,45 @@ input, select, textarea {
   .comp-toolbar { justify-content: flex-start !important; gap: 6px !important; }
   .comp-btn-filters { min-height: 36px !important; }
 
-  /* Compliance table */
+  /* Compliance filter: open as a bottom sheet anchored ABOVE the nav (not a
+     full-height side drawer). A full-height drawer (top:0/bottom:0) on mobile
+     extends under the browser chrome + home indicator, so the pinned footer
+     lands off-screen and the body just rubber-bands. Anchoring the sheet bottom
+     above the nav guarantees the footer (Apply/Reset) is always visible, and
+     min-height:0 lets the body scroll between the header and footer. */
   .comp-fp-overlay { z-index: 9300 !important; }
+  .comp-fp {
+    top: auto !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: calc(60px + env(safe-area-inset-bottom, 8px)) !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    max-height: 72vh !important;
+    max-height: 72dvh !important;
+    min-height: 0 !important;
+    border-left: none !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 -6px 28px rgba(0,0,0,.18) !important;
+    overflow: hidden !important;
+  }
+  /* Slide up from below (no !important so the .copen "transform:none" still wins
+     when the sheet is open). Higher specificity beats the base slide-from-right. */
+  .comp-fp-overlay .comp-fp { transform: translateY(140%); }
+  .comp-fp-overlay.copen .comp-fp { transform: none; }
+  .comp-fp-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+  }
+  .comp-fp-foot {
+    flex-shrink: 0 !important;
+    padding-bottom: 14px !important;
+  }
   .comp-page table {
     display: block !important;
     overflow-x: auto !important;
