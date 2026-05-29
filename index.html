@@ -2863,9 +2863,19 @@ input, select, textarea {
 
   /* ── Footer actions: full width buttons ── */
   .wf-page .footer-actions {
-    flex-direction: column-reverse !important;
+    flex-direction: column !important;
     align-items: stretch !important;
     padding: 14px 0 8px !important;
+  }
+  .wf-page .wf-nav-actions,
+  .wf-page .wf-secondary-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+  .wf-page .wf-secondary-actions {
+    grid-template-columns: 1fr !important;
   }
   .wf-page .footer-actions .btn { width: 100% !important; justify-content: center !important; }
 
@@ -3624,7 +3634,10 @@ input, select, textarea {
 .wf-page .btn-primary:hover { background:#2c3a52; }
 .wf-page .btn-sm { padding:5px 12px;font-size:13.5px;border-radius:999px;border:1px solid rgba(0,0,0,.18);background:white;font-family:inherit;cursor:pointer;color:#1a1a1a; }
 /* Footer actions */
-.wf-page .footer-actions { display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:20px 0 10px; }
+.wf-page .footer-actions { display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:20px 0 10px;flex-wrap:wrap; }
+.wf-page .wf-nav-actions { display:inline-flex;align-items:center;gap:8px;flex-shrink:0; }
+.wf-page .wf-secondary-actions { display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end; }
+.wf-page .workflow-next[disabled] { opacity:.4!important;cursor:not-allowed!important;pointer-events:none; }
 /* Toggle */
 .wf-page .toggle-wrap { display:flex;align-items:center;gap:8px;font-size:13.5px;color:#5f5e5a; }
 .wf-page .toggle { width:36px;height:20px;border-radius:999px;background:#0f6e56;position:relative;cursor:pointer;transition:background .2s; }
@@ -5959,13 +5972,17 @@ input, select, textarea {
       </section>
 
       <div class="footer-actions">
-        <button class="demo-btn" onclick="demoClearStep1()" title="Clear required fields to test validation">Clear required</button>
-        <button class="demo-btn" onclick="demoPrefillStep1()" title="Prefill required fields with sample data">Prefill required</button>
-        <button class="btn" id="wf-back-1" onclick="closeLoadWorkflow()">Back</button>
-        <button class="btn btn-primary" id="wf-next-1" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
-        <button class="btn" id="wf-save-draft-1" onclick="saveLoadDraft()">Save As Draft</button>
-        <button class="btn" id="wf-print-1" onclick="openPrintSlip()">Print Slip</button>
-        <button class="btn btn-primary" id="approve-btn" onclick="approveLoad()">Approve →</button>
+        <div class="wf-nav-actions">
+          <button class="btn" id="wf-back-1" onclick="closeLoadWorkflow()">Back</button>
+          <button class="btn btn-primary workflow-next" id="wf-next-1" onclick="workflowNext()" disabled>Next →</button>
+        </div>
+        <div class="wf-secondary-actions">
+          <button class="demo-btn" onclick="demoClearStep1()" title="Clear required fields to test validation">Clear required</button>
+          <button class="demo-btn" onclick="demoPrefillStep1()" title="Prefill required fields with sample data">Prefill required</button>
+          <button class="btn" id="wf-save-draft-1" onclick="saveLoadDraft()">Save As Draft</button>
+          <button class="btn" id="wf-print-1" onclick="openPrintSlip()">Print Slip</button>
+          <button class="btn btn-primary" id="approve-btn" onclick="approveLoad()">Approve →</button>
+        </div>
       </div>
 
     </div>
@@ -6225,9 +6242,13 @@ input, select, textarea {
       </div>
 
       <div class="footer-actions">
-        <button class="btn" id="wf-back-2" onclick="goToStep(1)">Back</button>
-        <button class="btn btn-primary" id="wf-next-2" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
-        <button class="btn btn-primary" id="publish-btn" onclick="publishAndPrint()">Publish &amp; Check Out ✓</button>
+        <div class="wf-nav-actions">
+          <button class="btn" id="wf-back-2" onclick="goToStep(1)">Back</button>
+          <button class="btn btn-primary workflow-next" id="wf-next-2" onclick="workflowNext()" disabled>Next →</button>
+        </div>
+        <div class="wf-secondary-actions">
+          <button class="btn btn-primary" id="publish-btn" onclick="publishAndPrint()">Publish &amp; Check Out ✓</button>
+        </div>
       </div>
 
     </div>
@@ -6413,9 +6434,13 @@ input, select, textarea {
       </div>
 
       <div class="footer-actions">
-        <button class="btn" id="wf-back-3" onclick="goToStep(2)">Back</button>
-        <button class="btn btn-primary" id="wf-next-3" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
-        <button class="btn btn-primary" id="proceed-checkin-btn" onclick="goToStep(4)" disabled>Proceed to check-in →</button>
+        <div class="wf-nav-actions">
+          <button class="btn" id="wf-back-3" onclick="goToStep(2)">Back</button>
+          <button class="btn btn-primary workflow-next" id="wf-next-3" onclick="workflowNext()" disabled>Next →</button>
+        </div>
+        <div class="wf-secondary-actions">
+          <button class="btn btn-primary" id="proceed-checkin-btn" onclick="goToStep(4)" disabled>Proceed to check-in →</button>
+        </div>
       </div>
 
     </div>
@@ -6620,10 +6645,14 @@ input, select, textarea {
       </div>
 
       <div class="footer-actions">
-        <button class="btn" id="wf-back-4" onclick="goToStep(3)">Back</button>
-        <button class="btn btn-primary" id="wf-next-4" onclick="workflowNext()" disabled style="opacity:.4;cursor:not-allowed;">Next →</button>
-        <button class="btn btn-danger" id="flag-load-btn" onclick="flagLoadForReview()" disabled style="background: var(--bg-danger); color: var(--text-danger); border-color: var(--text-danger);">⚑ Needs Check — Flag Load</button>
-        <button class="btn btn-success" id="mark-done-btn" onclick="markAsDone()" disabled>Mark as Done ✓</button>
+        <div class="wf-nav-actions">
+          <button class="btn" id="wf-back-4" onclick="goToStep(3)">Back</button>
+          <button class="btn btn-primary workflow-next" id="wf-next-4" onclick="workflowNext()" disabled>Next →</button>
+        </div>
+        <div class="wf-secondary-actions">
+          <button class="btn btn-danger" id="flag-load-btn" onclick="flagLoadForReview()" disabled style="background: var(--bg-danger); color: var(--text-danger); border-color: var(--text-danger);">⚑ Needs Check — Flag Load</button>
+          <button class="btn btn-success" id="mark-done-btn" onclick="markAsDone()" disabled>Mark as Done ✓</button>
+        </div>
       </div>
 
     </div>
@@ -7713,11 +7742,17 @@ input, select, textarea {
       b.style.cursor = 'not-allowed';
       b.title = 'View only — load is complete';
     });
-    // Enable Next / Back for all steps
+    document.querySelectorAll('#page-load-workflow .demo-btn').forEach(function(b) {
+      if (!b.getAttribute('data-title')) b.setAttribute('data-title', b.title || '');
+      b.disabled = true;
+      b.style.opacity = '0.35';
+      b.style.cursor = 'not-allowed';
+      b.title = 'View only — load is complete';
+    });
+    // Enable Next only while reviewing a completed load.
+    if (typeof setWorkflowReviewNav === 'function') setWorkflowReviewNav(true);
     for (var i = 1; i <= 5; i++) {
-      var nb = document.getElementById('wf-next-' + i);
       var bb = document.getElementById('wf-back-' + i);
-      if (nb) { nb.disabled = false; nb.style.opacity = ''; nb.style.cursor = ''; }
       if (bb) { bb.disabled = false; bb.style.opacity = ''; bb.style.cursor = ''; }
     }
     // Allow all steps to be navigated
@@ -15167,6 +15202,7 @@ function openLoadWorkflow(fromPage, accountData) {
   if (banner) banner.classList.remove('visible');
   var saveBtn = document.getElementById('wf-view-save-btn');
   if (saveBtn) saveBtn.style.display = 'none';
+  if (typeof resetWorkflowCreateNav === 'function') resetWorkflowCreateNav();
   document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
   document.querySelectorAll('.wf-page').forEach(function(p){ p.classList.remove('active'); });
   var main = document.querySelector('.main');
@@ -15198,8 +15234,7 @@ function openLoadWorkflow(fromPage, accountData) {
     // Fresh create/edit flow — always reset to step 1
     if (typeof maxStepReached !== 'undefined') maxStepReached = 1;
     if (typeof wfLoadCompleted !== 'undefined') wfLoadCompleted = false;
-    var closeBtnWf = document.getElementById('wf-close-btn');
-    if (closeBtnWf) closeBtnWf.style.display = 'none';
+    if (typeof resetWorkflowCreateNav === 'function') resetWorkflowCreateNav();
     if (typeof goToStep === 'function') goToStep(1);
   }
 }
@@ -15246,6 +15281,34 @@ function _wfApplyAccountContext() {
 
 function closeLoadWorkflow() {
   cancelLoadWorkflow();
+}
+
+function setWorkflowReviewNav(enabled) {
+  for (var i = 1; i <= 4; i++) {
+    var nextBtn = document.getElementById('wf-next-' + i);
+    if (!nextBtn) continue;
+    nextBtn.disabled = !enabled;
+    nextBtn.classList.toggle('workflow-next', true);
+    nextBtn.style.opacity = enabled ? '' : '.4';
+    nextBtn.style.cursor = enabled ? '' : 'not-allowed';
+    nextBtn.title = enabled ? 'View next completed-load step' : 'Next is only available when reviewing a completed load';
+  }
+}
+
+function resetWorkflowCreateNav() {
+  setWorkflowReviewNav(false);
+  document.querySelectorAll('#page-load-workflow .demo-btn').forEach(function(b) {
+    b.disabled = false;
+    b.style.opacity = '';
+    b.style.cursor = '';
+    b.title = b.getAttribute('data-title') || b.title || '';
+  });
+  var banner = document.getElementById('wf-view-mode-banner');
+  if (banner) banner.classList.remove('visible');
+  var closeBtn = document.getElementById('wf-close-btn');
+  if (closeBtn) closeBtn.style.display = 'none';
+  var saveBtn = document.getElementById('wf-view-save-btn');
+  if (saveBtn) saveBtn.style.display = 'none';
 }
 
 function syncPrintSlipAccount() {
