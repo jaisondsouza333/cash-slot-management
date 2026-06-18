@@ -5418,6 +5418,37 @@ input, select, textarea {
   .ao-mini:hover{background:var(--bg);color:var(--text);}
   .ao-mini.prim{background:var(--accent);border-color:var(--accent);color:#fff;}
   .ao-mini.prim:hover{background:var(--accent-h);color:#fff;}
+  /* ── Service-ticket calling ── */
+  .ao-callbtn{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:100px;border:1px solid var(--green);background:rgba(16,185,129,.10);color:var(--green-text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .12s;white-space:nowrap;}
+  .ao-callbtn:hover{background:var(--green);color:#fff;}
+  .ao-call-box{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow-md);width:100%;max-width:360px;overflow:hidden;text-align:center;}
+  .ao-call-top{padding:32px 24px 22px;background:linear-gradient(180deg,var(--surface2),var(--surface));}
+  .ao-call-avatar{width:88px;height:88px;border-radius:50%;margin:0 auto 16px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;position:relative;}
+  .ao-call-avatar.ringing::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:3px solid var(--accent);animation:aoCallPulse 1.4s ease-out infinite;}
+  @keyframes aoCallPulse{0%{transform:scale(1);opacity:.55;}100%{transform:scale(1.4);opacity:0;}}
+  .ao-call-name{font-size:19px;font-weight:800;color:var(--text);}
+  .ao-call-role{font-size:12.5px;color:var(--text3);font-weight:600;margin-top:3px;}
+  .ao-call-num{font-size:14px;color:var(--text2);font-weight:600;font-family:var(--mono);margin-top:12px;}
+  .ao-call-status{font-size:12.5px;font-weight:700;color:var(--accent);margin-top:14px;letter-spacing:.04em;text-transform:uppercase;}
+  .ao-call-status.connected{color:var(--green-text);}
+  .ao-call-timer{font-size:26px;font-weight:300;letter-spacing:1px;font-family:var(--mono);color:var(--text);margin-top:4px;min-height:30px;}
+  .ao-call-ctrls{display:flex;justify-content:center;gap:20px;padding:16px 24px 26px;}
+  .ao-call-cwrap{display:flex;flex-direction:column;align-items:center;}
+  .ao-call-cbtn{width:54px;height:54px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+  .ao-call-cbtn:hover{background:var(--bg);}
+  .ao-call-cbtn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .ao-call-cbtn.end{background:var(--red);border-color:var(--red);color:#fff;transform:rotate(135deg);}
+  .ao-call-cbtn.end:hover{filter:brightness(.92);background:var(--red);}
+  .ao-call-clabel{font-size:11px;font-weight:600;color:var(--text3);margin-top:7px;}
+  .ao-call-trans-wrap{border-top:1px solid var(--border);background:var(--surface2);}
+  .ao-call-trans-h{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);}
+  .ao-call-rec{display:inline-flex;align-items:center;gap:5px;color:var(--red-text);}
+  .ao-call-rec-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:aoRecBlink 1s steps(1) infinite;}
+  @keyframes aoRecBlink{50%{opacity:.25;}}
+  .ao-call-trans{padding:10px 16px 14px;max-height:150px;overflow:auto;text-align:left;display:flex;flex-direction:column;gap:8px;}
+  .ao-call-tline{font-size:12.5px;line-height:1.4;color:var(--text);}
+  .ao-call-tline .spk{font-weight:800;color:var(--accent);}
+  .ao-call-tline.them .spk{color:var(--text2);}
   .ao-kv{display:flex;flex-direction:column;gap:2px;min-width:150px;}
   .ao-kv .k{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
   .ao-kv .v{font-size:14px;font-weight:600;color:var(--text);}
@@ -5710,8 +5741,6 @@ input, select, textarea {
       <div class="ao-card-sub">Suggested moves for this account, ranked by impact</div>
       <div class="ao-nba">
         <div class="ao-nba-item urgent"><div class="nt">⏰ Renewal due in ~7 months — start the conversation early</div><button class="ao-mini prim" onclick="aoStartRenewal()">Start renewal</button></div>
-        <div class="ao-nba-item urgent"><div class="nt">🔄 3 machines due for refresh — likely revenue lift</div><button class="ao-mini" onclick="aoProposeSwap()">Propose swap</button></div>
-        <div class="ao-nba-item"><div class="nt">📈 Floor space for 2 more cabinets at this location</div><button class="ao-mini" onclick="aoLogPlacement()">Log placement</button></div>
         <div class="ao-nba-item"><div class="nt">📅 Last visit Jun 12 — schedule the next check-in</div><button class="ao-mini" onclick="aoScheduleVisit()">Schedule visit</button></div>
       </div>
     </div>
@@ -5761,34 +5790,7 @@ input, select, textarea {
 
     <!-- RETENTION & RISK -->
     <div class="ao-sec-h">Retention &amp; Risk</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="ao-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-          <div class="ao-card-t" style="margin:0;">Churn risk</div>
-          <span class="ao-badge done">Low · 18 / 100</span>
-        </div>
-        <div class="ao-prog" style="margin-bottom:14px;"><i style="width:18%;background:var(--green);"></i></div>
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
-          <div style="color:var(--green-text);font-weight:600;">✓ Revenue stable, trending up</div>
-          <div style="color:var(--green-text);font-weight:600;">✓ Satisfaction high (4.8 / 5)</div>
-          <div style="color:var(--green-text);font-weight:600;">✓ Exclusive — no competitor on-site</div>
-          <div style="color:var(--amber-text);font-weight:600;">▲ Renewal window opens in 7 months</div>
-        </div>
-        <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;align-items:flex-end;justify-content:space-between;">
-          <div><div style="font-size:12px;color:var(--text3);font-weight:700;">Satisfaction · last 6 mo</div>
-            <svg width="120" height="34" viewBox="0 0 120 34" style="margin-top:5px;">
-              <rect x="2"  y="6.5" width="12" height="23.5" rx="2" fill="var(--green)"/>
-              <rect x="21" y="5.4" width="12" height="24.6" rx="2" fill="var(--green)"/>
-              <rect x="40" y="5.9" width="12" height="24.1" rx="2" fill="var(--green)"/>
-              <rect x="59" y="4.2" width="12" height="25.8" rx="2" fill="var(--green)"/>
-              <rect x="78" y="3.7" width="12" height="26.3" rx="2" fill="var(--green)"/>
-              <rect x="97" y="3.1" width="12" height="26.9" rx="2" fill="var(--green)"/>
-            </svg>
-          </div>
-          <div style="text-align:right;"><div style="font-size:12px;color:var(--text3);font-weight:700;">Days since contact</div><div style="font-size:22px;font-weight:300;letter-spacing:-1px;">5</div></div>
-        </div>
-      </div>
-      <div class="ao-card">
+    <div class="ao-card">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="ao-card-t" style="margin:0;">Renewal</div>
           <span id="ao-renewal-status" class="ao-pill">Not started</span>
@@ -5802,38 +5804,6 @@ input, select, textarea {
         </div>
         <button class="ao-mini prim" id="ao-renewal-btn" onclick="aoStartRenewal()">Start renewal</button>
       </div>
-    </div>
-
-    <!-- GROWTH & PLACEMENT -->
-    <div class="ao-sec-h">Growth &amp; Placement Opportunities</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="ao-card">
-        <div class="ao-card-t">Placement opportunity</div>
-        <div class="ao-card-sub">Capacity, refresh candidates &amp; projected lift</div>
-        <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px;">
-          <div class="ao-kv"><span class="k">Floor capacity</span><span class="v">+2 cabinets</span></div>
-          <div class="ao-kv"><span class="k">Refresh due</span><span class="v">3 machines</span></div>
-          <div class="ao-kv"><span class="k">Net win / machine</span><span class="v">$5.9K / mo</span></div>
-        </div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xl);padding:12px;">
-          <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;">What-if · add cabinets</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <button class="ao-mini" onclick="aoCabDec()" style="padding:4px 12px;font-size:16px;">−</button>
-            <span id="ao-cab-count" style="font-size:20px;font-weight:700;min-width:24px;text-align:center;">2</span>
-            <button class="ao-mini" onclick="aoCabInc()" style="padding:4px 12px;font-size:16px;">+</button>
-            <span style="font-size:13px;color:var(--text3);font-weight:600;">cabinets</span>
-          </div>
-          <div id="ao-whatif-out" style="font-size:13.5px;color:var(--text);"></div>
-        </div>
-      </div>
-      <div class="ao-card" style="padding:0;">
-        <div style="padding:12px 16px;font-size:14px;font-weight:800;">Placement pipeline</div>
-        <table class="ao-tbl">
-          <thead><tr><th>Proposal</th><th>Cabinets</th><th>Stage</th><th style="text-align:right;">Est. lift / mo</th></tr></thead>
-          <tbody id="ao-pipe-tbody"></tbody>
-        </table>
-      </div>
-    </div>
 
     <!-- RELATIONSHIP & CONTACTS -->
     <div class="ao-sec-h">Relationship &amp; Contacts</div>
@@ -5901,16 +5871,6 @@ input, select, textarea {
             <tr><td>Service response</td><td style="text-align:right;">≤ 8 hrs</td><td style="text-align:right;">6.4 hrs</td><td style="text-align:right;"><span class="ao-badge done">Met</span></td></tr>
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- COMPETITIVE & MARKET -->
-    <div class="ao-sec-h">Competitive &amp; Market Context</div>
-    <div class="ao-card">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-        <div><div style="font-size:11.5px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Competitor presence</div><div style="font-size:14px;font-weight:700;">1 operator within 2 mi</div><div style="font-size:12px;color:var(--text3);">You hold this location exclusively</div></div>
-        <div><div style="font-size:11.5px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Net win / machine</div><div style="font-size:14px;font-weight:700;color:var(--green-text);">+18% vs market avg</div><div style="font-size:12px;color:var(--text3);">$5.9K vs $5.0K</div></div>
-        <div><div style="font-size:11.5px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Market rank</div><div style="font-size:14px;font-weight:700;">Top 25% · Las Vegas East</div><div style="font-size:12px;color:var(--text3);">#3 of 23 in book</div></div>
       </div>
     </div>
 
@@ -6194,12 +6154,12 @@ input, select, textarea {
 
         <div style="margin-bottom:16px;">
           <div class="ao-kvrow"><span class="k">Raised by</span><span class="vv" id="ao-tkd-reporter">—</span></div>
-          <div class="ao-kvrow"><span class="k">Contact</span><span class="vv" id="ao-tkd-contact">—</span></div>
+          <div class="ao-kvrow"><span class="k">Contact</span><span class="vv" style="display:flex;align-items:center;gap:10px;justify-content:flex-end;"><span id="ao-tkd-contact">—</span><button class="ao-callbtn" onclick="aoTkCall('contact')" title="Call contact">📞 Call</button></span></div>
           <div class="ao-kvrow"><span class="k">Date raised</span><span class="vv" id="ao-tkd-date">—</span></div>
           <div class="ao-kvrow"><span class="k">Machine</span><span class="vv"><a href="#" id="ao-tkd-machine" onclick="aoTkGotoMachine();return false;" style="color:var(--accent);text-decoration:none;">—</a></span></div>
           <div class="ao-kvrow"><span class="k">Last meter read</span><span class="vv" id="ao-tkd-meter">—</span></div>
           <div class="ao-kvrow"><span class="k">Category</span><span class="vv" id="ao-tkd-cat">—</span></div>
-          <div class="ao-kvrow"><span class="k">Assigned to</span><span class="vv" id="ao-tkd-assigned">—</span></div>
+          <div class="ao-kvrow"><span class="k">Assigned to</span><span class="vv" style="display:flex;align-items:center;gap:10px;justify-content:flex-end;"><span id="ao-tkd-assigned">—</span><button class="ao-callbtn" id="ao-tkd-calltech" onclick="aoTkCall('tech')" title="Call technician" style="display:none;">📞 Call tech</button></span></div>
           <div class="ao-kvrow"><span class="k">ETA on-site</span><span class="vv" id="ao-tkd-eta">—</span></div>
         </div>
 
@@ -6213,7 +6173,7 @@ input, select, textarea {
         </div>
 
         <div style="font-size:11.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Description</div>
-        <div style="font-size:13.5px;color:var(--text);line-height:1.55;margin-bottom:16px;" id="ao-tkd-desc">—</div>
+        <div style="font-size:13.5px;color:var(--text);line-height:1.55;margin-bottom:16px;white-space:pre-wrap;" id="ao-tkd-desc">—</div>
 
         <!-- Attachments -->
         <div style="font-size:11.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Attachments / evidence</div>
@@ -6280,6 +6240,7 @@ input, select, textarea {
             <option>Connectivity / offline</option>
             <option>Cabinet / display</option>
             <option>Cash collection / drop</option>
+            <option>Vault / cash room</option>
             <option>Other</option>
           </select>
         </div>
@@ -6287,7 +6248,7 @@ input, select, textarea {
           <div class="ao-fld"><label>Priority <span id="ao-tkc-autop" style="color:var(--accent);text-transform:none;font-weight:600;"></span></label>
             <select id="ao-tkc-prio"><option value="P1">P1 · Critical</option><option value="P2" selected>P2 · High</option><option value="P3">P3 · Normal</option></select>
           </div>
-          <div class="ao-fld"><label>Machine</label>
+          <div class="ao-fld"><label id="ao-tkc-mlabel">Machine / asset</label>
             <select id="ao-tkc-machine"><option>Location-wide</option></select>
           </div>
         </div>
@@ -6315,6 +6276,30 @@ input, select, textarea {
       <div class="ao-mdl-ft">
         <button class="ao-mini" onclick="aoTkClose('ao-tk-create')">Cancel</button>
         <button class="ao-mini prim" onclick="aoTkCreate()">Submit ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── CALL modal (service ticketing) ───── -->
+  <div class="ao-mdl" id="ao-call">
+    <div class="ao-call-box">
+      <div class="ao-call-top">
+        <div class="ao-call-avatar ringing" id="ao-call-avatar">—</div>
+        <div class="ao-call-name" id="ao-call-name">—</div>
+        <div class="ao-call-role" id="ao-call-role">—</div>
+        <div class="ao-call-num" id="ao-call-num">—</div>
+        <div class="ao-call-status" id="ao-call-status">Calling…</div>
+        <div class="ao-call-timer" id="ao-call-timer"></div>
+        <div style="font-size:11.5px;color:var(--text3);font-weight:600;margin-top:8px;line-height:1.4;" id="ao-call-ctx">—</div>
+      </div>
+      <div class="ao-call-trans-wrap" id="ao-call-trans-wrap" style="display:none;">
+        <div class="ao-call-trans-h"><span class="ao-call-rec"><span class="ao-call-rec-dot"></span>REC</span><span style="flex:1;">Live transcript</span><span id="ao-call-rec-time" style="font-family:var(--mono);font-weight:700;">00:00</span></div>
+        <div class="ao-call-trans" id="ao-call-trans"></div>
+      </div>
+      <div class="ao-call-ctrls">
+        <div class="ao-call-cwrap"><button class="ao-call-cbtn" id="ao-call-mute" onclick="aoCallMute()" title="Mute">🎤</button><div class="ao-call-clabel">Mute</div></div>
+        <div class="ao-call-cwrap"><button class="ao-call-cbtn end" onclick="aoCallEnd()" title="End call">📞</button><div class="ao-call-clabel">End</div></div>
+        <div class="ao-call-cwrap"><button class="ao-call-cbtn" id="ao-call-spk" onclick="aoCallSpk()" title="Speaker">🔊</button><div class="ao-call-clabel">Speaker</div></div>
       </div>
     </div>
   </div>
@@ -6879,7 +6864,7 @@ input, select, textarea {
 
   /* ── Service Tickets · dispatch engine ───────────────────── */
   var AO_TECHS=['J. Carter','D. Nguyen','M. Reyes','S. Patel'];
-  var AO_TK_CATS=['Hardware issue','Software issue','Hand pay / Jackpot','Bill validator / cash','TITO printer','Connectivity / offline','Cabinet / display','Cash collection / drop','Other'];
+  var AO_TK_CATS=['Hardware issue','Software issue','Hand pay / Jackpot','Bill validator / cash','TITO printer','Connectivity / offline','Cabinet / display','Cash collection / drop','Vault / cash room','Phone call follow-up','Other'];
   var aoSlaHrs={P1:2,P2:8,P3:24};
   function aoPM(s){ return Date.parse(s); }
   var AO_TK=[
@@ -7054,6 +7039,7 @@ input, select, textarea {
     S('ao-tkd-contact',t.contact); S('ao-tkd-date',new Date(t.createdMs).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}));
     S('ao-tkd-machine',t.machine); S('ao-tkd-meter',t.meter||'—'); S('ao-tkd-cat',t.cat);
     S('ao-tkd-assigned',t.assigned); S('ao-tkd-eta',t.eta||'—');
+    var ctb=$('ao-tkd-calltech'); if(ctb) ctb.style.display=(t.assigned&&t.assigned!=='Unassigned')?'inline-flex':'none';
     var b=$('ao-tkd-badges'); if(b) b.innerHTML=aoPrioBadge(t.prio)+' '+aoStatBadge(t.status)+' '+aoSlaSpanHtml(t,'ao-tkd-sla');
     S('ao-tkd-desc',t.desc);
     /* SLA strip */
@@ -7100,6 +7086,130 @@ input, select, textarea {
     var internal=($('ao-tkd-internal')||{}).checked;
     aoTkCur.timeline.push({t:aoNowStamp(), by:'Scott Jones', txt:v, internal:internal});
     inp.value=''; if($('ao-tkd-internal')) $('ao-tkd-internal').checked=false; aoTkTimeline(); aoToast('Update added to '+aoTkCur.id,'📝');
+  };
+
+  /* ── Service-ticket calling ──────────────────────────────── */
+  var AO_TECH_PHONE={'J. Carter':'(702) 555-0231','D. Nguyen':'(702) 555-0244','M. Reyes':'(702) 555-0148','S. Patel':'(702) 555-0263'};
+  var aoCallState={timer:null,connectTo:null,tsTimer:null,sec:0,muted:false,spk:false,who:'',name:'',num:'',role:'',transcript:[],scriptLines:[],lineIdx:0};
+  function aoCallInitials(n){ var p=(n||'').trim().split(/\s+/); return (((p[0]||'')[0]||'')+((p[p.length-1]||'')[0]||'')).toUpperCase(); }
+  function aoCallSet(id,v){ var e=$(id); if(e) e.textContent=v; }
+  function aoCallReset(){
+    if(aoCallState.timer){ clearInterval(aoCallState.timer); aoCallState.timer=null; }
+    if(aoCallState.connectTo){ clearTimeout(aoCallState.connectTo); aoCallState.connectTo=null; }
+    if(aoCallState.tsTimer){ clearInterval(aoCallState.tsTimer); aoCallState.tsTimer=null; }
+    aoCallState.sec=0; aoCallState.muted=false; aoCallState.spk=false; aoCallState.lineIdx=0;
+  }
+  function aoCallCloseUi(){ aoCallReset(); var m=$('ao-call'); if(m) m.classList.remove('open'); }
+  window.aoTkCall=function(who){
+    if(!aoTkCur) return;
+    var name, num, role;
+    if(who==='tech'){
+      if(!aoTkCur.assigned || aoTkCur.assigned==='Unassigned'){ aoToast('No technician assigned yet','⚠️'); return; }
+      name=aoTkCur.assigned; num=AO_TECH_PHONE[name]||'(702) 555-0100'; role='Field technician';
+    } else {
+      var rep=aoTkCur.reporter||'Location contact';
+      name=rep.replace(/\s*\([^)]*\)\s*/,'').trim()||'Location contact';
+      role=((rep.match(/\(([^)]+)\)/)||[])[1])||'Location contact';
+      num=aoTkCur.contact||'—';
+    }
+    aoCallReset();
+    aoCallState.who=who; aoCallState.name=name; aoCallState.num=num; aoCallState.role=role;
+    aoCallState.transcript=[]; aoCallState.scriptLines=aoCallScript(who,name,aoTkCur); aoCallState.lineIdx=0;
+    var tw=$('ao-call-trans-wrap'); if(tw) tw.style.display='none';
+    var tt=$('ao-call-trans'); if(tt) tt.innerHTML='';
+    var av=$('ao-call-avatar'); if(av){ av.textContent=aoCallInitials(name); av.className='ao-call-avatar ringing'; }
+    aoCallSet('ao-call-name',name); aoCallSet('ao-call-role',role); aoCallSet('ao-call-num',num);
+    aoCallSet('ao-call-ctx','Re: '+aoTkCur.id+' · '+aoTkCur.cat+' · '+aoTkCur.machine);
+    var st=$('ao-call-status'); if(st){ st.textContent='Calling…'; st.className='ao-call-status'; }
+    aoCallSet('ao-call-timer','');
+    var mb=$('ao-call-mute'); if(mb){ mb.classList.remove('on'); mb.textContent='🎤'; }
+    var sb=$('ao-call-spk'); if(sb) sb.classList.remove('on');
+    var m=$('ao-call'); if(m) m.classList.add('open');
+    aoCallState.connectTo=setTimeout(aoCallConnect,2200);
+  };
+  function aoCallConnect(){
+    aoCallState.connectTo=null;
+    var st=$('ao-call-status'); if(st){ st.textContent='Connected'; st.className='ao-call-status connected'; }
+    var av=$('ao-call-avatar'); if(av) av.className='ao-call-avatar';
+    aoCallState.sec=0; aoCallSet('ao-call-timer','00:00'); aoCallSet('ao-call-rec-time','00:00');
+    var tw=$('ao-call-trans-wrap'); if(tw) tw.style.display='block';
+    var tt=$('ao-call-trans'); if(tt) tt.innerHTML='';
+    aoCallState.transcript=[]; aoCallState.lineIdx=0;
+    aoCallState.timer=setInterval(function(){
+      aoCallState.sec++;
+      var mm=Math.floor(aoCallState.sec/60), ss=aoCallState.sec%60, t=(mm<10?'0':'')+mm+':'+(ss<10?'0':'')+ss;
+      aoCallSet('ao-call-timer',t); aoCallSet('ao-call-rec-time',t);
+    },1000);
+    aoCallEmitLine();
+    aoCallState.tsTimer=setInterval(aoCallEmitLine,2800);
+  }
+  function aoCallScript(who,name,t){
+    t=t||{}; var first=((name||'').split(/\s+/)[0])||name||'there', m=t.machine||'the unit', cat=t.cat||'the issue';
+    var D={
+      'Bill validator / cash':['The bill validator on '+m+' is rejecting twenties and jamming. Is it fully out of service right now?','Yeah, we pulled it offline so players don\u2019t lose cash in it.','Good call. I\u2019ll get a tech out to swap the validator and clear the stacker.'],
+      'TITO printer':['The TITO printer on '+m+' is printing faint tickets \u2014 print head looks worn.','Right, players keep bringing them up to reprint.','We\u2019ll bring a replacement print head and recalibrate it on-site.'],
+      'Hand pay / Jackpot':['We\u2019ve got a hand-pay lock on '+m+' \u2014 need to confirm meters before payout.','The machine\u2019s locked and the guest is waiting at the unit.','I\u2019ll have the attendant verify meters and complete the W-2G now.'],
+      'Connectivity / offline':['A couple of terminals dropped offline from the central system. Are they back up?','They came back, but I wanted it on record in case it repeats.','I\u2019ll have the network checked and watch the polling logs for a few hours.'],
+      'Cabinet / display':['The top-box light strip on '+m+' is flickering \u2014 cosmetic but noticeable.','Yeah, it\u2019s distracting on the floor.','We\u2019ll replace the LED strip and driver on the next visit.'],
+      'Vault / cash room':['I\u2019m calling about the vault \u2014 there\u2019s a discrepancy flagged on the last drop reconciliation.','Right, the count came up short against the meter.','I\u2019ll open a count-room review and pull the surveillance reference for that window.']
+    };
+    var d=D[cat]||['We\u2019ve got a '+String(cat).toLowerCase()+' issue on '+m+' I wanted to walk through with you.','Okay, go ahead.','I\u2019ll get someone assigned and follow up with next steps.'];
+    return [
+      {you:true,  txt:'Hi '+first+', this is Scott Jones from Lucky Charm Gaming, calling about ticket '+(t.id||'')+'.'},
+      {you:false, txt:'Hey Scott \u2014 yes, I saw that come through. What do you need?'},
+      {you:true,  txt:d[0]},
+      {you:false, txt:d[1]},
+      {you:true,  txt:'Got it. '+d[2]},
+      {you:false, txt:'Sounds good \u2014 appreciate the quick turnaround.'},
+      {you:true,  txt:'Of course. I\u2019ll log this call to the ticket and keep you posted. Thanks '+first+'.'},
+      {you:false, txt:'No problem. Talk soon.'}
+    ];
+  }
+  function aoCallEmitLine(){
+    var lines=aoCallState.scriptLines||[];
+    if(aoCallState.lineIdx>=lines.length){ if(aoCallState.tsTimer){ clearInterval(aoCallState.tsTimer); aoCallState.tsTimer=null; } return; }
+    var l=lines[aoCallState.lineIdx++], spk=l.you?'You':(aoCallState.name||'Contact');
+    aoCallState.transcript.push({spk:spk, txt:l.txt});
+    var tr=$('ao-call-trans');
+    if(tr){
+      var d=document.createElement('div');
+      d.className='ao-call-tline'+(l.you?'':' them');
+      d.innerHTML='<span class="spk">'+spk+':</span> '+String(l.txt).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      tr.appendChild(d); tr.scrollTop=tr.scrollHeight;
+    }
+  }
+  window.aoCallMute=function(){ aoCallState.muted=!aoCallState.muted; var b=$('ao-call-mute'); if(b){ b.classList.toggle('on',aoCallState.muted); b.textContent=aoCallState.muted?'🔇':'🎤'; } };
+  window.aoCallSpk=function(){ aoCallState.spk=!aoCallState.spk; var b=$('ao-call-spk'); if(b) b.classList.toggle('on',aoCallState.spk); };
+  window.aoCallEnd=function(){
+    var connected=!!aoCallState.timer, sec=aoCallState.sec, who=aoCallState.who, nm=aoCallState.name, num=aoCallState.num, role=aoCallState.role||'';
+    var lines=(aoCallState.transcript||[]).slice();
+    var origin=aoTkCur;
+    aoCallCloseUi();
+    if(!origin) return;
+    var label=(who==='tech'?'technician ':'')+nm;
+    if(connected){
+      var mm=Math.floor(sec/60), ss=sec%60, dur=(mm?mm+'m ':'')+ss+'s';
+      var newId='SVC-'+(AO_TK_SEQ++), now=Date.now();
+      var rec='call-recording-'+newId+'.webm', txf='transcript-'+newId+'.txt';
+      var body=lines.length?lines.map(function(l){ return l.spk+': '+l.txt; }).join('\n'):'(No speech captured.)';
+      var desc='Auto-raised from a phone call placed on ticket '+origin.id+'.\n'
+        +'Participants: Scott Jones (Lucky Charm Gaming) \u2194 '+nm+(role?(' \u00B7 '+role):'')+' \u00B7 '+num+'\n'
+        +'Call duration: '+dur+' \u00B7 Recording attached.\n\nTranscript:\n'+body;
+      var nt={id:newId, prio:(origin.prio||'P3'), cat:'Phone call follow-up', status:'Open', assigned:'Unassigned',
+        machine:origin.machine, reporter:nm+' (phone)', contact:num, meter:'\u2014', eta:'', igb:false,
+        attachments:[rec,txf], parts:[], resCode:'', rootCause:'', handpay:null,
+        createdMs:now, firstRespMs:now, resolvedMs:null, desc:desc, transcript:lines,
+        timeline:[{t:aoNowStamp(), by:'System', txt:'\u260E Auto-raised from call on '+origin.id+' \u00B7 '+dur+' \u00B7 recording + transcript attached.'}]};
+      AO_TK.unshift(nt);
+      origin.timeline.push({t:aoNowStamp(), by:'Scott Jones', txt:'\u260E Call with '+label+' ('+num+') \u00B7 '+dur+' \u2014 captured as '+newId+'.'});
+      if(origin.firstRespMs==null) origin.firstRespMs=Date.now();
+      aoTkRender(); aoTkOpen(newId);
+      aoToast('Call captured \u2192 '+newId+' raised with transcript & recording','\u260E');
+    } else {
+      origin.timeline.push({t:aoNowStamp(), by:'Scott Jones', txt:'\u260E Call to '+label+' ('+num+') \u2014 ended before connect.'});
+      if(origin.firstRespMs==null) origin.firstRespMs=Date.now();
+      aoTkTimeline(); aoToast('Call ended','\u260E');
+    }
   };
   window.aoTkDispatch=function(){
     if(!aoTkCur) return; var t=aoTkCur;
@@ -7151,12 +7261,28 @@ input, select, textarea {
   };
   window.aoTkClose=function(id){ var m=$(id); if(m) m.classList.remove('open'); };
 
+  var AO_VAULTS=['Main Cash Room — Vault A','Secure Vault — Building 2','Drop Vault — Floor','Count Room Vault','ATM Vault — Lobby'];
+  function aoTkFillMachineSel(mode){
+    var mc=$('ao-tkc-machine'); if(!mc) return;
+    var cur=mc.value;
+    while(mc.options.length) mc.remove(0);
+    if(mode==='vault'){
+      var o0=document.createElement('option'); o0.text='Cash room — all'; mc.add(o0);
+      AO_VAULTS.forEach(function(v){ var o=document.createElement('option'); o.text=v; mc.add(o); });
+    } else {
+      var l=document.createElement('option'); l.text='Location-wide'; mc.add(l);
+      if(typeof AO_MACHINES!=='undefined'){ AO_MACHINES.forEach(function(m){ var o=document.createElement('option'); o.text=m.id+' · '+m.game; mc.add(o); }); }
+    }
+    for(var i=0;i<mc.options.length;i++){ if(mc.options[i].text===cur){ mc.selectedIndex=i; break; } }
+  }
   window.aoTkCatChange=function(){
     var cat=($('ao-tkc-cat')||{}).value, hp=$('ao-tkc-hp'), note=$('ao-tkc-autop'), prio=$('ao-tkc-prio');
-    var isHP=(cat==='Hand pay / Jackpot'), isOff=(cat==='Connectivity / offline');
+    var isHP=(cat==='Hand pay / Jackpot'), isOff=(cat==='Connectivity / offline'), isVault=(cat==='Vault / cash room');
     if(hp) hp.style.display=isHP?'block':'none';
     if(isHP||isOff){ if(prio) prio.value='P1'; if(note) note.textContent='· auto-set to P1'; }
     else if(note) note.textContent='';
+    var ml=$('ao-tkc-mlabel'); if(ml) ml.textContent=isVault?'Vault / cash room':'Machine / asset';
+    aoTkFillMachineSel(isVault?'vault':'machine');
   };
   window.aoTkNew=function(){
     aoTkRender();
