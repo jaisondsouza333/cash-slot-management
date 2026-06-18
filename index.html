@@ -6321,6 +6321,16 @@ input, select, textarea {
 
   <!-- ───── TAB 5 · REPORTING ───── -->
   <div class="ao-panel" id="ao-p-reporting">
+    <div class="ao-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div>
+          <div class="ao-card-t">Location Owner Portal access</div>
+          <div class="ao-card-sub" style="margin-bottom:0;">Invite the location owner to log in to their own portal — view revenue, reports, visit history, documents, and raise service tickets.</div>
+        </div>
+        <button class="ao-mini prim" onclick="aoInviteNew()" style="white-space:nowrap;">✉ Invite owner</button>
+      </div>
+      <div id="ao-invite-list" style="margin-top:14px;"></div>
+    </div>
     <!-- Video Gaming Transaction Report (AEGIS-VLCS) -->
     <div class="ao-card" style="padding:0;overflow:hidden;">
       <!-- L&W data source / sync bar -->
@@ -6419,8 +6429,28 @@ input, select, textarea {
     </div>
   </div>
 
-  <div style="display:flex;justify-content:space-between;padding:8px 0 4px;font-size:12.5px;color:var(--text3);">
-    <span>Powered by Droisys Inc. <strong style="color:var(--text2);">V.S(0.0.1)</strong></span>
+  <!-- Invite owner modal -->
+  <div class="ao-mdl" id="ao-invite-mdl">
+    <div class="ao-mdl-box" style="max-width:520px;">
+      <div class="ao-mdl-h">
+        <div><div style="font-size:12px;font-weight:700;color:var(--text3);">Owner Portal</div><div style="font-size:16px;font-weight:800;" id="ao-inv-title">Invite owner to log in</div></div>
+        <button class="ao-x" onclick="aoInviteClose()">×</button>
+      </div>
+      <div class="ao-mdl-bd">
+        <div id="ao-invite-form">
+          <div class="ao-fld"><label>Owner name</label><input id="ao-inv-name" type="text" value="Patricia Vance"></div>
+          <div class="ao-fld"><label>Owner email</label><input id="ao-inv-email" type="email" placeholder="owner@email.com" onkeydown="if(event.key==='Enter')aoInviteSend()"></div>
+          <div style="font-size:12.5px;color:var(--text3);line-height:1.55;">An email will be sent to the owner with a username, a temporary password, and a secure link to their Owner Portal dashboard.</div>
+          <div id="ao-inv-err" style="font-size:12.5px;color:var(--red-text);font-weight:600;margin-top:8px;"></div>
+        </div>
+        <div id="ao-invite-done" style="display:none;"></div>
+      </div>
+      <div class="ao-mdl-ft" id="ao-invite-ft">
+        <button class="ao-mini" onclick="aoInviteClose()">Cancel</button>
+        <button class="ao-mini prim" onclick="aoInviteSend()">✉ Send invite</button>
+      </div>
+    </div>
+  </div>
     
   </div>
 </div>
@@ -6459,7 +6489,7 @@ input, select, textarea {
     if(name==='revenue'){ window.aoSetPeriod(aoPeriod); }
     if(name==='sales'){ aoRenderEarnings(); aoRenderWhatIf(); aoRenderNotes(); aoRenderPipe(); aoRenderActs(); }
     if(name==='tickets'){ aoTkRender(); }
-    if(name==='reporting'){ if(!aoVgtSynced) aoVgtSynced='Today, 6:15 AM'; aoVgtRender(); }
+    if(name==='reporting'){ if(!aoVgtSynced) aoVgtSynced='Today, 6:15 AM'; aoVgtRender(); aoRenderInvites(); }
     if(name==='documents'){ aoDocRender(); }
     var pv=$('page-acct-overview'); if(pv) pv.scrollTop=0;
   };
@@ -7214,6 +7244,93 @@ input, select, textarea {
     else { aoSchedules.push({report:rname, cadence:aoCadence, recipients:aoRecips.slice(), next:nextMap[aoCadence]}); }
     aoRenderSchedules();
     aoToast(rname+' → '+aoCadence.toLowerCase()+' email to operator','✉');
+  };
+
+  /* ── Invite owner to Owner Portal ── */
+  var AO_OWNER_PORTAL_URL='https://owner.luckycharmgaming.com';
+  var aoInvites=[];
+  function aoGenUser(name,email){
+    var u=(email||'').split('@')[0].replace(/[^a-z0-9.]/gi,'').toLowerCase();
+    if(!u){ var p=(name||'owner').trim().toLowerCase().split(/\s+/); u=(p[0]||'owner')+(p[1]?'.'+p[1]:''); }
+    return u.slice(0,24);
+  }
+  function aoGenPass(){
+    var cs='ABCDEFGHJKLMNPQRSTUVWXYZ',ls='abcdefghijkmnpqrstuvwxyz',ds='23456789',sp='!@#$%',all=cs+ls+ds;
+    function pick(s){ return s.charAt(Math.floor(Math.random()*s.length)); }
+    var out=pick(cs)+pick(ls)+pick(ds)+pick(sp);
+    for(var i=0;i<6;i++) out+=pick(all);
+    return out.split('').sort(function(){return Math.random()-0.5;}).join('');
+  }
+  function aoValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+  function aoRenderInvites(){
+    var el=$('ao-invite-list'); if(!el) return;
+    if(!aoInvites.length){ el.innerHTML='<div style="font-size:12.5px;color:var(--text3);">No owner invited yet. Click <strong>Invite owner</strong> to send portal access.</div>'; return; }
+    el.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Invited</div>'
+      + aoInvites.map(function(iv,i){
+        return '<div style="display:flex;align-items:center;gap:10px;justify-content:space-between;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;flex-wrap:wrap;">'
+          +'<div style="display:flex;align-items:center;gap:10px;min-width:0;">'
+          +'<div style="width:30px;height:30px;border-radius:50%;background:var(--green-soft);color:var(--green-text);display:flex;align-items:center;justify-content:center;font-size:14px;">✓</div>'
+          +'<div style="min-width:0;"><div style="font-size:13.5px;font-weight:700;">'+iv.name+'</div>'
+          +'<div style="font-size:12px;color:var(--text3);">'+iv.email+' · invited '+iv.sent+'</div></div></div>'
+          +'<div style="display:flex;gap:6px;"><span class="ao-badge done">✉ Invite sent</span>'
+          +'<button class="ao-mini" onclick="aoInviteResend('+i+')">Resend</button></div></div>';
+      }).join('');
+  }
+  window.aoInviteNew=function(){
+    $('ao-inv-err').textContent='';
+    $('ao-invite-form').style.display='block';
+    $('ao-invite-done').style.display='none';
+    $('ao-invite-ft').style.display='flex';
+    $('ao-inv-title').textContent='Invite owner to log in';
+    if($('ao-inv-email')) $('ao-inv-email').value='';
+    $('ao-invite-mdl').classList.add('open');
+  };
+  window.aoInviteClose=function(){ $('ao-invite-mdl').classList.remove('open'); };
+  window.aoInviteSend=function(){
+    var name=($('ao-inv-name').value||'').trim()||'Owner';
+    var email=($('ao-inv-email').value||'').trim();
+    if(!aoValidEmail(email)){ $('ao-inv-err').textContent='Please enter a valid email address.'; return; }
+    var user=aoGenUser(name,email), pass=aoGenPass(), link=AO_OWNER_PORTAL_URL;
+    var sent=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    var ex=aoInvites.filter(function(x){ return x.email.toLowerCase()===email.toLowerCase(); })[0];
+    if(ex){ ex.name=name; ex.user=user; ex.pass=pass; ex.sent=sent; } else { aoInvites.unshift({name:name,email:email,user:user,pass:pass,sent:sent}); }
+    aoRenderInvites();
+    // Confirmation view (simulated email preview)
+    $('ao-invite-form').style.display='none';
+    $('ao-invite-ft').style.display='none';
+    $('ao-inv-title').textContent='Invite sent';
+    $('ao-invite-done').style.display='block';
+    $('ao-invite-done').innerHTML=
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:var(--green-soft);color:var(--green-text);display:flex;align-items:center;justify-content:center;font-size:18px;">✓</div>'
+      +'<div><div style="font-size:14.5px;font-weight:800;">Invite email sent</div><div style="font-size:12.5px;color:var(--text3);">Delivered to '+email+'</div></div></div>'
+      +'<div style="border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">'
+      +'<div style="background:var(--surface2);padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text3);"><strong style="color:var(--text2);">To:</strong> '+email+' &nbsp; <strong style="color:var(--text2);">Subject:</strong> Your Lucky Charm Owner Portal access</div>'
+      +'<div style="padding:14px 16px;font-size:13px;line-height:1.6;color:var(--text);">'
+      +'<p style="margin:0 0 10px;">Hi '+name+',</p>'
+      +'<p style="margin:0 0 12px;">You\u2019ve been invited to access the <strong>Lucky Charm Owner Portal</strong> for Tipsy Crow. Sign in to view your revenue, reports, visit history, documents, and to raise service tickets.</p>'
+      +'<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;">'
+      +'<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:13px;"><span style="color:var(--text3);font-weight:600;">Username</span><span style="font-weight:800;font-family:var(--mono,monospace);">'+user+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:13px;"><span style="color:var(--text3);font-weight:600;">Temporary password</span><span style="font-weight:800;font-family:var(--mono,monospace);">'+pass+'</span></div>'
+      +'</div>'
+      +'<a href="'+link+'" target="_blank" style="display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:var(--r);">Log in to your dashboard →</a>'
+      +'<div style="font-size:11.5px;color:var(--text3);margin-top:10px;word-break:break-all;">'+link+'</div>'
+      +'<p style="margin:12px 0 0;font-size:11.5px;color:var(--text3);">For security, you\u2019ll be asked to change your password on first sign-in.</p>'
+      +'</div></div>'
+      +'<div style="display:flex;gap:8px;margin-top:14px;">'
+      +'<button class="ao-mini" onclick="aoInviteCopy(\''+user+'\',\''+pass+'\',\''+link+'\')">Copy credentials</button>'
+      +'<button class="ao-mini prim" onclick="aoInviteClose()">Done</button></div>';
+    aoToast('Invite emailed to '+email,'✉');
+  };
+  window.aoInviteResend=function(i){
+    var iv=aoInvites[i]; if(!iv) return;
+    iv.pass=aoGenPass(); iv.sent=new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    aoRenderInvites(); aoToast('Invite re-sent to '+iv.email+' with a new password','✉');
+  };
+  window.aoInviteCopy=function(user,pass,link){
+    var txt='Owner Portal login\nUsername: '+user+'\nTemporary password: '+pass+'\nLink: '+link;
+    try{ navigator.clipboard.writeText(txt); }catch(e){}
+    aoToast('Credentials copied to clipboard','🔗');
   };
 
   /* ── Video Gaming Transaction Report (AEGIS-VLCS style) ──── */
