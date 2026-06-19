@@ -5776,6 +5776,24 @@ input, select, textarea {
       </div>
     </div>
 
+    <!-- LICENSE & PERMIT RENEWALS -->
+    <div class="ao-card" style="padding:0;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;">
+        <div>
+          <div class="ao-card-t">License &amp; Permit Renewals</div>
+          <div class="ao-card-sub" style="margin-bottom:0;">All licenses and permits this location must keep current — with renewal status and actions.</div>
+        </div>
+        <div id="ao-lic-summary" style="font-size:12.5px;font-weight:700;"></div>
+      </div>
+      <table class="ao-tbl">
+        <thead><tr>
+          <th>License / Permit</th><th>Issuing authority</th><th>Number</th>
+          <th>Expires</th><th style="text-align:right;">Days left</th><th>Status</th><th style="text-align:right;">Action</th>
+        </tr></thead>
+        <tbody id="ao-lic-tbody"></tbody>
+      </table>
+    </div>
+
     <!-- ACCOUNT VALUE -->
     <div class="ao-sec-h">Account Value Over Time</div>
     <div class="ao-card">
@@ -6474,7 +6492,7 @@ input, select, textarea {
       if(panel) panel.classList.toggle('active', t===name);
     });
     if(name==='revenue'){ window.aoSetPeriod(aoPeriod); }
-    if(name==='sales'){ aoRenderEarnings(); aoRenderWhatIf(); aoRenderNotes(); aoRenderPipe(); aoRenderActs(); }
+    if(name==='sales'){ aoRenderEarnings(); aoRenderWhatIf(); aoRenderNotes(); aoRenderPipe(); aoRenderActs(); aoRenderLicenses(); }
     if(name==='tickets'){ aoTkRender(); }
     if(name==='reporting'){ if(!aoVgtSynced) aoVgtSynced='Today, 6:15 AM'; aoVgtRender(); aoRenderInvites(); }
     if(name==='documents'){ aoDocRender(); }
@@ -6575,6 +6593,63 @@ input, select, textarea {
     aoActs.unshift({name:'Renewal kickoff (started)', when:aoNextWeekLabel()}); aoRenderActs();
     aoToast('Renewal workflow started · assigned to Maria Reyes','🔁');
   };
+
+  /* ── License & permit renewals ───────────────────────────── */
+  function aoLicDate(y,m,d){ return new Date(y,m-1,d); }
+  var aoLicenses=[
+    {name:'Video Gaming Establishment License', auth:'IL Gaming Board (IGB)',   num:'VGE-128765472', expiry:aoLicDate(2026,7,9),  note:'Annual · required to operate VGTs'},
+    {name:'Liquor License — State',             auth:'State Liquor Control',     num:'LL-ST-44021',    expiry:aoLicDate(2026,6,30), note:'Class A on-premise'},
+    {name:'Liquor License — Local',             auth:'City of Las Vegas',        num:'LL-LOC-7788',    expiry:aoLicDate(2026,8,15), note:'Municipal endorsement'},
+    {name:'Business / Operating License',       auth:'City of Las Vegas',        num:'BL-2024-30912',  expiry:aoLicDate(2026,12,31),note:'General business license'},
+    {name:'Sales & Use Tax Permit',             auth:'Dept. of Revenue',         num:'STX-9920145',    expiry:aoLicDate(2027,1,31), note:'Reseller / use tax'},
+    {name:'Certificate of Insurance (Liability)',auth:'Carrier — Travelers',     num:'COI-TR-55218',   expiry:aoLicDate(2026,6,5),  note:'General + liquor liability'}
+  ];
+  function aoLicDaysLeft(d){ var now=new Date(); now.setHours(0,0,0,0); return Math.round((d - now)/86400000); }
+  function aoLicState(days){
+    if(days<0)  return {key:'Expired',  cls:'p1',   tone:'var(--red-text)'};
+    if(days<=30)return {key:'Expiring', cls:'open', tone:'var(--amber-text)'};
+    if(days<=60)return {key:'Due soon', cls:'prog', tone:'var(--blue-text)'};
+    return {key:'Active', cls:'done', tone:'var(--green-text)'};
+  }
+  function aoLicFmt(d){ return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+  function aoRenderLicenses(){
+    var tb=$('ao-lic-tbody'); if(!tb) return;
+    var attention=0;
+    tb.innerHTML=aoLicenses.map(function(L,i){
+      var days=aoLicDaysLeft(L.expiry), st=aoLicState(days);
+      if(days<=60) attention++;
+      var daysTxt = days<0 ? Math.abs(days)+'d overdue' : days+'d';
+      var act = (st.key==='Active')
+        ? '<button class="ao-mini" onclick="aoLicRemind('+i+')">Set reminder</button>'
+        : '<button class="ao-mini prim" onclick="aoLicRenew('+i+')">Renew</button> <button class="ao-mini" onclick="aoLicRemind('+i+')">Remind</button>';
+      return '<tr>'
+        +'<td><div style="font-weight:700;">'+L.name+'</div><div style="font-size:11.5px;color:var(--text3);">'+L.note+'</div></td>'
+        +'<td style="color:var(--text2);">'+L.auth+'</td>'
+        +'<td style="font-family:var(--mono);font-size:12px;">'+L.num+'</td>'
+        +'<td>'+aoLicFmt(L.expiry)+'</td>'
+        +'<td style="text-align:right;font-weight:700;color:'+st.tone+';">'+daysTxt+'</td>'
+        +'<td><span class="ao-badge '+st.cls+'">'+st.key+'</span></td>'
+        +'<td style="text-align:right;white-space:nowrap;">'+act+'</td>'
+        +'</tr>';
+    }).join('');
+    var sm=$('ao-lic-summary');
+    if(sm){
+      if(attention>0){ sm.innerHTML='<span class="ao-badge open">⚠ '+attention+' need attention ≤ 60 days</span>'; }
+      else { sm.innerHTML='<span class="ao-badge done">✓ All current</span>'; }
+    }
+  }
+  window.aoLicRenew=function(i){
+    var L=aoLicenses[i]; if(!L) return;
+    var nd=new Date(); nd.setFullYear(nd.getFullYear()+1);
+    L.expiry=nd; aoRenderLicenses();
+    if(typeof aoActs!=='undefined'){ aoActs.unshift({name:'Renewed: '+L.name, when:aoNextWeekLabel()}); aoRenderActs(); }
+    aoToast(L.name+' renewed through '+aoLicFmt(nd),'🔁');
+  };
+  window.aoLicRemind=function(i){
+    var L=aoLicenses[i]; if(!L) return;
+    aoToast('Reminder set for '+L.name+' · owner + rep notified','🔔');
+  };
+  window.aoRenderLicenses=function(){ aoRenderLicenses(); };
 
   /* ── Revenue time-range model ───────────────────────────── */
   var aoPeriod=0;
